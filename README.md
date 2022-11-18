@@ -109,8 +109,8 @@ uncomitted changes:
     git pull
     git status
 
-Next, create a new version and push it to github. Which kind of version to 
-create depends on the type of changes since the last deployment. 
+Next, create a new version and push it to github. Which kind of version to
+create depends on the type of changes since the last deployment.
 
     npm version major
     # or: npm version minor / npm version patch
@@ -124,9 +124,13 @@ Now, run a preview build and verify it's working as intended:
 
     npm run preview
 
-Finally, deploy to production:
+Deploy to production:
 
     npm run deploy
+
+Finally, document the API changes in the [Marker-API Documentation][marker-doc].
+
+[marker-doc]: https://docs.google.com/document/d/1L1RUW2kRSkSn02qthbimJZtjsCfdTtzXys3thCxv5O4/edit#heading=h.h498zgrs94df
 
 # Marker API Design Decisions
 
