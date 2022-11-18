@@ -364,15 +364,14 @@ export const attributeKeys: readonly AttributeKey[] = [
 ] as const;
 
 // set up the internal properties for all attributes, note that `this` is
-// bound to the marker-instance in the get/set callbacks.
+// bound to the marker-instance in the get/set callbacks. For perfromance
+// reasons, these are defined on the prototype instead of the object itself.
 for (let key of attributeKeys) {
   Object.defineProperty(Marker.prototype, key, {
     get(this: Marker) {
-      // @ts-ignore getAttribute is marked as private
       return this.getAttribute_(key);
     },
     set(this: Marker, value) {
-      // @ts-ignore setAttribute is marked as private
       this.setAttribute_(key, value);
     }
   });
