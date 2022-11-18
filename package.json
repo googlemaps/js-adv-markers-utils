@@ -1,6 +1,6 @@
 {
   "name": "marker-api-design-testing-ground",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "start": "vite",
     "build:dts": "tsc --declaration --emitDeclarationOnly --module esnext --target es2022 --lib es2022,dom --stripInternal --strict src/lib/*.ts --outDir ./examples/lib",
