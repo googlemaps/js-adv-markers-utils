@@ -70,6 +70,22 @@ export class Marker<TUserData extends object = Record<any, any>> {
   constructor(options: MarkerOptions<TUserData> = {}, data?: TUserData) {
     const {map, ...attributes} = options;
 
+    if (!google?.maps) {
+      console.error(
+        `Google Maps API couldn't be found. Please make sure ` +
+          `to wait for the Google Maps API to load before creating markers.`
+      );
+      throw new Error('Google Maps API not found.');
+    }
+
+    if (google.maps && !google.maps.marker) {
+      console.error(
+        `Google Maps API was loaded without the required marker-library. ` +
+          `To load it, add the '&libraries=marker' parameter to the API url.`
+      );
+      throw new Error('Google Maps Marker Library not found.');
+    }
+
     this.data_ = data || null;
     this.pinView_ = new google.maps.marker.PinView();
     this.markerView_ = new google.maps.marker.AdvancedMarkerView();
