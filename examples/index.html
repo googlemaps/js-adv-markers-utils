@@ -36,14 +36,18 @@
 
     <script type="module">
       import data from './examples.json';
+      import {encode} from '../src/editor/snippet-encoder';
 
       const root = document.querySelector('ul.examples');
-      for (let {title, base64} of Object.values(data)) {
+      for (const {title, source} of Object.values(data)) {
         const el = document.createElement('li');
         const a = document.createElement('a');
 
         a.textContent = title;
-        a.href = import.meta.env.BASE_URL + '#c=' + base64;
+        a.href =
+          import.meta.env.BASE_URL +
+          '#' +
+          encode({version: API_VERSION, code: source});
 
         el.appendChild(a);
         root.appendChild(el);

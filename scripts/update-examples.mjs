@@ -17,8 +17,7 @@ for (let f of examples) {
   data[basename] = {
     title,
     filename: basename,
-    source,
-    base64: btoa(source)
+    source
   };
 }
 
