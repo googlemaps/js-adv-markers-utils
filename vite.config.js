@@ -7,7 +7,9 @@ export default defineConfig(({mode}) => {
   return {
     envPrefix: ['GOOGLE_MAPS', 'VITE'],
     base: mode === 'production' ? env.PRODUCTION_BASEURL : './',
-
+    define: {
+      API_VERSION: JSON.stringify(process.env.npm_package_version)
+    },
     build: {
       rollupOptions: {
         input: {

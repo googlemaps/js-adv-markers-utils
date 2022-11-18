@@ -101,6 +101,14 @@ The following supporting scripts and tasks are available:
  - `npm run deploy`: deploys the application to google cloud storage bucket 
    `gs://storage.ubidev.net/marker-api-playground`
 
+### deployment process
+
+We're deploying from our local repository, so first of all, make sure that 
+you don't have any uncomitted changes.
+
+    git status
+
+
 # Marker API Design Decisions
 
 ## Concepts

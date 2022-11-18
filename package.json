@@ -13,7 +13,6 @@
   "dependencies": {
     "@types/google.maps": "^3.50.5",
     "monaco-editor": "^0.34.1",
-    "prettier": "^2.7.1",
     "vite": "^3.2.3"
   },
   "devDependencies": {
@@ -21,6 +20,7 @@
     "@typescript-eslint/parser": "^5.43.0",
     "eslint": "^8.27.0",
     "npm-run-all": "^4.1.5",
+    "prettier": "^2.7.1",
     "typescript": "^4.8.4",
     "zx": "^7.1.1"
   }

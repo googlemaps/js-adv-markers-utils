@@ -1,17 +1,12 @@
 import * as monaco from 'monaco-editor';
+import {decode, encode} from './snippet-encoder';
 import './monaco-config';
 
-import markerDTSSource from '../../examples/lib/marker.d.ts?raw';
-import colorDTSSource from '../../examples/lib/color.d.ts?raw';
-import iconsDTSSource from '../../examples/lib/icons.d.ts?raw';
 import googleMapsDTSSource from '../../node_modules/@types/google.maps/index.d.ts?raw';
-
 import markerExampleSource from '../../examples/00.default.ts?raw';
 
-const modules = {
-  'lib/marker.d.ts': markerDTSSource,
-  'lib/color.f.ts': colorDTSSource,
-  'lib/icons.d.ts': iconsDTSSource,
+const libModules = import.meta.glob('../../examples/lib/*.d.ts', {as: 'raw'});
+const modules: Record<string, string> = {
   'node_modules/google.maps/index.d.ts': googleMapsDTSSource
 };
 
@@ -28,7 +23,13 @@ export async function initEditor(
     typeRoots: ['node_modules/@types']
   });
 
-  // add typings for our marker-library and the google maps API
+  // add typings for our marker-library and the Google Maps API
+  await Promise.all(
+    Object.entries(libModules).map(async ([path, module]) => {
+      modules[path.replace('../../examples', '.')] = await module();
+    })
+  );
+
   for (let [path, source] of Object.entries(modules)) {
     typescriptDefaults.addExtraLib(source, `file:///${path}`);
   }
@@ -37,8 +38,24 @@ export async function initEditor(
   const fileUri = monaco.Uri.parse('file:///main.ts');
 
   let source = markerExampleSource;
-  if (location.hash && location.hash.startsWith('#c=')) {
-    source = atob(location.hash.slice(3));
+  if (location.hash) {
+    console.log('loading snippet from URL.');
+    const decoded = decode(location.hash.slice(1));
+
+    const [currentMajorVersion] = API_VERSION.split('.');
+    const [encodedMajorVersion] = decoded.version.split('.');
+
+    console.info(`loaded version ${decoded.version} (current ${API_VERSION})`);
+
+    if (import.meta.env.PROD && encodedMajorVersion !== currentMajorVersion) {
+      alert(
+        `The code-snippet you are loading was created with a different ` +
+          `API-version (loaded: ${decoded.version} / current: ${API_VERSION}).\n\n` +
+          `There might have been breaking changes.`
+      );
+    }
+
+    source = decoded.code;
   }
 
   const model = monaco.editor.createModel(source, 'typescript', fileUri);
@@ -83,8 +100,8 @@ export async function initEditor(
 
       if (!tsCode) return;
 
-      const base64 = btoa(tsCode);
-      location.hash = 'c=' + base64;
+      const encoded = encode({code: tsCode, version: API_VERSION});
+      location.hash = encoded;
     }
   });
 
