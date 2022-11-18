@@ -1,6 +1,6 @@
-import * as monaco from 'monaco-editor';
+import {editor, languages, KeyCode, KeyMod, Uri} from 'monaco-editor';
 import {decode, encode} from './snippet-encoder';
-import './monaco-config';
+import './worker-config';
 
 import googleMapsDTSSource from '../../node_modules/@types/google.maps/index.d.ts?raw';
 import markerExampleSource from '../../examples/00.default.ts?raw';
@@ -12,14 +12,17 @@ const modules: Record<string, string> = {
 
 export async function initEditor(
   runCallback: (jsCode: string) => void
-): Promise<monaco.editor.IStandaloneCodeEditor> {
-  let {typescriptDefaults} = monaco.languages.typescript;
+): Promise<editor.IStandaloneCodeEditor> {
+  const {typescript} = languages;
+  const {typescriptDefaults, ScriptTarget, ModuleKind, ModuleResolutionKind} =
+    typescript;
+
   typescriptDefaults.setEagerModelSync(true);
   typescriptDefaults.setCompilerOptions({
-    target: monaco.languages.typescript.ScriptTarget.ES2020,
+    target: ScriptTarget.ES2020,
     allowNonTsExtensions: true,
-    moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-    module: monaco.languages.typescript.ModuleKind.CommonJS,
+    moduleResolution: ModuleResolutionKind.NodeJs,
+    module: ModuleKind.CommonJS,
     typeRoots: ['node_modules/@types']
   });
 
@@ -35,7 +38,7 @@ export async function initEditor(
   }
 
   const container = document.querySelector('#editor') as HTMLElement;
-  const fileUri = monaco.Uri.parse('file:///main.ts');
+  const fileUri = Uri.parse('file:///main.ts');
 
   let source = markerExampleSource;
   if (location.hash) {
@@ -58,20 +61,20 @@ export async function initEditor(
     source = decoded.code;
   }
 
-  const model = monaco.editor.createModel(source, 'typescript', fileUri);
-  const editor = monaco.editor.create(container, {
+  const model = editor.createModel(source, 'typescript', fileUri);
+  const editorInstance = editor.create(container, {
     theme: 'vs-dark',
     minimap: {enabled: false},
     fontSize: import.meta.env.PROD ? 20 : 12
   });
-  editor.setModel(model);
+  editorInstance.setModel(model);
 
-  editor.addAction({
+  editorInstance.addAction({
     id: 'compile-and-run',
     label: 'Compile and run',
-    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+    keybindings: [KeyMod.CtrlCmd | KeyCode.Enter],
     async run(editor) {
-      const worker = await monaco.languages.typescript.getTypeScriptWorker();
+      const worker = await typescript.getTypeScriptWorker();
       const proxy = await worker(model.uri);
 
       const {outputFiles} = await proxy.getEmitOutput(model.uri.toString());
@@ -83,7 +86,7 @@ export async function initEditor(
 
   const runButton = document.querySelector('#btn-compile-and-run')!;
   runButton.addEventListener('click', () => {
-    editor
+    editorInstance
       .getAction('compile-and-run')
       .run()
       .then(() => {
@@ -91,10 +94,10 @@ export async function initEditor(
       });
   });
 
-  editor.addAction({
+  editorInstance.addAction({
     id: 'save-to-url',
     label: 'Save to URL',
-    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+    keybindings: [KeyMod.CtrlCmd | KeyCode.KeyS],
     run(editor) {
       const tsCode = editor.getModel()?.getValue();
 
@@ -105,7 +108,7 @@ export async function initEditor(
     }
   });
 
-  editor.focus();
+  editorInstance.focus();
 
-  return editor;
+  return editorInstance;
 }
