@@ -129,6 +129,9 @@ Deploy to production:
     npm run deploy
 
 Finally, document the API changes in the [Marker-API Documentation][marker-doc].
+You can see all commits since the last release using:
+
+    git log $(git describe --tags --abbrev=0)..HEAD --oneline
 
 [marker-doc]: https://docs.google.com/document/d/1L1RUW2kRSkSn02qthbimJZtjsCfdTtzXys3thCxv5O4/edit#heading=h.h498zgrs94df
 
