@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Marker API Playground Examples</title>
+    <link
+      rel="stylesheet"
+      href="https://ui-components.ubilabs.com/css/v1/ubilabs-styles.css"
+    />
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        display: flex;
+        flex-flow: row nowrap;
+        font-family: sans-serif;
+        background: #1e1e1e;
+        color: #d4d4d4;
+      }
+      main {
+        max-width: 640px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 4rem 1rem 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>List of examples</h1>
+
+      <ul class="examples"></ul>
+    </main>
+
+    <script type="module">
+      import data from './examples.json';
+
+      const root = document.querySelector('ul.examples');
+      for (let {title, base64} of Object.values(data)) {
+        const el = document.createElement('li');
+        const a = document.createElement('a');
+
+        a.textContent = title;
+        a.href = import.meta.env.BASE_URL + '#c=' + base64;
+
+        el.appendChild(a);
+        root.appendChild(el);
+      }
+    </script>
+  </body>
+</html>

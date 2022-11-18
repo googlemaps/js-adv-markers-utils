@@ -1,0 +1,24 @@
+{
+  "include": ["./types/**/*", "./src/**/*", "./static/**/*"],
+  "compilerOptions": {
+    "module": "ES2022",
+    "target": "ES2022",
+    "moduleResolution": "node",
+    "jsx": "preserve",
+    "baseUrl": "./",
+    "typeRoots": ["./types", "./node_modules/@types"],
+    "allowSyntheticDefaultImports": true,
+    "importsNotUsedAsValues": "error",
+    "isolatedModules": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "useDefineForClassFields": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": false,
+    "stripInternal": true
+  }
+}

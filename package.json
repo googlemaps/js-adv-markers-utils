@@ -1,0 +1,26 @@
+{
+  "name": "marker-api-design-testing-ground",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "vite",
+    "build:dts": "tsc --declaration --emitDeclarationOnly --module esnext --target es2022 --lib es2022,dom --stripInternal --strict src/lib/marker.ts src/lib/color.ts src/lib/icons.ts --outDir ./examples/lib",
+    "build:examples": "zx scripts/update-examples.mjs",
+    "build": "run-p build:* && vite build",
+    "deploy": "run-s build && gsutil -m rsync -drc ./dist/ gs://storage.ubidev.net/marker-api-playground/"
+  },
+  "keywords": [],
+  "dependencies": {
+    "@types/google.maps": "^3.50.5",
+    "monaco-editor": "^0.34.1",
+    "prettier": "^2.7.1",
+    "vite": "^3.2.3"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.43.0",
+    "@typescript-eslint/parser": "^5.43.0",
+    "eslint": "^8.27.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^4.8.4",
+    "zx": "^7.1.1"
+  }
+}
