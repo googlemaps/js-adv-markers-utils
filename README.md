@@ -5,22 +5,21 @@ the new marker API.
 
 ## Get Started
 
-1. Install dependencies:
+1.  Install dependencies:
 
-       npm install
+    npm install
 
-2. create the `.env` file. The API Key to use 
-   [can be found here][gcloud_console_maps_credentials].
+2.  create the `.env` file. The API Key to use
+    [can be found here][gcloud_console_maps_credentials].
 
-       GOOGLE_MAPS_API_KEY="<INSERT API KEY HERE>"
-       PRODUCTION_BASEURL="/marker-api-playground/"
+        GOOGLE_MAPS_API_KEY="<INSERT API KEY HERE>"
+        PRODUCTION_BASEURL="/marker-api-playground/"
 
+3.  start the 'playground' environment:
 
-3. start the 'playground' environment:
+    npm start
 
-       npm start
-
-4. open http://localhost:5173 in your browser
+4.  open http://localhost:5173 in your browser
 
 [gcloud_console_maps_credentials]: https://console.cloud.google.com/apis/credentials/key/cace4819-4b19-489c-bd49-d91300d72dab?project=ubilabs-dev
 
@@ -61,8 +60,8 @@ modules can only be imported using async imports from urls.
 ## Writing examples
 
 - examples have to be written as typescript files in the `./examples`-directory
-- each example should demonstrate a single aspect of the library in a 
-  concise way - try to remove 'noise', that is code for unrelated aspects, 
+- each example should demonstrate a single aspect of the library in a
+  concise way - try to remove 'noise', that is code for unrelated aspects,
   as much as possible, embrace duplication
 - the first line of the example has to contain a comment in the form:
   `// title: This describes what it does` - this comment will be the text
@@ -79,35 +78,55 @@ modules can only be imported using async imports from urls.
 
 ## scripts, npm-tasks and deployment
 
-The published version of this is hosted on google cloud storage and available 
+The published version of this is hosted on google cloud storage and available
 here: https://storage.ubidev.net/marker-api-playground
 
-Be aware that people outside ubilabs have access to the deployed version 
-and while we can actively develop and publish new versions, the deployed 
+Be aware that people outside ubilabs have access to the deployed version
+and while we can actively develop and publish new versions, the deployed
 version should always be manually checked after a deployment.
 
 The following supporting scripts and tasks are available:
 
- - `npm start`: starts the vite dev-server
- - `npm run build:dts`: compiles all typescript-files in `./src/lib` 
-   into corresponding declaration files in `./examples/lib`
- - `npm run build:examples`: runs the `script/update-examples.mjs` script to 
-   update the examples index in `./examples/examples.json`. The index is 
-   loaded in `examples.html` to render the list of examples
- - `npm run build`: runs all `build:*` tasks followed by `vite build` to 
-   generate the full application in `./dist`
- - `npm run preview`: runs the full build and starts the vite preview server 
-   to review everything as if it were in production
- - `npm run deploy`: deploys the application to google cloud storage bucket 
-   `gs://storage.ubidev.net/marker-api-playground`
+- `npm start`: starts the vite dev-server
+- `npm run build:dts`: compiles all typescript-files in `./src/lib`
+  into corresponding declaration files in `./examples/lib`
+- `npm run build:examples`: runs the `script/update-examples.mjs` script to
+  update the examples index in `./examples/examples.json`. The index is
+  loaded in `examples.html` to render the list of examples
+- `npm run build`: runs all `build:*` tasks followed by `vite build` to
+  generate the full application in `./dist`
+- `npm run preview`: runs the full build and starts the vite preview server
+  to review everything as if it were in production
+- `npm run deploy`: deploys the application to google cloud storage bucket
+  `gs://storage.ubidev.net/marker-api-playground`
 
 ### deployment process
 
-We're deploying from our local repository, so first of all, make sure that 
-you don't have any uncomitted changes.
+We're deploying from our local repository, so first of all, make sure that
+a) you are in the main branch, b) it is up to date and c) you don't have any
+uncomitted changes:
 
+    git pull
     git status
 
+Next, create a new version and push it to github. Which kind of version to 
+create depends on the type of changes since the last deployment. 
+
+    npm version major
+    # or: npm version minor / npm version patch
+
+This will update the package.json and create a new commit as well as a
+version-tag. To push the new commit and release-tag to github:
+
+    git push ; git push --tags
+
+Now, run a preview build and verify it's working as intended:
+
+    npm run preview
+
+Finally, deploy to production:
+
+    npm run deploy
 
 # Marker API Design Decisions
 
@@ -133,16 +152,14 @@ be immediately written to the marker.
 
 Every attribute can be specified either as a direct value
 (e.g. `marker.color = 'green'`) or as a function, that receives a state-object and
-can use that to compute the final values (`marker.color = ({map}) => 
-map.zoom > 12 ? 'green' : 'blue'`). For dynamic attributes the
+can use that to compute the final values (`marker.color = ({map}) => map.zoom > 12 ? 'green' : 'blue'`). For dynamic attributes the
 computed values is updated with every change to the state. The state
 contains information about the map (all camera parameters and current map
 bounds), the marker (interaction state, map visibility, ...), other attributes
 and user-specified data.
 
-
 ## API
 
 ### constructor
 
-The constructor accepts a single optional argument 
+The constructor accepts a single optional argument
