@@ -5,12 +5,24 @@ the new marker API.
 
 ## Get Started
 
-```
-npm install
-npm start
-```
+1. Install dependencies:
 
-will start our 'playground' environment that is used to test new features.
+       npm install
+
+2. create the `.env` file. The API Key to use 
+   [can be found here][gcloud_console_maps_credentials].
+
+       GOOGLE_MAPS_API_KEY="<INSERT API KEY HERE>"
+       PRODUCTION_BASEURL="/marker-api-playground/"
+
+
+3. start the 'playground' environment:
+
+       npm start
+
+4. open http://localhost:5173 in your browser
+
+[gcloud_console_maps_credentials]: https://console.cloud.google.com/apis/credentials/key/cace4819-4b19-489c-bd49-d91300d72dab?project=ubilabs-dev
 
 ## Overview
 
@@ -48,10 +60,14 @@ modules can only be imported using async imports from urls.
 
 ## Writing examples
 
+- examples have to be written as typescript files in the `./examples`-directory
+- each example should demonstrate a single aspect of the library in a 
+  concise way - try to remove 'noise', that is code for unrelated aspects, 
+  as much as possible, embrace duplication
 - the first line of the example has to contain a comment in the form:
   `// title: This describes what it does` - this comment will be the text
   shown in the example-index
-- the example must import the marker-library modules via the `*.d.ts` files
+- the example must import the marker-library via the `*.d.ts` files
   available in `./examples/lib/` (e.g. `import {Marker} from './lib/marker';`).
 - there has to be a default export, which will be called with the
   map-instance as parameter when the script is run
@@ -60,6 +76,30 @@ modules can only be imported using async imports from urls.
   function removing all those. This doesn't apply for created markers, those
   are automatically removed from the map when a new version of the script is
   executed.
+
+## scripts, npm-tasks and deployment
+
+The published version of this is hosted on google cloud storage and available 
+here: https://storage.ubidev.net/marker-api-playground
+
+Be aware that people outside ubilabs have access to the deployed version 
+and while we can actively develop and publish new versions, the deployed 
+version should always be manually checked after a deployment.
+
+The following supporting scripts and tasks are available:
+
+ - `npm start`: starts the vite dev-server
+ - `npm run build:dts`: compiles all typescript-files in `./src/lib` 
+   into corresponding declaration files in `./examples/lib`
+ - `npm run build:examples`: runs the `script/update-examples.mjs` script to 
+   update the examples index in `./examples/examples.json`. The index is 
+   loaded in `examples.html` to render the list of examples
+ - `npm run build`: runs all `build:*` tasks followed by `vite build` to 
+   generate the full application in `./dist`
+ - `npm run preview`: runs the full build and starts the vite preview server 
+   to review everything as if it were in production
+ - `npm run deploy`: deploys the application to google cloud storage bucket 
+   `gs://storage.ubidev.net/marker-api-playground`
 
 # Marker API Design Decisions
 
@@ -73,27 +113,9 @@ implementation. They are either passed to the constructor or can be set as
 properties on the marker-object. Any change to a marker-attribute will
 be immediately written to the marker.
 
-- **all markers:**
-
-  - position
-  - collisionBehaviour
-  - draggable
-  - ...
-
-- **pinview markers:**
-
-  - background
-  - borderColor
-  - glyph
-  - glyphColor
-  - scale
-  - ...
-
-- **html markers:**
-
-  - element
-  - classes
-
+- **all markers:** position, collisionBehaviour, draggable, ...
+- **pinview markers:** background, borderColor, glyph, ...
+- **html markers:** element, classes
 - **additional attributes:** where it makes sense, we will introduce more
   attributes that control a combination of aspects in the maps-api (e.g. the
   color attribute which control all other color-attributes) or additional
@@ -102,16 +124,17 @@ be immediately written to the marker.
 ### Static and Dynamic Attributes
 
 Every attribute can be specified either as a direct value
-(e.g. `marker. color = 'green';`) or as a function, that receives a state-object and
-can use that to compute the final values. For dynamic attributes the
+(e.g. `marker.color = 'green'`) or as a function, that receives a state-object and
+can use that to compute the final values (`marker.color = ({map}) => 
+map.zoom > 12 ? 'green' : 'blue'`). For dynamic attributes the
 computed values is updated with every change to the state. The state
 contains information about the map (all camera parameters and current map
 bounds), the marker (interaction state, map visibility, ...), other attributes
 and user-specified data.
 
 
-## API Surface
+## API
 
- - `new Marker()`
- - attributes
- - marker.setData(data);
+### constructor
+
+The constructor accepts a single optional argument 

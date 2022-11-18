@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "scripts": {
     "start": "vite",
-    "build:dts": "tsc --declaration --emitDeclarationOnly --module esnext --target es2022 --lib es2022,dom --stripInternal --strict src/lib/marker.ts src/lib/color.ts src/lib/icons.ts --outDir ./examples/lib",
+    "build:dts": "tsc --declaration --emitDeclarationOnly --module esnext --target es2022 --lib es2022,dom --stripInternal --strict src/lib/*.ts --outDir ./examples/lib",
     "build:examples": "zx scripts/update-examples.mjs",
     "build": "run-p build:* && vite build",
+    "preview": "run-s build && vite preview",
     "deploy": "run-s build && gsutil -m rsync -drc ./dist/ gs://storage.ubidev.net/marker-api-playground/"
   },
   "keywords": [],
