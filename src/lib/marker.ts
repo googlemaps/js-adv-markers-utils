@@ -227,7 +227,7 @@ export class Marker<TUserData extends object = Record<any, any>> {
           const res = callback({
             data: this.data_,
             map: this.mapState_!,
-            marker: this.markerState_!,
+            marker: this.markerState_,
             attr: attributes
           });
           recursionDepth--;
@@ -278,7 +278,7 @@ export class Marker<TUserData extends object = Record<any, any>> {
 
       const provider = Marker.iconProviders.get(namespace);
       if (provider) {
-        this.pinView_.glyph = provider(attrs.icon);
+        this.pinView_.glyph = provider(iconId);
       } else {
         const nsText =
           namespace === 'default' ? '' : `with namespace '${namespace}' `;
@@ -366,7 +366,7 @@ export const attributeKeys: readonly AttributeKey[] = [
 // set up the internal properties for all attributes, note that `this` is
 // bound to the marker-instance in the get/set callbacks. For perfromance
 // reasons, these are defined on the prototype instead of the object itself.
-for (let key of attributeKeys) {
+for (const key of attributeKeys) {
   Object.defineProperty(Marker.prototype, key, {
     get(this: Marker) {
       return this.getAttribute_(key);
