@@ -1,14 +1,8 @@
-interface MapsApiOptions {
+export type MapsApiOptions = {
   key: string;
   libraries?: string;
   v?: string;
-}
-
-declare global {
-  interface Window {
-    __maps_callback__?: () => void;
-  }
-}
+};
 
 let mapsApiLoaded: Promise<void> | null = null;
 
@@ -39,4 +33,10 @@ export async function loadMapsApi(apiOptions: MapsApiOptions): Promise<void> {
   });
 
   return mapsApiLoaded;
+}
+
+declare global {
+  interface Window {
+    __maps_callback__?: () => void;
+  }
 }

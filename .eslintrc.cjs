@@ -12,6 +12,11 @@ module.exports = {
   plugins: ['@typescript-eslint'],
   root: true,
 
+  rules: {
+    '@typescript-eslint/no-inferrable-types': 'off',
+    'prefer-const': ['error', {destructuring: 'all'}]
+  },
+
   overrides: [
     {
       files: ['**/*.js', '**/*.mjs', '**/*.cjs'],

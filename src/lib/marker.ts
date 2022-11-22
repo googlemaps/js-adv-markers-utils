@@ -4,9 +4,30 @@ import {
   parseCssColorValue,
   rgbaToString
 } from './color';
-import {warnOnce} from './util';
+import {assertNotNull, warnOnce} from './util';
 
 import type {IconProvider} from './icons';
+
+type TUserDataDefault = Record<string, unknown>;
+
+// These keys are used to create the dynamic properties (mostly to save us
+// from having to type them all out and to make adding attributes a bit easier).
+const attributeKeys: readonly AttributeKey[] = [
+  'position',
+  'draggable',
+  'collisionBehavior',
+  'title',
+  'zIndex',
+
+  'color',
+  'backgroundColor',
+  'borderColor',
+  'glyphColor',
+
+  'icon',
+  'glyph',
+  'scale'
+] as const;
 
 /**
  * The Marker class.
@@ -14,7 +35,7 @@ import type {IconProvider} from './icons';
  * be used for the data specified in setData and available in the dynamic
  * attribute callbacks.
  */
-export class Marker<TUserData extends object = Record<any, any>> {
+export class Marker<TUserData extends object = TUserDataDefault> {
   private static iconProviders: Map<string, IconProvider> = new Map();
   static registerIconProvider(
     provider: IconProvider,
@@ -47,8 +68,10 @@ export class Marker<TUserData extends object = Record<any, any>> {
 
   // attributes set by the user are stored in attributes_ and
   // dynamicAttributes_.
-  private attributes_: Partial<StaticAttributes> = {};
-  private dynamicAttributes_: Partial<DynamicAttributes<TUserData>> = {};
+  readonly attributes_: Partial<StaticAttributes> = {};
+  readonly dynamicAttributes_: Partial<DynamicAttributes<TUserData>> = {};
+  readonly computedAttributes_ = new ComputedMarkerAttributes(this);
+
   private mapEventListener_: google.maps.MapsEventListener | null = null;
 
   // AdvancedMarkerView and PinView instances used to render the marker
@@ -165,6 +188,9 @@ export class Marker<TUserData extends object = Record<any, any>> {
     TKey extends AttributeKey,
     TValue extends Attributes<TUserData>[TKey]
   >(name: TKey, value: TValue) {
+    // update the marker when we're done
+    this.scheduleUpdate();
+
     if (typeof value === 'function') {
       this.dynamicAttributes_[name] =
         value as DynamicAttributes<TUserData>[TKey];
@@ -172,14 +198,12 @@ export class Marker<TUserData extends object = Record<any, any>> {
       this.attributes_[name] = value as StaticAttributes[TKey];
       delete this.dynamicAttributes_[name];
     }
-
-    this.scheduleUpdate();
   }
 
   /**
    * Internal method to get the attribute value as it was specified by
    * the user (e.g. will return the dynamic attribute function instead of the
-   * effective value.
+   * effective value).
    * @param name
    * @internal
    */
@@ -193,7 +217,8 @@ export class Marker<TUserData extends object = Record<any, any>> {
   }
 
   /**
-   * Schedules an update via microtask.
+   * Schedules an update via microtask. This makes sure that we won't
+   * run multiple updates when multiple attributes are changed sequentially.
    * @internal
    */
   private scheduleUpdate() {
@@ -206,42 +231,14 @@ export class Marker<TUserData extends object = Record<any, any>> {
     });
   }
 
-  private getComputedAttributes(): Partial<StaticAttributes> {
-    const attributes: Partial<StaticAttributes> = {
-      ...this.attributes_
-    };
-
-    let recursionDepth = 0;
-    for (const [key, callback] of Object.entries(this.dynamicAttributes_)) {
-      Object.defineProperty(attributes, key, {
-        get: () => {
-          recursionDepth++;
-
-          if (recursionDepth > 10) {
-            throw new Error(
-              'maximum recurcion depth reached. ' +
-                'This is probably caused by a cyclic dependency in dynamic attributes.'
-            );
-          }
-
-          const res = callback({
-            data: this.data_,
-            map: this.mapState_!,
-            marker: this.markerState_,
-            attr: attributes
-          });
-          recursionDepth--;
-
-          return res;
-        }
-      });
-    }
-
-    return attributes;
-  }
-
   /**
-   * Performs an update of the pinView and markerView.
+   * Updates the rendered objects for this marker, typically an
+   * AdvancedMarkerView and PinView.
+   * This method is called very often, so it is critical to keep it as
+   * performant as possible:
+   *  - avoid object allocations if possible
+   *  - avoid expensive computations. These can likely be moved into
+   *    setAttribute_ or the ComputedMarkerAttributes class
    * @internal
    */
   update() {
@@ -250,7 +247,7 @@ export class Marker<TUserData extends object = Record<any, any>> {
       return;
     }
 
-    const attrs = this.getComputedAttributes();
+    const attrs = this.computedAttributes_;
 
     this.updatePinViewColors(attrs);
 
@@ -333,9 +330,21 @@ export class Marker<TUserData extends object = Record<any, any>> {
    * @param map
    */
   private onMapBoundsChange = (map: google.maps.Map) => {
+    const center = map.getCenter();
+    const bounds = map.getBounds();
+
+    if (!center || !bounds) {
+      console.error(
+        'Marker.onMapBoundsChange(): map center and/or bounds undefined.' +
+          ' Not updating map state.'
+      );
+
+      return;
+    }
+
     this.mapState_ = {
-      center: map.getCenter()!,
-      bounds: map.getBounds()!,
+      center,
+      bounds,
       zoom: map.getZoom() || 0,
       heading: map.getHeading() || 0,
       tilt: map.getTilt() || 0
@@ -343,38 +352,109 @@ export class Marker<TUserData extends object = Record<any, any>> {
 
     this.scheduleUpdate();
   };
+
+  /**
+   * Retrieve the parameters to be passed to dynamic attribute callbacks.
+   * @internal
+   */
+  getDynamicAttributeState(): {
+    data: TUserData | null;
+    map: MapState;
+    marker: MarkerState;
+  } {
+    assertNotNull(this.mapState_, 'this.mapState_ is not defined');
+
+    return {
+      data: this.data_,
+      map: this.mapState_,
+      marker: this.markerState_
+    };
+  }
+
+  static {
+    // set up all attributes for the prototypes of Marker and
+    // ComputedMarkerAttributes. For performance reasons, these are defined on
+    // the prototype instead of the object itself.
+    for (const key of attributeKeys) {
+      // internal Marker-properties for all attributes, note that `this` is
+      // bound to the marker-instance in the get/set callbacks.
+      Object.defineProperty(Marker.prototype, key, {
+        get(this: Marker) {
+          return this.getAttribute_(key);
+        },
+        set(this: Marker, value) {
+          this.setAttribute_(key, value);
+        }
+      });
+    }
+  }
 }
 
-// keys used for creating the object-properties
-export const attributeKeys: readonly AttributeKey[] = [
-  'position',
-  'draggable',
-  'collisionBehavior',
-  'title',
-  'zIndex',
+/** @internal */
+class ComputedMarkerAttributes<TUserData extends object = TUserDataDefault>
+  implements Partial<StaticAttributes>
+{
+  private marker_: Marker<TUserData>;
+  private callbackDepth_: number = 0;
 
-  'color',
-  'backgroundColor',
-  'borderColor',
-  'glyphColor',
+  // attributes are only declared here, they are dynamically added to the
+  // prototype below the class-declaration
+  declare position?: StaticAttributes['position'];
+  declare draggable?: StaticAttributes['draggable'];
+  declare collisionBehavior?: StaticAttributes['collisionBehavior'];
+  declare title?: StaticAttributes['title'];
+  declare zIndex?: StaticAttributes['zIndex'];
 
-  'icon',
-  'glyph',
-  'scale'
-] as const;
+  declare glyph?: StaticAttributes['glyph'];
+  declare scale?: StaticAttributes['scale'];
+  declare color?: StaticAttributes['color'];
+  declare backgroundColor?: StaticAttributes['backgroundColor'];
+  declare borderColor?: StaticAttributes['borderColor'];
+  declare glyphColor?: StaticAttributes['glyphColor'];
+  declare icon?: StaticAttributes['icon'];
 
-// set up the internal properties for all attributes, note that `this` is
-// bound to the marker-instance in the get/set callbacks. For perfromance
-// reasons, these are defined on the prototype instead of the object itself.
-for (const key of attributeKeys) {
-  Object.defineProperty(Marker.prototype, key, {
-    get(this: Marker) {
-      return this.getAttribute_(key);
-    },
-    set(this: Marker, value) {
-      this.setAttribute_(key, value);
+  constructor(marker: Marker<TUserData>) {
+    this.marker_ = marker;
+  }
+
+  static {
+    for (const key of attributeKeys) {
+      // set up internal properties of the ComputedMarkerAttributes class,
+      // resolve all dynamic to static values.
+      Object.defineProperty(ComputedMarkerAttributes.prototype, key, {
+        get(this: ComputedMarkerAttributes) {
+          const {map, data, marker} = this.marker_.getDynamicAttributeState();
+          const callback = this.marker_.dynamicAttributes_[key];
+
+          if (!callback) {
+            return this.marker_.attributes_[key];
+          } else {
+            this.callbackDepth_++;
+
+            if (this.callbackDepth_ > 10) {
+              throw new Error(
+                'maximum recurcion depth reached. ' +
+                  'This is probably caused by a cyclic dependency in dynamic attributes.'
+              );
+            }
+
+            const res = callback({
+              data,
+              map,
+              marker,
+              // forced cast to StaticAttributes; this object will behave
+              // exactly like the plain attributes object as far as the callbacks
+              // are concerned
+              attr: this as never as StaticAttributes
+            });
+            this.callbackDepth_--;
+
+            return res;
+          }
+        }
+      });
     }
-  });
+  }
 }
 
 // copied from Google Maps typings since we can't use the maps-api
@@ -400,7 +480,7 @@ export enum CollisionBehavior {
   REQUIRED_AND_HIDES_OPTIONAL = 'REQUIRED_AND_HIDES_OPTIONAL'
 }
 
-export type StaticAttributes = {
+export interface StaticAttributes {
   position: google.maps.LatLngLiteral;
   draggable: boolean;
   collisionBehavior: CollisionBehavior;
@@ -414,7 +494,7 @@ export type StaticAttributes = {
   icon: string;
   glyph: string | Element | URL;
   scale: number;
-};
+}
 
 // just the keys for all attributes
 export type AttributeKey = keyof StaticAttributes;

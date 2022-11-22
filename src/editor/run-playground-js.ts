@@ -3,12 +3,12 @@ import * as marker from '../lib/marker';
 import * as icons from '../lib/icons';
 import * as color from '../lib/color';
 
-let markers: Set<Marker> = new Set();
-let cleanupFn: (() => void) | null = null;
+const markers: Set<Marker> = new Set();
+let cleanupFn: (() => void) | void = void 0;
 
 export function runPlaygroundJs(js: string, map: google.maps.Map) {
   // remove all markers
-  for (let m of markers) m.map = null;
+  for (const m of markers) m.map = null;
   markers.clear();
 
   // if the last setup left a cleanup-function behind,
@@ -16,21 +16,22 @@ export function runPlaygroundJs(js: string, map: google.maps.Map) {
   if (cleanupFn) cleanupFn();
 
   // wrap code in a function with exports and require
+  // eslint-disable-next-line @typescript-eslint/no-implied-eval
   const tmpFn = new Function('exports', 'require', js);
 
-  const exports: any = {};
+  const exports: {default?: (map: google.maps.Map) => (() => void) | void} = {};
 
   // we need a proxy for the Marker class to keep track of markers
   // added to the map, so they don't have to be removed manually
   class MarkerProxy extends Marker {
-    constructor(...args: any[]) {
+    constructor(...args: never[]) {
       super(...args);
 
       markers.add(this);
     }
   }
 
-  const modules: Record<string, any> = {
+  const modules: Record<string, unknown> = {
     './lib/marker': marker,
     './lib/color': color,
     './lib/icons': icons

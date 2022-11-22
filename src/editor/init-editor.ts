@@ -1,9 +1,10 @@
-import {editor, languages, KeyCode, KeyMod, Uri} from 'monaco-editor';
+import {editor, KeyCode, KeyMod, languages, Uri} from 'monaco-editor';
 import {decode, encode} from './snippet-encoder';
 import './worker-config';
 
 import googleMapsDTSSource from '../../node_modules/@types/google.maps/index.d.ts?raw';
 import markerExampleSource from '../../examples/00.default.ts?raw';
+import {assertNotNull} from '../lib/util';
 
 const libModules = import.meta.glob('../../examples/lib/*.d.ts', {as: 'raw'});
 const modules: Record<string, string> = {
@@ -33,7 +34,7 @@ export async function initEditor(
     })
   );
 
-  for (let [path, source] of Object.entries(modules)) {
+  for (const [path, source] of Object.entries(modules)) {
     typescriptDefaults.addExtraLib(source, `file:///${path}`);
   }
 
@@ -73,7 +74,7 @@ export async function initEditor(
     id: 'compile-and-run',
     label: 'Compile and run',
     keybindings: [KeyMod.CtrlCmd | KeyCode.Enter],
-    async run(editor) {
+    async run() {
       const worker = await typescript.getTypeScriptWorker();
       const proxy = await worker(model.uri);
 
@@ -84,13 +85,18 @@ export async function initEditor(
     }
   });
 
-  const runButton = document.querySelector('#btn-compile-and-run')!;
+  const runButton = document.querySelector('#btn-compile-and-run');
+  assertNotNull(runButton, 'run button not fond');
+
   runButton.addEventListener('click', () => {
     editorInstance
       .getAction('compile-and-run')
       .run()
       .then(() => {
-        console.log('compie and run completed.');
+        console.log('compile-and-run completed.');
+      })
+      .catch(err => {
+        console.error('compile-and-run failed', err);
       });
   });
 
@@ -103,8 +109,7 @@ export async function initEditor(
 
       if (!tsCode) return;
 
-      const encoded = encode({code: tsCode, version: API_VERSION});
-      location.hash = encoded;
+      location.hash = encode({code: tsCode, version: API_VERSION});
     }
   });
 

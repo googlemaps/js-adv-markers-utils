@@ -82,13 +82,13 @@ function createSpan(className: string, content: string): HTMLElement {
  * @param family
  */
 function isFontLoaded(family: string): boolean {
-  const fontStylesheets = Array.from(
+  const fontStylesheets = Array.from<HTMLLinkElement>(
     document.querySelectorAll(
       'link[rel="stylesheet"][href*="fonts.googleapis.com"]'
     )
-  ) as HTMLLinkElement[];
+  );
 
-  for (let stylesheet of fontStylesheets) {
+  for (const stylesheet of fontStylesheets) {
     const url = new URL(stylesheet.href);
 
     let families = url.pathname.endsWith('css2')

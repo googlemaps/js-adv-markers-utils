@@ -73,15 +73,14 @@ function rgbToHsl([r, g, b]: RGBColor): HSLColor {
   const min = Math.min(r, g, b);
 
   let h;
-  let s;
-  let l = (max + min) / 2;
+  const l = (max + min) / 2;
 
   if (max == min) {
     return [0, 0, l]; // achromatic
   }
 
   const d = max - min;
-  s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
 
   if (max === r) {
     h = (g - b) / d + (g < b ? 6 : 0);

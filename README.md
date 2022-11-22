@@ -165,6 +165,16 @@ contains information about the map (all camera parameters and current map
 bounds), the marker (interaction state, map visibility, ...), other attributes
 and user-specified data.
 
+### Adding new Attributes
+
+To add a new attribute
+
+1. add the attribute name to `attributeKeys`
+2. add the name and type to the StaticAttributes type definition
+3. add declarations for the attribute to the Marker class and the
+   ComputedMarkerAttributes class
+4. implement the attribute logic within the `update()` function
+
 ## API
 
 ### constructor

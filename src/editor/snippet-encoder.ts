@@ -5,7 +5,7 @@ export function encode(data: SavedCodeSnippetData): string {
 
   const p = new URLSearchParams();
   p.set('v', version);
-  p.set('c', btoa(code));
+  p.set('c', window.btoa(code));
 
   return p.toString();
 }
@@ -14,11 +14,11 @@ export function decode(encoded: string): SavedCodeSnippetData {
   const p = new URLSearchParams(encoded);
 
   const base64 = p.get('c');
-  let version = p.get('v') || '0.0.0';
+  const version = p.get('v') || '0.0.0';
 
   if (!base64) {
     return {version, code: ''};
   }
 
-  return {code: atob(base64), version};
+  return {code: window.atob(base64), version};
 }
