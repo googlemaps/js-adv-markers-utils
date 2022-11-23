@@ -7,21 +7,31 @@
     "build:examples": "zx scripts/update-examples.mjs",
     "build": "run-p build:* && vite build",
     "preview": "run-s build && vite preview",
-    "deploy": "run-s build && gsutil -m rsync -drc ./dist/ gs://storage.ubidev.net/marker-api-playground/"
+    "deploy": "run-s build && gsutil -m rsync -drc ./dist/ gs://storage.ubidev.net/marker-api-playground/",
+    "test": "mocha"
   },
   "keywords": [],
+  "directories": {
+    "test": "test/"
+  },
   "dependencies": {
-    "@types/google.maps": "^3.50.5",
-    "monaco-editor": "^0.34.1",
-    "vite": "^3.2.3"
+    "monaco-editor": "^0.34.1"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.4",
+    "@types/google.maps": "^3.50.5",
+    "@types/mocha": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^5.43.0",
     "@typescript-eslint/parser": "^5.43.0",
+    "chai": "^4.3.7",
     "eslint": "^8.27.0",
+    "jsdom-global": "^3.0.2",
+    "mocha": "^10.1.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.7.1",
+    "ts-node": "^10.9.1",
     "typescript": "^4.8.4",
+    "vite": "^3.2.3",
     "zx": "^7.1.1"
   }
 }

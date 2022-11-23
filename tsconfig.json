@@ -1,7 +1,7 @@
 {
   "include": ["./types/**/*", "./src/**/*", "./test/**/*", "./examples/**/*"],
   "compilerOptions": {
-    "module": "ES2022",
+    "module": "CommonJS",
     "target": "ES2022",
     "moduleResolution": "node",
     "jsx": "preserve",
@@ -20,5 +20,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": false,
     "stripInternal": true
+  },
+  "ts-node": {
+    "experimentalResolverFeatures": true
   }
 }

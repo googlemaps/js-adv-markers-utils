@@ -93,7 +93,7 @@ export class Marker<TUserData extends object = TUserDataDefault> {
   constructor(options: MarkerOptions<TUserData> = {}, data?: TUserData) {
     const {map, ...attributes} = options;
 
-    if (!google?.maps) {
+    if (!('google' in window) || !google.maps) {
       console.error(
         `Google Maps API couldn't be found. Please make sure ` +
           `to wait for the Google Maps API to load before creating markers.`
