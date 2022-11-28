@@ -63,7 +63,7 @@ export class Marker<TUserData extends object = TUserDataDefault> {
   // since updates can be triggered in multiple ways, we store the last
   // known state of the three contributing sources
   private data_: TUserData | null = null;
-  private markerState_: MarkerState = {visible: false};
+  private markerState_: MarkerState = {visible: false, hovered: false};
   private mapState_: MapState | null = null;
 
   // attributes set by the user are stored in attributes_ and
@@ -114,6 +114,10 @@ export class Marker<TUserData extends object = TUserDataDefault> {
     this.markerView_ = new google.maps.marker.AdvancedMarkerView();
     this.markerView_.content = this.pinView_.element;
 
+    this.bindMarkerEvents();
+
+    console.log(this.markerView_.element, this.markerView_.content);
+
     // set all remaining parameters as attributes
     for (const [key, value] of Object.entries(attributes)) {
       this.setAttribute_(key as AttributeKey, value);
@@ -136,15 +140,31 @@ export class Marker<TUserData extends object = TUserDataDefault> {
   }
 
   /**
-   * Adds an event-listener to this marker.
-   * @param eventName 'click', 'dragstart', 'dragend', 'drag'
+   * Adds an event-listener to this marker. The internal events (click and
+   * dragging events) are attached to the marker instance using the Google Maps
+   * event system, while any dom-events will be added to the marker-element
+   * itself.
+   * @param eventName 'click', 'dragstart', 'dragend', 'drag' or any DOM event-name.
    * @param handler
    */
   addListener(
     eventName: string,
     handler: (ev: google.maps.MapMouseEvent) => void
   ): google.maps.MapsEventListener {
-    return this.markerView_.addListener(eventName, handler);
+    if (eventName in MarkerEvents) {
+      return this.markerView_.addListener(eventName, handler);
+    }
+
+    assertNotNull(
+      this.markerView_.element,
+      'expected this.markerView_.content to be set'
+    );
+
+    return google.maps.event.addDomListener(
+      this.markerView_.element,
+      eventName,
+      handler
+    );
   }
 
   /**
@@ -184,7 +204,7 @@ export class Marker<TUserData extends object = TUserDataDefault> {
    * @param value
    * @internal
    */
-  setAttribute_<
+  private setAttribute_<
     TKey extends AttributeKey,
     TValue extends Attributes<TUserData>[TKey]
   >(name: TKey, value: TValue) {
@@ -207,7 +227,7 @@ export class Marker<TUserData extends object = TUserDataDefault> {
    * @param name
    * @internal
    */
-  getAttribute_<TKey extends AttributeKey>(
+  private getAttribute_<TKey extends AttributeKey>(
     name: TKey
   ): Attributes<TUserData>[TKey] {
     return (
@@ -324,6 +344,26 @@ export class Marker<TUserData extends object = TUserDataDefault> {
     this.pinView_.borderColor = borderColor;
     this.pinView_.glyphColor = glyphColor;
   }
+
+  /**
+   * Binds the required dom-events to the marker-instance.
+   */
+  private bindMarkerEvents = () => {
+    // fixme: do we want those to be always bound?
+    //   a) add/remove listeners when the marker is added to the map?
+    //   b) should there be a property to control wether we have these
+    //      events at all?
+
+    this.addListener('pointerenter', () => {
+      this.markerState_.hovered = true;
+      this.scheduleUpdate();
+    });
+
+    this.addListener('pointerleave', () => {
+      this.markerState_.hovered = false;
+      this.scheduleUpdate();
+    });
+  };
 
   /**
    * Handles the bounds_changed event for the map to update our internal state.
@@ -551,5 +591,13 @@ export type MapState = {
 // FIXME: WIP: the  marker-state will contain information about the marker
 //   and it's interaction state.
 export type MarkerState = {
+  hovered: boolean;
   visible: boolean;
 };
+
+enum MarkerEvents {
+  click = 'click',
+  dragstart = 'dragstart',
+  drag = 'drag',
+  dragend = 'dragend'
+}
