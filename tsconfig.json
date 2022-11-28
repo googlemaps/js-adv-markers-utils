@@ -1,13 +1,11 @@
 {
   "include": ["./types/**/*", "./src/**/*", "./test/**/*", "./examples/**/*"],
   "compilerOptions": {
-    "module": "CommonJS",
-    "target": "ES2022",
+    "module": "ES2020",
+    "target": "ES2020",
     "moduleResolution": "node",
-    "jsx": "preserve",
     "baseUrl": "./",
     "typeRoots": ["./types", "./node_modules/@types"],
-    "allowSyntheticDefaultImports": true,
     "importsNotUsedAsValues": "error",
     "isolatedModules": true,
     "noEmit": true,
@@ -15,10 +13,6 @@
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "useDefineForClassFields": false,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": false,
     "stripInternal": true
   },
   "ts-node": {
