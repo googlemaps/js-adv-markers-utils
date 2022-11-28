@@ -376,9 +376,12 @@ export class Marker<TUserData extends object = TUserDataDefault> {
     // ComputedMarkerAttributes. For performance reasons, these are defined on
     // the prototype instead of the object itself.
     for (const key of attributeKeys) {
-      // internal Marker-properties for all attributes, note that `this` is
-      // bound to the marker-instance in the get/set callbacks.
-      Object.defineProperty(Marker.prototype, key, {
+      // setup properties for all attributes
+      // Note: `this` in the static initializer points to the class constructor,
+      // so `this.prototype` is the same as `Marker.prototype` (which isn't
+      // allowed). Within the get/set functions, this is bound to the actual
+      // marker instance.
+      Object.defineProperty(this.prototype, key, {
         get(this: Marker) {
           return this.getAttribute_(key);
         },
@@ -421,7 +424,7 @@ class ComputedMarkerAttributes<TUserData extends object = TUserDataDefault>
     for (const key of attributeKeys) {
       // set up internal properties of the ComputedMarkerAttributes class,
       // resolve all dynamic to static values.
-      Object.defineProperty(ComputedMarkerAttributes.prototype, key, {
+      Object.defineProperty(this.prototype, key, {
         get(this: ComputedMarkerAttributes) {
           const {map, data, marker} = this.marker_.getDynamicAttributeState();
           const callback = this.marker_.dynamicAttributes_[key];
