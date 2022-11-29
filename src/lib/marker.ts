@@ -8,8 +8,6 @@ import {assertNotNull, warnOnce} from './util';
 
 import type {IconProvider} from './icons';
 
-type TUserDataDefault = Record<string, unknown>;
-
 // These keys are used to create the dynamic properties (mostly to save us
 // from having to type them all out and to make adding attributes a bit easier).
 const attributeKeys: readonly AttributeKey[] = [
@@ -35,7 +33,7 @@ const attributeKeys: readonly AttributeKey[] = [
  * be used for the data specified in setData and available in the dynamic
  * attribute callbacks.
  */
-export class Marker<TUserData extends object = TUserDataDefault> {
+export class Marker<TUserData = unknown> {
   private static iconProviders: Map<string, IconProvider> = new Map();
   static registerIconProvider(
     provider: IconProvider,
@@ -62,7 +60,7 @@ export class Marker<TUserData extends object = TUserDataDefault> {
 
   // since updates can be triggered in multiple ways, we store the last
   // known state of the three contributing sources
-  private data_: TUserData | null = null;
+  private data_?: TUserData;
   private markerState_: MarkerState = {visible: false, hovered: false};
   private mapState_: MapState | null = null;
 
@@ -109,14 +107,13 @@ export class Marker<TUserData extends object = TUserDataDefault> {
       throw new Error('Google Maps Marker Library not found.');
     }
 
-    this.data_ = data || null;
+    if (data) this.data_ = data;
+
     this.pinView_ = new google.maps.marker.PinView();
     this.markerView_ = new google.maps.marker.AdvancedMarkerView();
     this.markerView_.content = this.pinView_.element;
 
     this.bindMarkerEvents();
-
-    console.log(this.markerView_.element, this.markerView_.content);
 
     // set all remaining parameters as attributes
     for (const [key, value] of Object.entries(attributes)) {
@@ -130,41 +127,39 @@ export class Marker<TUserData extends object = TUserDataDefault> {
   }
 
   /**
-   * Sets the data for this marker and triggers an update.
-   * @param data
-   */
-  setData(data: TUserData) {
-    this.data_ = data;
-
-    this.scheduleUpdate();
-  }
-
-  /**
    * Adds an event-listener to this marker. The internal events (click and
    * dragging events) are attached to the marker instance using the Google Maps
    * event system, while any dom-events will be added to the marker-element
    * itself.
+   *
+   * FIXME: normalize event-handler-parameters
+   * FIXME: extend the typings to be explicit about the callback-parameters
+   *
    * @param eventName 'click', 'dragstart', 'dragend', 'drag' or any DOM event-name.
    * @param handler
    */
   addListener(
     eventName: string,
-    handler: (ev: google.maps.MapMouseEvent) => void
+    handler: (ev: google.maps.MapMouseEvent | Event) => void
   ): google.maps.MapsEventListener {
     if (eventName in MarkerEvents) {
       return this.markerView_.addListener(eventName, handler);
     }
 
-    assertNotNull(
-      this.markerView_.element,
-      'expected this.markerView_.content to be set'
-    );
+    const element = this.markerView_.element;
 
-    return google.maps.event.addDomListener(
-      this.markerView_.element,
-      eventName,
-      handler
-    );
+    assertNotNull(element);
+
+    element.addEventListener(eventName as keyof ElementEventMap, handler);
+
+    return {
+      remove() {
+        element.removeEventListener(
+          eventName as keyof ElementEventMap,
+          handler
+        );
+      }
+    };
   }
 
   /**
@@ -198,11 +193,20 @@ export class Marker<TUserData extends object = TUserDataDefault> {
   }
 
   /**
+   * Sets the data for this marker and triggers an update.
+   * @param data
+   */
+  setData(data: TUserData) {
+    this.data_ = data;
+
+    this.scheduleUpdate();
+  }
+
+  /**
    * Internal function to set attribute values. Splits specified attributes
    * into static and dynamic attributes and triggers an update.
    * @param name
    * @param value
-   * @internal
    */
   private setAttribute_<
     TKey extends AttributeKey,
@@ -225,7 +229,6 @@ export class Marker<TUserData extends object = TUserDataDefault> {
    * the user (e.g. will return the dynamic attribute function instead of the
    * effective value).
    * @param name
-   * @internal
    */
   private getAttribute_<TKey extends AttributeKey>(
     name: TKey
@@ -261,7 +264,7 @@ export class Marker<TUserData extends object = TUserDataDefault> {
    *    setAttribute_ or the ComputedMarkerAttributes class
    * @internal
    */
-  update() {
+  private update() {
     if (!this.map || !this.mapState_) {
       console.warn('marker update skipped: missing map or mapState');
       return;
@@ -269,7 +272,7 @@ export class Marker<TUserData extends object = TUserDataDefault> {
 
     const attrs = this.computedAttributes_;
 
-    this.updatePinViewColors(attrs);
+    this.updateColors(attrs);
 
     // FIXME: in cases where there's an `if` here, we need to make sure that
     //   state updates might require us to reset the state (i.e. icon changes
@@ -317,7 +320,7 @@ export class Marker<TUserData extends object = TUserDataDefault> {
    * color attributes.
    * @param attributes
    */
-  private updatePinViewColors(attributes: Partial<StaticAttributes>) {
+  private updateColors(attributes: Partial<StaticAttributes>) {
     let {color, backgroundColor, borderColor, glyphColor} = attributes;
 
     if (color) {
@@ -398,7 +401,7 @@ export class Marker<TUserData extends object = TUserDataDefault> {
    * @internal
    */
   getDynamicAttributeState(): {
-    data: TUserData | null;
+    data?: TUserData;
     map: MapState;
     marker: MarkerState;
   } {
@@ -434,7 +437,7 @@ export class Marker<TUserData extends object = TUserDataDefault> {
 }
 
 /** @internal */
-class ComputedMarkerAttributes<TUserData extends object = TUserDataDefault>
+class ComputedMarkerAttributes<TUserData = unknown>
   implements Partial<StaticAttributes>
 {
   private marker_: Marker<TUserData>;
@@ -546,7 +549,7 @@ export type AttributeKey = keyof StaticAttributes;
 // state and return the attribute value. They are evaluated whenever the
 // map- or interaction-state changes or user-data are updated.
 export type DynamicAttributeValue<TUserData, TAttr> = (
-  state: {data: TUserData | null} & {
+  state: {data: TUserData} & {
     map: MapState;
     marker: MarkerState;
     attr: Partial<StaticAttributes>;

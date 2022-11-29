@@ -1,13 +1,12 @@
 /// <reference types="google.maps" />
 import type { IconProvider } from './icons';
-type TUserDataDefault = Record<string, unknown>;
 /**
  * The Marker class.
  * The optional type-parameter TUserData can be used to specify a type to
  * be used for the data specified in setData and available in the dynamic
  * attribute callbacks.
  */
-export declare class Marker<TUserData extends object = TUserDataDefault> {
+export declare class Marker<TUserData = unknown> {
     private static iconProviders;
     static registerIconProvider(provider: IconProvider, namespace?: string): void;
     position?: Attributes<TUserData>['position'];
@@ -22,7 +21,7 @@ export declare class Marker<TUserData extends object = TUserDataDefault> {
     borderColor?: Attributes<TUserData>['borderColor'];
     glyphColor?: Attributes<TUserData>['glyphColor'];
     icon?: Attributes<TUserData>['icon'];
-    private data_;
+    private data_?;
     private markerState_;
     private mapState_;
     readonly attributes_: Partial<StaticAttributes>;
@@ -42,19 +41,18 @@ export declare class Marker<TUserData extends object = TUserDataDefault> {
      */
     constructor(options?: MarkerOptions<TUserData>, data?: TUserData);
     /**
-     * Sets the data for this marker and triggers an update.
-     * @param data
-     */
-    setData(data: TUserData): void;
-    /**
      * Adds an event-listener to this marker. The internal events (click and
      * dragging events) are attached to the marker instance using the Google Maps
      * event system, while any dom-events will be added to the marker-element
      * itself.
+     *
+     * FIXME: normalize event-handler-parameters
+     * FIXME: extend the typings to be explicit about the callback-parameters
+     *
      * @param eventName 'click', 'dragstart', 'dragend', 'drag' or any DOM event-name.
      * @param handler
      */
-    addListener(eventName: string, handler: (ev: google.maps.MapMouseEvent) => void): google.maps.MapsEventListener;
+    addListener(eventName: string, handler: (ev: google.maps.MapMouseEvent | Event) => void): google.maps.MapsEventListener;
     /**
      * The map property is a proxy for this.markerView_.map, setting the map
      * will also retrieve the view-state from the map and update the marker.
@@ -62,11 +60,21 @@ export declare class Marker<TUserData extends object = TUserDataDefault> {
     get map(): google.maps.Map | null;
     set map(map: google.maps.Map | null);
     /**
+     * Sets the data for this marker and triggers an update.
+     * @param data
+     */
+    setData(data: TUserData): void;
+    /**
      * Updates the colors for the embedded pin-view based on the different
      * color attributes.
      * @param attributes
      */
-    private updatePinViewColors;
+    private updateColors;
+    enableEvents(): void;
+    disableEvents(): void;
+    /**
+     * Binds the required dom-events to the marker-instance.
+     */
     private bindMarkerEvents;
     /**
      * Handles the bounds_changed event for the map to update our internal state.
@@ -110,7 +118,7 @@ export interface StaticAttributes {
 }
 export type AttributeKey = keyof StaticAttributes;
 export type DynamicAttributeValue<TUserData, TAttr> = (state: {
-    data: TUserData | null;
+    data: TUserData;
 } & {
     map: MapState;
     marker: MarkerState;
@@ -137,4 +145,3 @@ export type MarkerState = {
     hovered: boolean;
     visible: boolean;
 };
-export {};
