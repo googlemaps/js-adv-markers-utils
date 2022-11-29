@@ -14,6 +14,7 @@ module.exports = {
 
   rules: {
     '@typescript-eslint/no-inferrable-types': 'off',
+    '@typescript-eslint/no-empty-function': 'off',
     'prefer-const': ['error', {destructuring: 'all'}]
   },
 

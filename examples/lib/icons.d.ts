@@ -1,4 +1,4 @@
-export declare type IconProvider = (iconId: string) => HTMLElement;
+export type IconProvider = (iconId: string) => HTMLElement;
 export declare enum MaterialIconsStyle {
     FILLED = "filled",
     OUTLINED = "outlined",
@@ -6,7 +6,7 @@ export declare enum MaterialIconsStyle {
     SHARP = "sharp",
     TWOTONE = "twotone"
 }
-export declare type MaterialIconsOptions = {
+export type MaterialIconsOptions = {
     style: MaterialIconsStyle;
     appendFontStylesheet: boolean;
 };
