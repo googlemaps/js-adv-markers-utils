@@ -1,4 +1,6 @@
-export type IconProvider = (iconId: string) => HTMLElement | URL;
+export type IconProvider = (
+  iconId: string
+) => HTMLElement | URL | string;
 
 export enum MaterialIconsStyle {
   FILLED = 'filled',
