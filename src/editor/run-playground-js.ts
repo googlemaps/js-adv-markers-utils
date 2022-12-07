@@ -1,5 +1,6 @@
 import {Marker} from '../lib/marker';
 import * as marker from '../lib/marker';
+import * as markerCollection from '../lib/marker-collection';
 import * as icons from '../lib/icons';
 import * as color from '../lib/color';
 
@@ -38,10 +39,13 @@ export async function runPlaygroundJs(
 
   const modules: Record<string, unknown> = {
     './lib/marker': marker,
+    './lib/marker-collection': markerCollection,
     './lib/color': color,
     './lib/icons': icons
   };
   const require = (moduleString: string) => {
+    // fixme: can we somehow hack the markerCollection to also use the
+    //  patched marker-class?
     if (moduleString === './lib/marker')
       return {
         ...marker,
