@@ -6,7 +6,10 @@ import * as color from '../lib/color';
 const markers: Set<Marker> = new Set();
 let cleanupFn: (() => void) | void = void 0;
 
-export function runPlaygroundJs(js: string, map: google.maps.Map) {
+export async function runPlaygroundJs(
+  js: string,
+  map: google.maps.Map
+): Promise<void> {
   // remove all markers
   for (const m of markers) m.map = null;
   markers.clear();
@@ -19,7 +22,9 @@ export function runPlaygroundJs(js: string, map: google.maps.Map) {
   // eslint-disable-next-line @typescript-eslint/no-implied-eval
   const tmpFn = new Function('exports', 'require', js);
 
-  const exports: {default?: (map: google.maps.Map) => (() => void) | void} = {};
+  const exports: {
+    default?: (map: google.maps.Map) => Promise<(() => void) | void>;
+  } = {};
 
   // we need a proxy for the Marker class to keep track of markers
   // added to the map, so they don't have to be removed manually
@@ -58,5 +63,5 @@ export function runPlaygroundJs(js: string, map: google.maps.Map) {
     return;
   }
 
-  cleanupFn = exports.default(map);
+  cleanupFn = await exports.default(map);
 }

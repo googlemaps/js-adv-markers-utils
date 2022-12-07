@@ -12,7 +12,7 @@ const modules: Record<string, string> = {
 };
 
 export async function initEditor(
-  runCallback: (jsCode: string) => void
+  runCallback: (jsCode: string) => Promise<void>
 ): Promise<editor.IStandaloneCodeEditor> {
   const {typescript} = languages;
   const {typescriptDefaults, ScriptTarget, ModuleKind, ModuleResolutionKind} =
@@ -81,7 +81,7 @@ export async function initEditor(
       const {outputFiles} = await proxy.getEmitOutput(model.uri.toString());
       const jsCode = outputFiles[0].text;
 
-      runCallback(jsCode);
+      await runCallback(jsCode);
     }
   });
 
