@@ -7,25 +7,31 @@ export type HSLColor = [number, number, number];
 const colorCache: Record<string, RGBAColor> = {};
 
 export function parseCssColorValue(color: string): RGBAColor {
-  if (!colorCache[color]) {
-    if (!helperDiv) {
-      helperDiv = document.createElement('div');
-      helperDiv.style.cssText = `
+  if (colorCache[color]) {
+    return colorCache[color].slice(0) as RGBAColor;
+  }
+
+  if (!helperDiv) {
+    helperDiv = document.createElement('div');
+    helperDiv.style.cssText = `
         position: absolute;
         visibility: hidden;
         pointer-events: none;
       `;
-    }
-    helperDiv.style.color = color;
-    document.body.appendChild(helperDiv);
-    const rgb = getComputedStyle(helperDiv).color;
-    const [r = 0, g = 0, b = 0, a = 1] = rgb
-      .slice(rgb.indexOf('(') + 1, rgb.indexOf(')'))
-      .split(/,\s*/)
-      .map(Number);
-    helperDiv.remove();
-    colorCache[color] = [r, g, b, a];
   }
+  helperDiv.style.color = color;
+  document.body.appendChild(helperDiv);
+  const rgb = getComputedStyle(helperDiv).color;
+  const [r = 0, g = 0, b = 0, a = 1] = rgb
+    .slice(rgb.indexOf('(') + 1, rgb.indexOf(')'))
+    .split(/,\s*/)
+    .map(Number);
+  helperDiv.remove();
+
+  const rgba: RGBAColor = [r, g, b, a];
+
+  colorCache[color] = rgba;
+  return rgba;
 
   return colorCache[color].slice(0) as RGBAColor;
 }
