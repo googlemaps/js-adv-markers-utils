@@ -1,6 +1,4 @@
-export type IconProvider = (
-  iconId: string
-) => HTMLElement | URL | string;
+export type IconProvider = (iconId: string) => HTMLElement | URL | string;
 
 export enum MaterialIconsStyle {
   FILLED = 'filled',
@@ -65,7 +63,10 @@ export function MaterialIcons(
 }
 
 export function PlaceIcons(): IconProvider {
-  return iconId => createURL(iconId);
+  return iconId =>
+    new URL(
+      `https://maps.gstatic.com/mapfiles/place_api/icons/v2/${iconId}_pinlet.svg`
+    );
 }
 
 /**
@@ -80,12 +81,6 @@ function createSpan(className: string, content: string): HTMLElement {
   el.textContent = content;
 
   return el;
-}
-
-function createURL(content: string) {
-  return new URL(
-    `https://maps.gstatic.com/mapfiles/place_api/icons/v2/${content}_pinlet.svg`
-  );
 }
 
 /**
