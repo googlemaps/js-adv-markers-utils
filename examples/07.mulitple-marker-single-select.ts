@@ -1,4 +1,4 @@
-// title: multiple markers / single selection
+// title: multiple markers / single selection (w/ user-data)
 import {Marker} from './lib/marker';
 
 function rnd(min: number, max: number) {
