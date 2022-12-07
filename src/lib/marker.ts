@@ -116,13 +116,11 @@ export class Marker<TUserData = unknown> {
     this.bindMarkerEvents();
 
     // set all remaining parameters as attributes
-    for (const [key, value] of Object.entries(attributes)) {
-      this.setAttribute_(key as AttributeKey, value);
-    }
+    this.setAttributes(attributes);
 
     if (map) {
       this.map = map;
-      this.scheduleUpdate();
+      this.update();
     }
   }
 
@@ -188,7 +186,7 @@ export class Marker<TUserData = unknown> {
       );
 
       this.onMapBoundsChange(map);
-      this.scheduleUpdate();
+      this.update();
     }
   }
 
@@ -199,7 +197,18 @@ export class Marker<TUserData = unknown> {
   setData(data: TUserData) {
     this.data_ = data;
 
-    this.scheduleUpdate();
+    this.update();
+  }
+
+  /**
+   * Sets multiple attributes at once.
+   * @param attributes
+   */
+  setAttributes(attributes: Partial<Attributes<TUserData>>) {
+    // set all remaining parameters as attributes
+    for (const [key, value] of Object.entries(attributes)) {
+      this.setAttribute_(key as AttributeKey, value);
+    }
   }
 
   /**
@@ -213,7 +222,7 @@ export class Marker<TUserData = unknown> {
     TValue extends Attributes<TUserData>[TKey]
   >(name: TKey, value: TValue) {
     // update the marker when we're done
-    this.scheduleUpdate();
+    this.update();
 
     if (typeof value === 'function') {
       this.dynamicAttributes_[name] =
@@ -242,15 +251,14 @@ export class Marker<TUserData = unknown> {
   /**
    * Schedules an update via microtask. This makes sure that we won't
    * run multiple updates when multiple attributes are changed sequentially.
-   * @internal
    */
-  private scheduleUpdate() {
+  update() {
     if (this.updateScheduled_) return;
 
     this.updateScheduled_ = true;
     queueMicrotask(() => {
       this.updateScheduled_ = false;
-      this.update();
+      this.performUpdate();
     });
   }
 
@@ -264,7 +272,7 @@ export class Marker<TUserData = unknown> {
    *    setAttribute_ or the ComputedMarkerAttributes class
    * @internal
    */
-  private update() {
+  private performUpdate() {
     if (!this.map || !this.mapState_) {
       console.warn('marker update skipped: missing map or mapState');
       return;
@@ -359,12 +367,12 @@ export class Marker<TUserData = unknown> {
 
     this.addListener('pointerenter', () => {
       this.markerState_.hovered = true;
-      this.scheduleUpdate();
+      this.update();
     });
 
     this.addListener('pointerleave', () => {
       this.markerState_.hovered = false;
-      this.scheduleUpdate();
+      this.update();
     });
   };
 
@@ -393,7 +401,7 @@ export class Marker<TUserData = unknown> {
       tilt: map.getTilt() || 0
     };
 
-    this.scheduleUpdate();
+    this.update();
   };
 
   /**
@@ -572,7 +580,7 @@ export type DynamicAttributes<TUserData> = {
 
 // These are the attribute-types as specified to the constructor and
 // individual attribute setters
-export type Attributes<TUserData> = {
+export type Attributes<TUserData = unknown> = {
   [key in AttributeKey]: AttributeValue<TUserData, StaticAttributes[key]>;
 };
 
