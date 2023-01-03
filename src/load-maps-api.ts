@@ -1,6 +1,6 @@
 export type MapsApiOptions = {
   key: string;
-  libraries?: string;
+  libraries?: string | string[];
   v?: string;
 };
 
@@ -11,13 +11,17 @@ export async function loadMapsApi(apiOptions: MapsApiOptions): Promise<void> {
     return mapsApiLoaded;
   }
 
+  if (Array.isArray(apiOptions.libraries)) {
+    apiOptions.libraries = apiOptions.libraries.join(',');
+  }
+
   const apiUrl = new URL('https://maps.googleapis.com/maps/api/js');
   for (const [key, value] of Object.entries(apiOptions)) {
     if (value === undefined) {
       continue;
     }
 
-    apiUrl.searchParams.set(key, value);
+    apiUrl.searchParams.set(key, value as string);
   }
   apiUrl.searchParams.set('callback', '__maps_callback__');
 
