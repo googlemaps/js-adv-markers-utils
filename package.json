@@ -15,7 +15,8 @@
     "test": "test/"
   },
   "dependencies": {
-    "monaco-editor": "^0.34.1"
+    "monaco-editor": "^0.34.1",
+    "prettier-plugin-jsdoc": "^0.4.2"
   },
   "devDependencies": {
     "@types/chai": "^4.3.4",
