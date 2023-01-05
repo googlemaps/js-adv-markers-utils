@@ -1,3 +1,5 @@
+import {warnOnce} from './util';
+
 export type RGBAColor = [number, number, number, number];
 export type RGBColor = [number, number, number];
 export type LABColor = [number, number, number];
@@ -73,14 +75,14 @@ function parseHexColor(color: string): RGBAColor {
 
 function parseRgbColor(color: string): RGBAColor {
   try {
-    const [, r, g, b, a] = color.match(rxRgbColor)!;
-    const c = [r, g, b, a];
+    const [, r, g, b, a = '1'] = color.match(rxRgbColor)!;
+    const rgba = [r, g, b, a];
 
-    return c
-      .filter(s => s !== undefined) // alpha might be undefined
-      .map(s => (s.endsWith('%') ? Number(s) * 2.55 : Number(s))) as RGBAColor;
+    return rgba.map(s =>
+      s.endsWith('%') ? Number(s.slice(0, -1)) * 2.55 : Number(s)
+    ) as RGBAColor;
   } catch (err) {
-    console.error(`rgb-color parsing failed (parsing value: '${color}')`);
+    warnOnce(`rgb-color parsing failed (parsing value: '${color}')`);
 
     return [0, 0, 0, 1];
   }
