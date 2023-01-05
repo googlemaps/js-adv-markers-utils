@@ -1,5 +1,6 @@
 import {
-  adjustLightness,
+  darken,
+  brighten,
   luminance,
   parseCssColorValue,
   rgbaToString
@@ -28,9 +29,8 @@ const attributeKeys: readonly AttributeKey[] = [
 ] as const;
 
 /**
- * The Marker class.
- * The optional type-parameter TUserData can be used to specify a type to
- * be used for the data specified in setData and available in the dynamic
+ * The Marker class. The optional type-parameter T can be used to specify a type
+ * to be used for the data specified in setData and available in the dynamic
  * attribute callbacks.
  */
 export class Marker<TUserData = unknown> {
@@ -81,9 +81,8 @@ export class Marker<TUserData = unknown> {
   private updateScheduled_: boolean = false;
 
   /**
-   * Creates a new marker instance.
-   * Markers can be created without any options, or with any number of
-   * attributes set.
+   * Creates a new marker instance. Markers can be created without any options,
+   * or with any number of attributes set.
    *
    * @param options
    * @param data
@@ -130,10 +129,11 @@ export class Marker<TUserData = unknown> {
    * event system, while any dom-events will be added to the marker-element
    * itself.
    *
-   * FIXME: normalize event-handler-parameters
-   * FIXME: extend the typings to be explicit about the callback-parameters
+   * FIXME: normalize event-handler-parameters FIXME: extend the typings to be
+   * explicit about the callback-parameters
    *
-   * @param eventName 'click', 'dragstart', 'dragend', 'drag' or any DOM event-name.
+   * @param eventName 'click', 'dragstart', 'dragend', 'drag' or any DOM
+   *   event-name.
    * @param handler
    */
   addListener(
@@ -161,8 +161,8 @@ export class Marker<TUserData = unknown> {
   }
 
   /**
-   * The map property is a proxy for this.markerView_.map, setting the map
-   * will also retrieve the view-state from the map and update the marker.
+   * The map property is a proxy for this.markerView_.map, setting the map will
+   * also retrieve the view-state from the map and update the marker.
    */
   get map(): google.maps.Map | null {
     return this.markerView_.map || null;
@@ -192,6 +192,7 @@ export class Marker<TUserData = unknown> {
 
   /**
    * Sets the data for this marker and triggers an update.
+   *
    * @param data
    */
   setData(data: TUserData) {
@@ -202,6 +203,7 @@ export class Marker<TUserData = unknown> {
 
   /**
    * Sets multiple attributes at once.
+   *
    * @param attributes
    */
   setAttributes(attributes: Partial<Attributes<TUserData>>) {
@@ -212,8 +214,9 @@ export class Marker<TUserData = unknown> {
   }
 
   /**
-   * Internal function to set attribute values. Splits specified attributes
-   * into static and dynamic attributes and triggers an update.
+   * Internal function to set attribute values. Splits specified attributes into
+   * static and dynamic attributes and triggers an update.
+   *
    * @param name
    * @param value
    */
@@ -234,9 +237,10 @@ export class Marker<TUserData = unknown> {
   }
 
   /**
-   * Internal method to get the attribute value as it was specified by
-   * the user (e.g. will return the dynamic attribute function instead of the
-   * effective value).
+   * Internal method to get the attribute value as it was specified by the user
+   * (e.g. will return the dynamic attribute function instead of the effective
+   * value).
+   *
    * @param name
    */
   private getAttribute_<TKey extends AttributeKey>(
@@ -249,8 +253,8 @@ export class Marker<TUserData = unknown> {
   }
 
   /**
-   * Schedules an update via microtask. This makes sure that we won't
-   * run multiple updates when multiple attributes are changed sequentially.
+   * Schedules an update via microtask. This makes sure that we won't run
+   * multiple updates when multiple attributes are changed sequentially.
    */
   update() {
     if (this.updateScheduled_) return;
@@ -264,12 +268,13 @@ export class Marker<TUserData = unknown> {
 
   /**
    * Updates the rendered objects for this marker, typically an
-   * AdvancedMarkerView and PinView.
-   * This method is called very often, so it is critical to keep it as
-   * performant as possible:
-   *  - avoid object allocations if possible
-   *  - avoid expensive computations. These can likely be moved into
-   *    setAttribute_ or the ComputedMarkerAttributes class
+   * AdvancedMarkerView and PinView. This method is called very often, so it is
+   * critical to keep it as performant as possible:
+   *
+   * - Avoid object allocations if possible
+   * - Avoid expensive computations. These can likely be moved into setAttribute_
+   *   or the ComputedMarkerAttributes class
+   *
    * @internal
    */
   private performUpdate() {
@@ -324,8 +329,9 @@ export class Marker<TUserData = unknown> {
   }
 
   /**
-   * Updates the colors for the embedded pin-view based on the different
-   * color attributes.
+   * Updates the colors for the embedded pin-view based on the different color
+   * attributes.
+   *
    * @param attributes
    */
   private updateColors(attributes: Partial<StaticAttributes>) {
@@ -333,21 +339,14 @@ export class Marker<TUserData = unknown> {
 
     if (color) {
       const rgba = parseCssColorValue(color);
-      const rgbaDark = adjustLightness(rgba, 0.75);
-      const rgbaDarker = adjustLightness(rgba, 0.5);
-      const rgbaLighter = adjustLightness(rgba, 2.5);
+      const rgbaDark = darken(rgba, 1.2);
+      const rgbaLight = brighten(rgba, 1.2);
 
       if (!backgroundColor) backgroundColor = rgbaToString(rgba);
       if (!borderColor) borderColor = rgbaToString(rgbaDark);
 
       if (!glyphColor) {
-        // when a glyph is specified, we'll use a lightened/darkened
-        // version of the color, when there's no glyph, we'll use the
-        // border-color instead
-        glyphColor =
-          this.icon || this.glyph
-            ? rgbaToString(luminance(rgba) > 0.4 ? rgbaDarker : rgbaLighter)
-            : borderColor;
+        glyphColor = rgbaToString(luminance(rgba) > 0.4 ? rgbaDark : rgbaLight);
       }
     }
 
@@ -356,9 +355,7 @@ export class Marker<TUserData = unknown> {
     this.pinView_.glyphColor = glyphColor;
   }
 
-  /**
-   * Binds the required dom-events to the marker-instance.
-   */
+  /** Binds the required dom-events to the marker-instance. */
   private bindMarkerEvents = () => {
     // fixme: do we want those to be always bound?
     //   a) add/remove listeners when the marker is added to the map?
@@ -378,6 +375,7 @@ export class Marker<TUserData = unknown> {
 
   /**
    * Handles the bounds_changed event for the map to update our internal state.
+   *
    * @param map
    */
   private onMapBoundsChange = (map: google.maps.Map) => {
@@ -406,6 +404,7 @@ export class Marker<TUserData = unknown> {
 
   /**
    * Retrieve the parameters to be passed to dynamic attribute callbacks.
+   *
    * @internal
    */
   getDynamicAttributeState(): {
@@ -517,8 +516,8 @@ export enum CollisionBehavior {
   /**
    * Display the marker only if it does not overlap with other markers. If two
    * markers of this type would overlap, the one with the higher zIndex is
-   * shown. If they have the same zIndex, the one with the lower vertical
-   * screen position is shown.
+   * shown. If they have the same zIndex, the one with the lower vertical screen
+   * position is shown.
    */
   OPTIONAL_AND_HIDES_LOWER_PRIORITY = 'OPTIONAL_AND_HIDES_LOWER_PRIORITY',
   /**
@@ -528,8 +527,8 @@ export enum CollisionBehavior {
   REQUIRED = 'REQUIRED',
   /**
    * Always display the marker regardless of collision, and hide any
-   * OPTIONAL_AND_HIDES_LOWER_PRIORITY markers or labels that would overlap
-   * with the marker.
+   * OPTIONAL_AND_HIDES_LOWER_PRIORITY markers or labels that would overlap with
+   * the marker.
    */
   REQUIRED_AND_HIDES_OPTIONAL = 'REQUIRED_AND_HIDES_OPTIONAL'
 }
