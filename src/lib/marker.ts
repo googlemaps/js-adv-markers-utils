@@ -5,9 +5,11 @@ import {
   parseCssColorValue,
   rgbaToString
 } from './color';
-import {assertNotNull, warnOnce} from './util';
+import {assertMapsApiLoaded, assertNotNull, warnOnce} from './util';
 
 import type {IconProvider} from './icons';
+import type {MapState} from './map-state-observer';
+import {MapStateObserver} from './map-state-observer';
 
 // These keys are used to create the dynamic properties (mostly to save us
 // from having to type them all out and to make adding attributes a bit easier).
@@ -35,6 +37,7 @@ const attributeKeys: readonly AttributeKey[] = [
  */
 export class Marker<TUserData = unknown> {
   private static iconProviders: Map<string, IconProvider> = new Map();
+
   static registerIconProvider(
     provider: IconProvider,
     namespace: string = 'default'
@@ -58,19 +61,20 @@ export class Marker<TUserData = unknown> {
   declare glyphColor?: Attributes<TUserData>['glyphColor'];
   declare icon?: Attributes<TUserData>['icon'];
 
+  private map_: google.maps.Map | null = null;
+  private mapObserver_: MapStateObserver | null = null;
+  private mapEventListener_: google.maps.MapsEventListener | null = null;
+
   // since updates can be triggered in multiple ways, we store the last
   // known state of the three contributing sources
   private data_?: TUserData;
   private markerState_: MarkerState = {visible: false, hovered: false};
-  private mapState_: MapState | null = null;
 
   // attributes set by the user are stored in attributes_ and
   // dynamicAttributes_.
   readonly attributes_: Partial<StaticAttributes> = {};
   readonly dynamicAttributes_: Partial<DynamicAttributes<TUserData>> = {};
   readonly computedAttributes_ = new ComputedMarkerAttributes(this);
-
-  private mapEventListener_: google.maps.MapsEventListener | null = null;
 
   // AdvancedMarkerView and PinView instances used to render the marker
   private markerView_: google.maps.marker.AdvancedMarkerView;
@@ -90,29 +94,15 @@ export class Marker<TUserData = unknown> {
   constructor(options: MarkerOptions<TUserData> = {}, data?: TUserData) {
     const {map, ...attributes} = options;
 
-    if (!('google' in window) || !google.maps) {
-      console.error(
-        `Google Maps API couldn't be found. Please make sure ` +
-          `to wait for the Google Maps API to load before creating markers.`
-      );
-      throw new Error('Google Maps API not found.');
-    }
-
-    if (google.maps && !google.maps.marker) {
-      console.error(
-        `Google Maps API was loaded without the required marker-library. ` +
-          `To load it, add the '&libraries=marker' parameter to the API url.`
-      );
-      throw new Error('Google Maps Marker Library not found.');
-    }
-
-    if (data) this.data_ = data;
+    assertMapsApiLoaded();
 
     this.pinView_ = new google.maps.marker.PinView();
     this.markerView_ = new google.maps.marker.AdvancedMarkerView();
     this.markerView_.content = this.pinView_.element;
 
     this.bindMarkerEvents();
+
+    if (data) this.data_ = data;
 
     // set all remaining parameters as attributes
     this.setAttributes(attributes);
@@ -161,31 +151,32 @@ export class Marker<TUserData = unknown> {
   }
 
   /**
-   * The map property is a proxy for this.markerView_.map, setting the map will
-   * also retrieve the view-state from the map and update the marker.
+   * The map property is a proxy for this.map_, setting the map will also start
+   * listening for map-state events and update the marker.
    */
   get map(): google.maps.Map | null {
-    return this.markerView_.map || null;
+    return this.map_ || null;
   }
 
   set map(map: google.maps.Map | null) {
-    if (this.markerView_.map === map) {
+    if (this.map_ === map) {
       return;
     }
 
     if (this.mapEventListener_) {
       this.mapEventListener_.remove();
       this.mapEventListener_ = null;
+      this.mapObserver_ = null;
     }
 
-    this.markerView_.map = map;
+    this.map_ = map;
 
     if (map) {
-      this.mapEventListener_ = map.addListener('bounds_changed', () =>
-        this.onMapBoundsChange(map)
+      this.mapObserver_ = MapStateObserver.getInstance(map);
+      this.mapEventListener_ = this.mapObserver_.addListener(() =>
+        this.update()
       );
 
-      this.onMapBoundsChange(map);
       this.update();
     }
   }
@@ -214,7 +205,7 @@ export class Marker<TUserData = unknown> {
   }
 
   /**
-   * Internal function to set attribute values. Splits specified attributes into
+   * Internal method to set attribute values. Splits specified attributes into
    * static and dynamic attributes and triggers an update.
    *
    * @param name
@@ -278,12 +269,25 @@ export class Marker<TUserData = unknown> {
    * @internal
    */
   private performUpdate() {
-    if (!this.map || !this.mapState_) {
-      console.warn('marker update skipped: missing map or mapState');
+    if (!this.map || !this.mapObserver_) {
+      console.warn('marker update skipped: missing map');
       return;
     }
 
     const attrs = this.computedAttributes_;
+    const position = attrs.position;
+
+    // if the marker doesn't have a position, we can skip it entirely and
+    // remove it from the map.
+    if (!position) {
+      this.markerView_.map = null;
+
+      return;
+    }
+
+    if (this.markerView_.map !== this.map_) {
+      this.markerView_.map = this.map_;
+    }
 
     this.updateColors(attrs);
 
@@ -294,7 +298,7 @@ export class Marker<TUserData = unknown> {
     // FIXME: how to handle undefined values? Should we skip those?
     //  Or have fixed defaults for everything?
 
-    this.markerView_.position = attrs.position;
+    this.markerView_.position = position;
     this.markerView_.draggable = attrs.draggable;
     this.markerView_.title = attrs.title;
     this.markerView_.zIndex = attrs.zIndex;
@@ -374,35 +378,6 @@ export class Marker<TUserData = unknown> {
   };
 
   /**
-   * Handles the bounds_changed event for the map to update our internal state.
-   *
-   * @param map
-   */
-  private onMapBoundsChange = (map: google.maps.Map) => {
-    const center = map.getCenter();
-    const bounds = map.getBounds();
-
-    if (!center || !bounds) {
-      console.error(
-        'Marker.onMapBoundsChange(): map center and/or bounds undefined.' +
-          ' Not updating map state.'
-      );
-
-      return;
-    }
-
-    this.mapState_ = {
-      center,
-      bounds,
-      zoom: map.getZoom() || 0,
-      heading: map.getHeading() || 0,
-      tilt: map.getTilt() || 0
-    };
-
-    this.update();
-  };
-
-  /**
    * Retrieve the parameters to be passed to dynamic attribute callbacks.
    *
    * @internal
@@ -412,11 +387,13 @@ export class Marker<TUserData = unknown> {
     map: MapState;
     marker: MarkerState;
   } {
-    assertNotNull(this.mapState_, 'this.mapState_ is not defined');
+    assertNotNull(this.mapObserver_, 'this.mapObserver_ is not defined');
+
+    const mapState = this.mapObserver_.getMapState();
 
     return {
       data: this.data_,
-      map: this.mapState_,
+      map: mapState,
       marker: this.markerState_
     };
   }
@@ -426,8 +403,7 @@ export class Marker<TUserData = unknown> {
     // ComputedMarkerAttributes. For performance reasons, these are defined on
     // the prototype instead of the object itself.
     for (const key of attributeKeys) {
-      // setup properties for all attributes
-      // Note: `this` in the static initializer points to the class constructor,
+      // Note: In a static initializer, `this` points to the class constructor,
       // so `this.prototype` is the same as `Marker.prototype` (which isn't
       // allowed). Within the get/set functions, this is bound to the actual
       // marker instance.
@@ -451,7 +427,7 @@ class ComputedMarkerAttributes<TUserData = unknown>
   private callbackDepth_: number = 0;
 
   // attributes are only declared here, they are dynamically added to the
-  // prototype below the class-declaration
+  // prototype in the static initializer below.
   declare position?: StaticAttributes['position'];
   declare draggable?: StaticAttributes['draggable'];
   declare collisionBehavior?: StaticAttributes['collisionBehavior'];
@@ -491,15 +467,7 @@ class ComputedMarkerAttributes<TUserData = unknown>
               );
             }
 
-            const res = callback({
-              data,
-              map,
-              marker,
-              // forced cast to StaticAttributes; this object will behave
-              // exactly like the plain attributes object as far as the callbacks
-              // are concerned
-              attr: this as never as StaticAttributes
-            });
+            const res = callback({data, map, marker, attr: this});
             this.callbackDepth_--;
 
             return res;
@@ -510,8 +478,10 @@ class ComputedMarkerAttributes<TUserData = unknown>
   }
 }
 
-// copied from Google Maps typings since we can't use the maps-api
-// constants before the api has loaded.
+/**
+ * The CollisionBehaviour enum is copied from Google Maps typings in order to
+ * allow those to be used before the api has loaded.
+ */
 export enum CollisionBehavior {
   /**
    * Display the marker only if it does not overlap with other markers. If two
@@ -533,6 +503,7 @@ export enum CollisionBehavior {
   REQUIRED_AND_HIDES_OPTIONAL = 'REQUIRED_AND_HIDES_OPTIONAL'
 }
 
+/** StaticAttributes contains the base definition for all attribute-values. */
 export interface StaticAttributes {
   position: google.maps.LatLngLiteral;
   draggable: boolean;
@@ -552,54 +523,49 @@ export interface StaticAttributes {
 // just the keys for all attributes
 export type AttributeKey = keyof StaticAttributes;
 
-// dynamic attribute values are functions that take user-data and built-in
-// state and return the attribute value. They are evaluated whenever the
-// map- or interaction-state changes or user-data are updated.
+/**
+ * DynamicAttributeValues are functions that take a state object consisting of
+ * internal state and user-data and return the attribute value. They are
+ * evaluated whenever the a state-change happens or user-data is updated.
+ */
 export type DynamicAttributeValue<TUserData, TAttr> = (
   state: {data: TUserData} & {
     map: MapState;
     marker: MarkerState;
     attr: Partial<StaticAttributes>;
   }
-) => TAttr;
+) => TAttr | undefined;
 
-// attributes can have either a static or a dynamic value
+/** An AttributeValue can be either a static value of a dynamic attribute. */
 export type AttributeValue<TUserData, T> =
   | T
   | DynamicAttributeValue<TUserData, T>;
 
-// we store two sets of attributes in the marker, static values seperated from
-// dynamic values.
-export type DynamicAttributes<TUserData> = {
-  [key in AttributeKey]: DynamicAttributeValue<
-    TUserData,
-    StaticAttributes[key]
-  >;
+/** Internally used to store the attributes with dynamic values separately. */
+export type DynamicAttributes<T> = {
+  [key in AttributeKey]: DynamicAttributeValue<T, StaticAttributes[key]>;
 };
 
-// These are the attribute-types as specified to the constructor and
-// individual attribute setters
-export type Attributes<TUserData = unknown> = {
-  [key in AttributeKey]: AttributeValue<TUserData, StaticAttributes[key]>;
+/**
+ * These are the attribute-types as specified to the constructor and individual
+ * attribute setters
+ */
+export type Attributes<T = unknown> = {
+  [key in AttributeKey]: AttributeValue<T, StaticAttributes[key]>;
 };
 
-// in addition to the attributes, the map can be specified in the marker-options
-export type MarkerOptions<TUserData> = {
+/**
+ * The single options argument for the marker-class contains the attributes as
+ * well as additional options.
+ */
+export type MarkerOptions<T> = {
   map?: google.maps.Map | null;
-} & Partial<Attributes<TUserData>>;
+} & Partial<Attributes<T>>;
 
-// the current viewport state of the map is stored using this type and made
-// accessible in the dynamic attribute callbacks.
-export type MapState = {
-  zoom: number;
-  heading: number;
-  tilt: number;
-  center: google.maps.LatLng;
-  bounds: google.maps.LatLngBounds;
-};
-
-// FIXME: WIP: the  marker-state will contain information about the marker
-//   and it's interaction state.
+/**
+ * The MarkerState contains additional state-information about the marker
+ * itself.
+ */
 export type MarkerState = {
   hovered: boolean;
   visible: boolean;
