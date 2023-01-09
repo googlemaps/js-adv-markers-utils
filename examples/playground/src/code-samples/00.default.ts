@@ -40,8 +40,8 @@ export default (map: google.maps.Map) => {
 
   // the returned function will run before the running code is updated.
   // This gives you an opportunity to clean up everything that has been added
-  // (don't worry aboutthe markers, they will be automatically removed from
-  // the map)
+  // (don't worry about removing the markers, they will be automatically removed
+  // from the map)
   return () => {
     clearInterval(intervalId);
   };

@@ -1,6 +1,6 @@
 import 'mocha';
 import {expect} from 'chai';
-import {Marker} from '../../src/lib/marker';
+import {Marker} from '../../src/marker';
 import sinon from 'sinon';
 
 describe('Marker', () => {

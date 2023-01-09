@@ -1,8 +1,8 @@
-import {Marker} from '../lib/marker';
-import * as marker from '../lib/marker';
-import * as markerCollection from '../lib/marker-collection';
-import * as icons from '../lib/icons';
-import * as color from '../lib/color';
+import {Marker} from '../../../src/marker';
+import * as marker from '../../../src/marker';
+import * as markerCollection from '../../../src/marker-collection';
+import * as icons from '../../../src/icons';
+import * as color from '../../../src/color';
 
 const markers: Set<Marker> = new Set();
 let cleanupFn: (() => void) | void = void 0;

@@ -1,40 +1,47 @@
-# Marker API Playground
+# Simplified Markers for Google Maps API
 
-This repository is the intial testing ground and development-environment for
-the new marker API.
+## Concepts
 
-## Get Started
+### Attributes
 
-1.  Install dependencies:
+Marker attributes are all the different values that make
+up the marker's appearance and are generally passed on to the google maps
+implementation. They are either passed to the constructor or can be set as
+properties on the marker-object. Any change to a marker-attribute will
+be immediately written to the google maps advanced marker.
 
-    npm install
+- **all markers:** position, collisionBehaviour, draggable, ...
+- **pinview markers:** background, borderColor, glyph, ...
+- **html markers:** element, classes
+- **additional attributes:** where it makes sense, we will introduce more
+  attributes that control a combination of aspects in the maps-api (e.g. the
+  `color` attribute which controls all other color-attributes) or additional
+  features not present in the maps api (e.g. marker shapes).
 
-2.  create the `.env` file. The API Key to use
-    [can be found here][gcloud_console_maps_credentials].
+### Static and Dynamic Attributes
 
-        GOOGLE_MAPS_API_KEY="<INSERT API KEY HERE>"
-        PRODUCTION_BASEURL="/marker-api-playground/"
+Every attribute can be specified either as a direct value
+(e.g. `marker.color = 'green'`) or as a function, that receives a state-object
+and can use that to compute the final values
+(`marker.color = ({map}) => map.zoom > 12 ? 'green' : 'blue'`).
 
-3.  start the 'playground' environment:
+For dynamic attributes the computed value is updated with every change to
+the state. This state contains information about the map (all camera
+parameters and current map bounds), the marker (interaction state, map
+visibility, ...), the current value of all other attributes and user-specified
+data.
 
-    npm start
+### Adding new Attributes
 
-4.  open http://localhost:5173 in your browser
+To add a new attribute
 
-[gcloud_console_maps_credentials]: https://console.cloud.google.com/apis/credentials/key/cace4819-4b19-489c-bd49-d91300d72dab?project=ubilabs-dev
+1. add the attribute name to `attributeKeys`
+2. add the name and type to the StaticAttributes type definition
+3. add declarations for the attribute to the Marker class and the
+   ComputedMarkerAttributes class
+4. implement the attribute logic within the `update()` function
 
-## Overview
-
-The playground is a side-by-side view of a google map with a monaco editor (the
-editor-component of VSCode) where typescript code using the new
-marker-API can be written and executed to get a feel for the api and test
-different usage-scenarios in a fast way. The contents of the editor can be
-serialized into the URL for sharing.
-
-Compiling the typescript happens in a worker via the typescript-support
-already built into the monaco-editor. For execution, a wrapper emulates the
-common.js environment to allow importing a predefined set of modules. Other
-modules can only be imported using async imports from urls.
+# Contributing
 
 ## Code Organization
 
@@ -57,25 +64,6 @@ modules can only be imported using async imports from urls.
 - `/types` is for additional typescript declarations
 
 [zx]: https://github.com/google/zx
-
-## Writing examples
-
-- examples have to be written as typescript files in the `./examples`-directory
-- each example should demonstrate a single aspect of the library in a
-  concise way - try to remove 'noise', that is code for unrelated aspects,
-  as much as possible, embrace duplication
-- the first line of the example has to contain a comment in the form:
-  `// title: This describes what it does` - this comment will be the text
-  shown in the example-index
-- the example must import the marker-library via the `*.d.ts` files
-  available in `./examples/lib/` (e.g. `import {Marker} from './lib/marker';`).
-- there has to be a default export, which will be called with the
-  map-instance as parameter when the script is run
-- When any changes are done in the browser environment (event-listeners,
-  timeouts, intervals, ...), the exported function has to return a cleanup
-  function removing all those. This doesn't apply for created markers, those
-  are automatically removed from the map when a new version of the script is
-  executed.
 
 ## scripts, npm-tasks and deployment
 
@@ -136,49 +124,3 @@ You can see all commits since the last release using:
     git log $(git describe --tags --abbrev=0)..HEAD --oneline
 
 [marker-doc]: https://docs.google.com/document/d/1L1RUW2kRSkSn02qthbimJZtjsCfdTtzXys3thCxv5O4/edit#heading=h.h498zgrs94df
-
-# Marker API Design Decisions
-
-## Concepts
-
-### Attributes
-
-Marker attributes are all the different values that make
-up the marker's appearance and are generally passed on to the google maps
-implementation. They are either passed to the constructor or can be set as
-properties on the marker-object. Any change to a marker-attribute will
-be immediately written to the marker.
-
-- **all markers:** position, collisionBehaviour, draggable, ...
-- **pinview markers:** background, borderColor, glyph, ...
-- **html markers:** element, classes
-- **additional attributes:** where it makes sense, we will introduce more
-  attributes that control a combination of aspects in the maps-api (e.g. the
-  color attribute which control all other color-attributes) or additional
-  features not present in the maps api (e.g. marker shapes).
-
-### Static and Dynamic Attributes
-
-Every attribute can be specified either as a direct value
-(e.g. `marker.color = 'green'`) or as a function, that receives a state-object and
-can use that to compute the final values (`marker.color = ({map}) => map.zoom > 12 ? 'green' : 'blue'`). For dynamic attributes the
-computed values is updated with every change to the state. The state
-contains information about the map (all camera parameters and current map
-bounds), the marker (interaction state, map visibility, ...), other attributes
-and user-specified data.
-
-### Adding new Attributes
-
-To add a new attribute
-
-1. add the attribute name to `attributeKeys`
-2. add the name and type to the StaticAttributes type definition
-3. add declarations for the attribute to the Marker class and the
-   ComputedMarkerAttributes class
-4. implement the attribute logic within the `update()` function
-
-## API
-
-### constructor
-
-The constructor accepts a single optional argument

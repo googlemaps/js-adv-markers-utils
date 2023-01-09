@@ -1,7 +1,7 @@
 import {loadMapsApi} from './load-maps-api';
-import {Marker} from './lib/marker';
+import {Marker} from '../../../src/marker';
 
-import {runPlaygroundJs} from './editor/run-playground-js';
+import {runPlaygroundJs} from './run-playground-js';
 
 /* eslint "@typescript-eslint/ban-ts-comment": "off"
    ----
@@ -11,7 +11,7 @@ import {runPlaygroundJs} from './editor/run-playground-js';
 async function main() {
   const map = await initMap();
 
-  import('./editor/init-editor')
+  import('./init-editor')
     .then(async ({initEditor}) => {
       const editor = await initEditor(jsCode => runPlaygroundJs(jsCode, map));
 

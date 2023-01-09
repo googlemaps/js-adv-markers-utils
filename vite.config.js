@@ -1,22 +1,21 @@
+// vite.config.js
 import {resolve} from 'path';
-import {defineConfig, loadEnv} from 'vite';
+import {defineConfig} from 'vite';
 
-export default defineConfig(({mode}) => {
-  const env = loadEnv(mode, process.cwd(), '');
-
-  return {
-    envPrefix: ['GOOGLE_MAPS', 'VITE'],
-    base: mode === 'production' ? env.PRODUCTION_BASEURL : './',
-    define: {
-      API_VERSION: JSON.stringify(process.env.npm_package_version)
+export default defineConfig({
+  build: {
+    lib: {
+      // Could also be a dictionary or array of multiple entry points
+      entry: {
+        index: resolve(__dirname, 'src/index.ts'),
+        icons: resolve(__dirname, 'src/index.ts')
+      },
+      name: 'GoogleMapsMarker',
+      // the proper extensions will be added
+      fileName: 'google-maps-marker'
     },
-    build: {
-      rollupOptions: {
-        input: {
-          main: resolve(__dirname, 'index.html'),
-          examples: resolve(__dirname, './examples/index.html')
-        }
-      }
+    rollupOptions: {
+      output: {}
     }
-  };
+  }
 });

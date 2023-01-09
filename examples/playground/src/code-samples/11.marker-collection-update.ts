@@ -1,4 +1,4 @@
-// title: basic marker collection
+// title: marker collection: continuous updates
 
 /* eslint-disable @typescript-eslint/no-misused-promises */
 

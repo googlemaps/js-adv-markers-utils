@@ -2,9 +2,10 @@
 
 import 'zx/globals';
 
-const examples = await globby(__dirname + '/../examples/*ts');
+const examples = await globby(__dirname + '/../src/code-samples/*ts');
 
 const data = {};
+
 for (let f of examples) {
   const basename = path.basename(f);
   const source = await fs.readFile(f, 'utf-8');
@@ -14,6 +15,7 @@ for (let f of examples) {
   if (firstLine.startsWith('// title:')) {
     title = firstLine.replace(/\/\/ title:\s*/, '');
   }
+
   data[basename] = {
     title,
     filename: basename,
@@ -21,4 +23,4 @@ for (let f of examples) {
   };
 }
 
-await fs.writeJSON(__dirname + '/../examples/examples.json', data);
+await fs.writeJSON(__dirname + '/../src/code-samples/examples.json', data);

@@ -2,11 +2,10 @@ import {editor, KeyCode, KeyMod, languages, Uri} from 'monaco-editor';
 import {decode, encode} from './snippet-encoder';
 import './worker-config';
 
-import googleMapsDTSSource from '../../node_modules/@types/google.maps/index.d.ts?raw';
-import markerExampleSource from '../../examples/00.default.ts?raw';
-import {assertNotNull} from '../lib/util';
+import googleMapsDTSSource from '../node_modules/@types/google.maps/index.d.ts?raw';
+import markerExampleSource from './code-samples/00.default.ts?raw';
 
-const libModules = import.meta.glob('../../examples/lib/*.d.ts', {as: 'raw'});
+const libModules = import.meta.glob('./code-samples/lib/*.d.ts', {as: 'raw'});
 const modules: Record<string, string> = {
   'node_modules/google.maps/index.d.ts': googleMapsDTSSource
 };
@@ -30,9 +29,11 @@ export async function initEditor(
   // add typings for our marker-library and the Google Maps API
   await Promise.all(
     Object.entries(libModules).map(async ([path, module]) => {
-      modules[path.replace('../../examples', '.')] = await module();
+      modules[path.replace('./code-samples', '.')] = await module();
     })
   );
+
+  console.log('initEditor', libModules, modules);
 
   for (const [path, source] of Object.entries(modules)) {
     typescriptDefaults.addExtraLib(source, `file:///${path}`);
@@ -85,8 +86,9 @@ export async function initEditor(
     }
   });
 
-  const runButton = document.querySelector('#btn-compile-and-run');
-  assertNotNull(runButton, 'run button not fond');
+  const runButton = document.querySelector(
+    '#btn-compile-and-run'
+  ) as HTMLElement;
 
   runButton.addEventListener('click', () => {
     editorInstance

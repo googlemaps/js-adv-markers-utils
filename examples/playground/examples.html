@@ -35,8 +35,8 @@
     </main>
 
     <script type="module">
-      import data from './examples.json';
-      import {encode} from '../src/editor/snippet-encoder';
+      import data from './src/code-samples/examples.json';
+      import {encode} from './src/snippet-encoder';
 
       const root = document.querySelector('ul.examples');
       for (const {title, source} of Object.values(data)) {

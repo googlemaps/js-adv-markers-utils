@@ -71,7 +71,8 @@ export class Marker<TUserData = unknown> {
   private markerState_: MarkerState = {visible: false, hovered: false};
 
   // attributes set by the user are stored in attributes_ and
-  // dynamicAttributes_.
+  // dynamicAttributes_. Since the ComputedAttributes need access to
+  // these fields, they have to be public.
   readonly attributes_: Partial<StaticAttributes> = {};
   readonly dynamicAttributes_: Partial<DynamicAttributes<TUserData>> = {};
   readonly computedAttributes_ = new ComputedMarkerAttributes(this);
@@ -119,8 +120,8 @@ export class Marker<TUserData = unknown> {
    * event system, while any dom-events will be added to the marker-element
    * itself.
    *
-   * FIXME: normalize event-handler-parameters FIXME: extend the typings to be
-   * explicit about the callback-parameters
+   * - FIXME: normalize event-handler-parameters
+   * - FIXME: extend the typings to be explicit about the callback-parameters
    *
    * @param eventName 'click', 'dragstart', 'dragend', 'drag' or any DOM
    *   event-name.
@@ -128,7 +129,7 @@ export class Marker<TUserData = unknown> {
    */
   addListener(
     eventName: string,
-    handler: (ev: google.maps.MapMouseEvent | Event) => void
+    handler: ((ev: google.maps.MapMouseEvent) => void) | ((ev: Event) => void)
   ): google.maps.MapsEventListener {
     if (eventName in MarkerEvents) {
       return this.markerView_.addListener(eventName, handler);
@@ -138,13 +139,16 @@ export class Marker<TUserData = unknown> {
 
     assertNotNull(element);
 
-    element.addEventListener(eventName as keyof ElementEventMap, handler);
+    element.addEventListener(
+      eventName as keyof ElementEventMap,
+      handler as (ev: Event) => void
+    );
 
     return {
       remove() {
         element.removeEventListener(
           eventName as keyof ElementEventMap,
-          handler
+          handler as (ev: Event) => void
         );
       }
     };
@@ -178,6 +182,8 @@ export class Marker<TUserData = unknown> {
       );
 
       this.update();
+    } else {
+      this.markerView_.map = null;
     }
   }
 
@@ -505,7 +511,16 @@ export enum CollisionBehavior {
 
 /** StaticAttributes contains the base definition for all attribute-values. */
 export interface StaticAttributes {
+  /**
+   * The position of the marker on the map, specified as
+   * google.maps.LatLngLiteral.
+   */
   position: google.maps.LatLngLiteral;
+  /**
+   * Should the marker be draggable? In this case whatever value is written to
+   * the position-attribute will be automatically overwritten by the maps-API
+   * when the position changes.
+   */
   draggable: boolean;
   collisionBehavior: CollisionBehavior;
   title: string;
@@ -526,7 +541,7 @@ export type AttributeKey = keyof StaticAttributes;
 /**
  * DynamicAttributeValues are functions that take a state object consisting of
  * internal state and user-data and return the attribute value. They are
- * evaluated whenever the a state-change happens or user-data is updated.
+ * evaluated whenever a state-change happens or user-data is updated.
  */
 export type DynamicAttributeValue<TUserData, TAttr> = (
   state: {data: TUserData} & {
