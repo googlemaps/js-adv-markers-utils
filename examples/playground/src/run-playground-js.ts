@@ -3,6 +3,7 @@ import * as marker from '../../../src/marker';
 import * as markerCollection from '../../../src/marker-collection';
 import * as icons from '../../../src/icons';
 import * as color from '../../../src/color';
+import * as placeMarker from '../../../src/placemarker'
 
 const markers: Set<Marker> = new Set();
 let cleanupFn: (() => void) | void = void 0;
@@ -41,7 +42,8 @@ export async function runPlaygroundJs(
     './lib/marker': marker,
     './lib/marker-collection': markerCollection,
     './lib/color': color,
-    './lib/icons': icons
+    './lib/icons': icons,
+    './lib/placemarker' : placeMarker
   };
   const require = (moduleString: string) => {
     // fixme: can we somehow hack the markerCollection to also use the
