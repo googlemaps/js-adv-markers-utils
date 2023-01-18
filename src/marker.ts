@@ -67,7 +67,7 @@ export class Marker<TUserData = unknown> {
 
   // since updates can be triggered in multiple ways, we store the last
   // known state of the three contributing sources
-  private data_?: TUserData;
+  private data_: TUserData | null = null;
   private markerState_: MarkerState = {visible: false, hovered: false};
 
   // attributes set by the user are stored in attributes_ and
@@ -301,9 +301,6 @@ export class Marker<TUserData = unknown> {
     //   state updates might require us to reset the state (i.e. icon changes
     //   from 'some-icon' to undefined).
 
-    // FIXME: how to handle undefined values? Should we skip those?
-    //  Or have fixed defaults for everything?
-
     this.markerView_.position = position;
     this.markerView_.draggable = attrs.draggable;
     this.markerView_.title = attrs.title;
@@ -389,7 +386,7 @@ export class Marker<TUserData = unknown> {
    * @internal
    */
   getDynamicAttributeState(): {
-    data?: TUserData;
+    data: TUserData | null;
     map: MapState;
     marker: MarkerState;
   } {
@@ -409,7 +406,7 @@ export class Marker<TUserData = unknown> {
     // ComputedMarkerAttributes. For performance reasons, these are defined on
     // the prototype instead of the object itself.
     for (const key of attributeKeys) {
-      // Note: In a static initializer, `this` points to the class constructor,
+      // Note: In the static initializer, `this` points to the class constructor,
       // so `this.prototype` is the same as `Marker.prototype` (which isn't
       // allowed). Within the get/set functions, this is bound to the actual
       // marker instance.
@@ -425,7 +422,12 @@ export class Marker<TUserData = unknown> {
   }
 }
 
-/** @internal */
+/**
+ * ComputedMarkerAttributes resolves all attributes based on dynamic and static
+ * values and makes them behave as if there were only static attributes.
+ *
+ * @internal
+ */
 class ComputedMarkerAttributes<TUserData = unknown>
   implements Partial<StaticAttributes>
 {
@@ -468,7 +470,7 @@ class ComputedMarkerAttributes<TUserData = unknown>
 
             if (this.callbackDepth_ > 10) {
               throw new Error(
-                'maximum recurcion depth reached. ' +
+                'maximum recursion depth reached. ' +
                   'This is probably caused by a cyclic dependency in dynamic attributes.'
               );
             }
@@ -544,7 +546,7 @@ export type AttributeKey = keyof StaticAttributes;
  * evaluated whenever a state-change happens or user-data is updated.
  */
 export type DynamicAttributeValue<TUserData, TAttr> = (
-  state: {data: TUserData} & {
+  state: {data?: TUserData} & {
     map: MapState;
     marker: MarkerState;
     attr: Partial<StaticAttributes>;

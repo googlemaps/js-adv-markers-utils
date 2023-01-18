@@ -1,6 +1,9 @@
 // title: simple marker customizations: icons
-import {Marker} from './lib/marker';
-import {MaterialIcons, MaterialIconsStyle} from './lib/icons';
+import {Marker} from '@ubilabs/google-maps-marker';
+import {
+  MaterialIcons,
+  MaterialIconsStyle
+} from '@ubilabs/google-maps-marker/icons';
 
 export default (map: google.maps.Map) => {
   // first we need to register the icon-provider, which is a function that knows how to create the kind of dom-element needed for an icon-set

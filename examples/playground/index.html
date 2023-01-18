@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta
@@ -18,14 +18,14 @@
         margin: 0;
         display: flex;
         flex-flow: row nowrap;
-        background: #1e1e1e;
-        color: #d4d4d4;
       }
+
       #map {
         height: 100%;
         width: 100%;
         flex: 1 1 auto;
       }
+
       .sidebar {
         width: 100%;
         min-width: 480px;
@@ -43,6 +43,10 @@
         align-items: center;
       }
 
+      .controls {
+        display: flex;
+      }
+
       h1 {
         font-size: 1em;
         margin: 0;
@@ -58,24 +62,30 @@
       .links {
         padding: 1rem;
       }
+
       .links ul {
         list-style-type: none;
         margin: 0;
         padding: 0;
       }
+
       .links li {
         display: inline-block;
       }
     </style>
+    <title>marker playground</title>
   </head>
   <body>
     <div id="map"></div>
     <div class="sidebar">
       <div class="header">
-        <h1>Marker API Playground</h1>
-        <button id="btn-compile-and-run" title="Run the code (⌘ + ⏎)">
-          Run ▶
-        </button>
+        <h1>marker playground</h1>
+        <div class="controls">
+          <select id="example-select"></select>
+          <button id="btn-compile-and-run" title="Run the code (⌘ + ⏎)">
+            Run ▶
+          </button>
+        </div>
       </div>
       <div id="editor"></div>
       <div class="links">

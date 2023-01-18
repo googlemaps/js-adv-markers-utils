@@ -1,5 +1,5 @@
 {
-  "include": ["./src/**/*"],
+  "include": ["./src/*","./src/**/*"],
   "compilerOptions": {
     "module": "ES2020",
     "target": "ES2020",

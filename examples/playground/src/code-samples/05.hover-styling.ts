@@ -1,5 +1,5 @@
 // title: marker interactivity: hover
-import {Marker} from './lib/marker';
+import {Marker} from '@ubilabs/google-maps-marker';
 
 export default (map: google.maps.Map) => {
   const position = {lat: 53.5, lng: 10};

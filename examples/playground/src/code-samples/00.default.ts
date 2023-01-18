@@ -8,8 +8,8 @@
 // <Cmd> + <S>        save the code to the URL
 //
 
-import {Marker} from './lib/marker';
-import {MaterialIcons} from './lib/icons';
+import {Marker} from '@ubilabs/google-maps-marker';
+import {MaterialIcons} from '@ubilabs/google-maps-marker/icons';
 
 export default (map: google.maps.Map) => {
   Marker.registerIconProvider(MaterialIcons());

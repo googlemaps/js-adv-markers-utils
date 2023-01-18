@@ -1,5 +1,5 @@
 // title: multiple markers / single selection (w/ user-data)
-import {Marker} from './lib/marker';
+import {Marker} from '@ubilabs/google-maps-marker';
 
 function rnd(min: number, max: number) {
   return min + Math.random() * (max - min);
@@ -29,7 +29,7 @@ export default (map: google.maps.Map) => {
       {
         map,
         position,
-        color: ({data}) => (data.selected ? '#DB4437' : '#4285F4')
+        color: ({data}) => (data?.selected ? '#DB4437' : '#4285F4')
       },
       // initial user-data
       {selected: false}

@@ -1,5 +1,5 @@
 // title: marker interactivity: click events
-import {Marker} from './lib/marker';
+import {Marker} from '@ubilabs/google-maps-marker';
 
 export default (map: google.maps.Map) => {
   const marker = new Marker({

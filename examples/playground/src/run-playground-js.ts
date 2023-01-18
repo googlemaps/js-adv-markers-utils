@@ -1,17 +1,42 @@
-import {Marker} from '../../../src/marker';
-import * as marker from '../../../src/marker';
-import * as markerCollection from '../../../src/marker-collection';
-import * as icons from '../../../src/icons';
-import * as color from '../../../src/color';
-import * as placeMarker from '../../../src/placemarker'
+import {Marker, MarkerOptions, MarkerCollection} from '../../../src';
+
+import packageJson from '../../../package.json';
+
+const {
+  name: packageName,
+  exports: packageExports
+}: {name: string; exports: {[src: string]: never}} = packageJson as never;
 
 const markers: Set<Marker> = new Set();
-let cleanupFn: (() => void) | void = void 0;
+let cleanupFn: (() => void) | void = undefined;
+
+let modulesLoaded = false;
+const modules: Record<string, object> = {};
+
+async function loadModules() {
+  modules[packageName] = await import('../../../src');
+
+  const moduleCallbacks = import.meta.glob('../../../src/*');
+  for (const src of Object.keys(packageExports)) {
+    if (src === '.') continue;
+
+    const moduleCallback = moduleCallbacks[
+      src.replace('./', '../../../src/') + '.ts'
+    ] as () => Promise<object>;
+    modules[src.replace('.', packageName)] = await moduleCallback();
+  }
+
+  modulesLoaded = true;
+}
 
 export async function runPlaygroundJs(
   js: string,
   map: google.maps.Map
 ): Promise<void> {
+  if (!modulesLoaded) {
+    await loadModules();
+  }
+
   // remove all markers
   for (const m of markers) m.map = null;
   markers.clear();
@@ -38,22 +63,24 @@ export async function runPlaygroundJs(
     }
   }
 
-  const modules: Record<string, unknown> = {
-    './lib/marker': marker,
-    './lib/marker-collection': markerCollection,
-    './lib/color': color,
-    './lib/icons': icons,
-    './lib/placemarker' : placeMarker
-  };
+  class MarkerCollectionProxy<T extends object> extends MarkerCollection<T> {
+    protected createMarker(options: MarkerOptions<T>, data: T): Marker<T> {
+      const m = super.createMarker(options, data);
+      markers.add(m as Marker);
+      return m;
+    }
+  }
+
   const require = (moduleString: string) => {
-    // fixme: can we somehow hack the markerCollection to also use the
-    //  patched marker-class?
-    if (moduleString === './lib/marker')
+    if (moduleString === packageName) {
       return {
-        ...marker,
-        Marker: MarkerProxy
+        ...modules[moduleString],
+        Marker: MarkerProxy,
+        MarkerCollection: MarkerCollectionProxy
       };
-    else if (modules[moduleString]) {
+    }
+
+    if (moduleString in modules) {
       return modules[moduleString];
     }
 

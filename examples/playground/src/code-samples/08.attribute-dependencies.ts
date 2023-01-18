@@ -1,6 +1,6 @@
 // title: dynamic attributes depending on each other
 
-import {Marker} from './lib/marker';
+import {Marker} from '@ubilabs/google-maps-marker';
 
 // dynamic attributes can be written to reliably depend on the current value
 // of another attribute, for example to make colors depend on the icon shown
@@ -14,7 +14,8 @@ export default (map: google.maps.Map) => {
   const marker = new Marker({
     position: {lat: 53.55, lng: 10.05},
     color: ({marker}) => (marker.hovered ? 'red' : 'green'),
-    borderColor: ({attr}) => (attr.color === 'red' ? 'black' : undefined),
-    map
+    borderColor: ({attr}) => (attr.color === 'red' ? 'black' : undefined)
   });
+
+  marker.map = map;
 };

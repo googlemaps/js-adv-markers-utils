@@ -19,6 +19,7 @@
         background: #1e1e1e;
         color: #d4d4d4;
       }
+
       main {
         max-width: 640px;
         width: 100%;
@@ -35,11 +36,21 @@
     </main>
 
     <script type="module">
-      import data from './src/code-samples/examples.json';
       import {encode} from './src/snippet-encoder';
 
+      const files = import.meta.glob('./src/code-samples/*.ts', {
+        as: 'raw',
+        eager: true
+      });
+
       const root = document.querySelector('ul.examples');
-      for (const {title, source} of Object.values(data)) {
+      for (const [filename, source] of Object.entries(files)) {
+        const firstLine = source.slice(0, source.indexOf('\n')).trim();
+        let title = filename.replace(/^.*\//, '');
+        if (firstLine.startsWith('// title:')) {
+          title = firstLine.replace(/\/\/ title:\s*/, '');
+        }
+
         const el = document.createElement('li');
         const a = document.createElement('a');
 

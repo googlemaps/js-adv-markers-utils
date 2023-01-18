@@ -1,12 +1,13 @@
 // title: simple marker for google places API PlaceResult
-import {Marker} from './lib/marker';
+import {Marker} from '@ubilabs/google-maps-marker';
+
 export default (map: google.maps.Map) => {
   const marker = new Marker<google.maps.places.PlaceResult>({
-    position: ({data}) => data.geometry?.location?.toJSON(),
-    backgroundColor: ({data}) => data.icon_background_color,
-    borderColor: ({data}) => data.icon_background_color,
+    position: ({data}) => data?.geometry?.location?.toJSON(),
+    backgroundColor: ({data}) => data?.icon_background_color,
+    borderColor: ({data}) => data?.icon_background_color,
     glyph: ({data}) =>
-      data.icon_mask_base_uri && new URL(data.icon_mask_base_uri + '.svg'),
+      data?.icon_mask_base_uri && new URL(data.icon_mask_base_uri + '.svg'),
     map
   });
   marker.setData(loadData());
@@ -15,10 +16,7 @@ export default (map: google.maps.Map) => {
 function loadData() {
   return {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.5544977,
-        lng: 10.0073303
-      })
+      location: new google.maps.LatLng({lat: 53.5544977, lng: 10.0073303})
     },
     icon_background_color: '#7B9EB0',
     icon_mask_base_uri:

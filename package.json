@@ -31,6 +31,7 @@
   },
   "scripts": {
     "build": "microbundle src/index.ts src/icons.ts",
+    "watch": "microbundle watch src/index.ts src/icons.ts",
     "test": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha"
   },
   "devDependencies": {

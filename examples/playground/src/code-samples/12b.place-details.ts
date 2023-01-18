@@ -1,6 +1,7 @@
 // title: PlaceResult using the PlaceMarker class
 
-import {PlaceMarker} from './lib/placemarker';
+import {PlaceMarker} from '@ubilabs/google-maps-marker/placemarker';
+
 export default (map: google.maps.Map) => {
   res.forEach(result => {
     new PlaceMarker({
@@ -13,10 +14,7 @@ export default (map: google.maps.Map) => {
 const res: google.maps.places.PlaceResult[] = [
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.55447,
-        lng: 10.0013
-      })
+      location: new google.maps.LatLng({lat: 53.55447, lng: 10.0013})
     },
     icon_background_color: '#FF9E67',
     icon_mask_base_uri:
@@ -24,10 +22,7 @@ const res: google.maps.places.PlaceResult[] = [
   },
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.558,
-        lng: 10.006
-      })
+      location: new google.maps.LatLng({lat: 53.558, lng: 10.006})
     },
     icon_background_color: '#FF9E67',
     icon_mask_base_uri:
@@ -36,10 +31,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.553,
-        lng: 10.006
-      })
+      location: new google.maps.LatLng({lat: 53.553, lng: 10.006})
     },
     icon_background_color: '#FF9E67',
     icon_mask_base_uri:
@@ -48,10 +40,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.57,
-        lng: 9.99
-      })
+      location: new google.maps.LatLng({lat: 53.57, lng: 9.99})
     },
     icon_background_color: '#4B96F3',
     icon_mask_base_uri:
@@ -60,10 +49,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.5664,
-        lng: 9.99
-      })
+      location: new google.maps.LatLng({lat: 53.5664, lng: 9.99})
     },
     icon_background_color: '#4B96F3',
     icon_mask_base_uri:
@@ -72,10 +58,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.5664,
-        lng: 9.984
-      })
+      location: new google.maps.LatLng({lat: 53.5664, lng: 9.984})
     },
     icon_background_color: '#4B96F3',
     icon_mask_base_uri:
@@ -84,10 +67,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.57,
-        lng: 9.984
-      })
+      location: new google.maps.LatLng({lat: 53.57, lng: 9.984})
     },
     icon_background_color: '#4B96F3',
     icon_mask_base_uri:
@@ -96,10 +76,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.578,
-        lng: 9.99
-      })
+      location: new google.maps.LatLng({lat: 53.578, lng: 9.99})
     },
     icon_background_color: '#909CE1',
     icon_mask_base_uri:
@@ -108,10 +85,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.581,
-        lng: 9.99
-      })
+      location: new google.maps.LatLng({lat: 53.581, lng: 9.99})
     },
     icon_background_color: '#909CE1',
     icon_mask_base_uri:
@@ -120,10 +94,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.579,
-        lng: 9.98832
-      })
+      location: new google.maps.LatLng({lat: 53.579, lng: 9.98832})
     },
     icon_background_color: '#909CE1',
     icon_mask_base_uri:
@@ -132,10 +103,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.58,
-        lng: 9.995
-      })
+      location: new google.maps.LatLng({lat: 53.58, lng: 9.995})
     },
     icon_background_color: '#909CE1',
     icon_mask_base_uri:
@@ -143,10 +111,7 @@ const res: google.maps.places.PlaceResult[] = [
   },
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.58,
-        lng: 9.9999
-      })
+      location: new google.maps.LatLng({lat: 53.58, lng: 9.9999})
     },
     icon_background_color: '#909CE1',
     icon_mask_base_uri:
@@ -157,10 +122,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.56,
-        lng: 9.989
-      })
+      location: new google.maps.LatLng({lat: 53.56, lng: 9.989})
     },
     icon_background_color: '#13B5C7',
     icon_mask_base_uri:
@@ -168,10 +130,7 @@ const res: google.maps.places.PlaceResult[] = [
   },
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.56,
-        lng: 9.995
-      })
+      location: new google.maps.LatLng({lat: 53.56, lng: 9.995})
     },
     icon_background_color: '#13B5C7',
     icon_mask_base_uri:
@@ -180,10 +139,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.565,
-        lng: 9.995
-      })
+      location: new google.maps.LatLng({lat: 53.565, lng: 9.995})
     },
     icon_background_color: '#13B5C7',
     icon_mask_base_uri:
@@ -192,10 +148,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.558,
-        lng: 9.98
-      })
+      location: new google.maps.LatLng({lat: 53.558, lng: 9.98})
     },
     icon_background_color: '#13B5C7',
     icon_mask_base_uri:
@@ -203,10 +156,7 @@ const res: google.maps.places.PlaceResult[] = [
   },
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.5567,
-        lng: 9.992
-      })
+      location: new google.maps.LatLng({lat: 53.5567, lng: 9.992})
     },
     icon_background_color: '#13B5C7',
     icon_mask_base_uri:
@@ -215,10 +165,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.5568,
-        lng: 9.989
-      })
+      location: new google.maps.LatLng({lat: 53.5568, lng: 9.989})
     },
     icon_background_color: '#13B5C7',
     icon_mask_base_uri:
@@ -228,10 +175,7 @@ const res: google.maps.places.PlaceResult[] = [
   // Place category: Transportation
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.55,
-        lng: 9.99
-      })
+      location: new google.maps.LatLng({lat: 53.55, lng: 9.99})
     },
     icon_background_color: '#10BDFF',
     icon_mask_base_uri:
@@ -240,10 +184,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.552,
-        lng: 9.99
-      })
+      location: new google.maps.LatLng({lat: 53.552, lng: 9.99})
     },
     icon_background_color: '#10BDFF',
     icon_mask_base_uri:
@@ -252,10 +193,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.548,
-        lng: 9.997
-      })
+      location: new google.maps.LatLng({lat: 53.548, lng: 9.997})
     },
     icon_background_color: '#10BDFF',
     icon_mask_base_uri:
@@ -266,10 +204,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.588,
-        lng: 10.01
-      })
+      location: new google.maps.LatLng({lat: 53.588, lng: 10.01})
     },
     icon_background_color: '#7B9EB0',
     icon_mask_base_uri:
@@ -278,10 +213,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.585,
-        lng: 10.01
-      })
+      location: new google.maps.LatLng({lat: 53.585, lng: 10.01})
     },
     icon_background_color: '#7B9EB0',
     icon_mask_base_uri:
@@ -290,10 +222,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.57,
-        lng: 10.01
-      })
+      location: new google.maps.LatLng({lat: 53.57, lng: 10.01})
     },
     icon_background_color: '#7B9EB0',
     icon_mask_base_uri:
@@ -302,10 +231,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.57,
-        lng: 10.02
-      })
+      location: new google.maps.LatLng({lat: 53.57, lng: 10.02})
     },
     icon_background_color: '#7B9EB0',
     icon_mask_base_uri:
@@ -314,10 +240,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.575,
-        lng: 10.03
-      })
+      location: new google.maps.LatLng({lat: 53.575, lng: 10.03})
     },
     icon_background_color: '#7B9EB0',
     icon_mask_base_uri:
@@ -326,10 +249,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.57,
-        lng: 10.03
-      })
+      location: new google.maps.LatLng({lat: 53.57, lng: 10.03})
     },
     icon_background_color: '#7B9EB0',
     icon_mask_base_uri:
@@ -338,10 +258,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.58,
-        lng: 10.023
-      })
+      location: new google.maps.LatLng({lat: 53.58, lng: 10.023})
     },
     icon_background_color: '#7B9EB0',
     icon_mask_base_uri:
@@ -350,10 +267,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.575,
-        lng: 10.023
-      })
+      location: new google.maps.LatLng({lat: 53.575, lng: 10.023})
     },
     icon_background_color: '#7B9EB0',
     icon_mask_base_uri:
@@ -361,10 +275,7 @@ const res: google.maps.places.PlaceResult[] = [
   },
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.575,
-        lng: 10.02
-      })
+      location: new google.maps.LatLng({lat: 53.575, lng: 10.02})
     },
     icon_background_color: '#7B9EB0',
     icon_mask_base_uri:
@@ -373,10 +284,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.575,
-        lng: 10.012
-      })
+      location: new google.maps.LatLng({lat: 53.575, lng: 10.012})
     },
     icon_background_color: '#7B9EB0',
     icon_mask_base_uri:
@@ -385,10 +293,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.58,
-        lng: 10.012
-      })
+      location: new google.maps.LatLng({lat: 53.58, lng: 10.012})
     },
     icon_background_color: '#7B9EB0',
     icon_mask_base_uri:
@@ -397,10 +302,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.578,
-        lng: 10.012
-      })
+      location: new google.maps.LatLng({lat: 53.578, lng: 10.012})
     },
     icon_background_color: '#7B9EB0',
     icon_mask_base_uri:
@@ -409,10 +311,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.578,
-        lng: 10.015
-      })
+      location: new google.maps.LatLng({lat: 53.578, lng: 10.015})
     },
     icon_background_color: '#7B9EB0',
     icon_mask_base_uri:
@@ -421,10 +320,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.582,
-        lng: 10.015
-      })
+      location: new google.maps.LatLng({lat: 53.582, lng: 10.015})
     },
     icon_background_color: '#7B9EB0',
     icon_mask_base_uri:
@@ -435,10 +331,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.56,
-        lng: 10.015
-      })
+      location: new google.maps.LatLng({lat: 53.56, lng: 10.015})
     },
     icon_background_color: '#4DB546',
     icon_mask_base_uri:
@@ -447,10 +340,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.556,
-        lng: 10.015
-      })
+      location: new google.maps.LatLng({lat: 53.556, lng: 10.015})
     },
     icon_background_color: '#4DB546',
     icon_mask_base_uri:
@@ -459,10 +349,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.55,
-        lng: 10.018
-      })
+      location: new google.maps.LatLng({lat: 53.55, lng: 10.018})
     },
     icon_background_color: '#4DB546',
     icon_mask_base_uri:
@@ -471,10 +358,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.55,
-        lng: 10.013
-      })
+      location: new google.maps.LatLng({lat: 53.55, lng: 10.013})
     },
     icon_background_color: '#4DB546',
     icon_mask_base_uri:
@@ -483,10 +367,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.56,
-        lng: 10.0197
-      })
+      location: new google.maps.LatLng({lat: 53.56, lng: 10.0197})
     },
     icon_background_color: '#4DB546',
     icon_mask_base_uri:
@@ -497,10 +378,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.573,
-        lng: 9.995
-      })
+      location: new google.maps.LatLng({lat: 53.573, lng: 9.995})
     },
     icon_background_color: '#F88181',
     icon_mask_base_uri:
@@ -509,10 +387,7 @@ const res: google.maps.places.PlaceResult[] = [
 
   {
     geometry: {
-      location: new google.maps.LatLng({
-        lat: 53.573,
-        lng: 9.99
-      })
+      location: new google.maps.LatLng({lat: 53.573, lng: 9.99})
     },
     icon_background_color: '#F88181',
     icon_mask_base_uri:

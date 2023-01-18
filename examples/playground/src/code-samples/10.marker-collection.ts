@@ -1,12 +1,11 @@
 // title: basic marker collection
 
-import {CollisionBehavior, Marker} from './lib/marker';
-import {MarkerCollection} from './lib/marker-collection';
-import {MaterialIcons} from './lib/icons';
-
-function rnd(min: number, max: number) {
-  return min + Math.random() * (max - min);
-}
+import {
+  CollisionBehavior,
+  Marker,
+  MarkerCollection
+} from '@ubilabs/google-maps-marker';
+import {MaterialIcons} from '@ubilabs/google-maps-marker/icons';
 
 type MyData = {
   id: number;
@@ -20,6 +19,31 @@ const categoryIcons: {[c: string]: string} = {
   b: 'nightlife',
   c: 'person'
 };
+
+export default async (map: google.maps.Map) => {
+  Marker.registerIconProvider(MaterialIcons());
+
+  const data = await loadData();
+  const markers = new MarkerCollection(data, {
+    position: ({data}) => data?.position,
+    scale: 1.4,
+    color: ({marker}) => (marker.hovered ? '#ffcc22' : '#dd9222'),
+    icon: ({data}) => data && categoryIcons[data.category],
+    collisionBehavior: CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY
+  });
+
+  markers.map = map;
+  map.moveCamera({
+    center: {lat: 53.55, lng: 10},
+    zoom: 11,
+    heading: 0,
+    tilt: 0
+  });
+};
+
+function rnd(min: number, max: number) {
+  return min + Math.random() * (max - min);
+}
 
 async function loadData(): Promise<MyData[]> {
   const data = [];
@@ -36,28 +60,3 @@ async function loadData(): Promise<MyData[]> {
 
   return data;
 }
-
-export default async (map: google.maps.Map) => {
-  Marker.registerIconProvider(MaterialIcons());
-
-  const data = await loadData();
-  const markers = new MarkerCollection(data, {
-    position: ({data}) => data.position,
-    scale: 1.4,
-    color: ({marker}) => (marker.hovered ? '#ffcc22' : '#dd9222'),
-    icon: ({data}) => categoryIcons[data.category],
-    collisionBehavior: CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY
-  });
-
-  markers.map = map;
-  map.moveCamera({
-    center: {lat: 53.55, lng: 10},
-    zoom: 11,
-    heading: 0,
-    tilt: 0
-  });
-
-  return () => {
-    markers.map = null;
-  };
-};

@@ -2,8 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-misused-promises */
 
-import {CollisionBehavior, Marker} from './lib/marker';
-import {MarkerCollection} from './lib/marker-collection';
+import {MarkerCollection} from '@ubilabs/google-maps-marker';
 
 type MyData = {
   id: number;
@@ -15,8 +14,8 @@ export default async (map: google.maps.Map) => {
   const data = await loadData();
   const markers = new MarkerCollection<MyData>(data, {
     key: data => data.id.toString(),
-    position: ({data}) => data.position,
-    color: ({data}) => data.color,
+    position: ({data}) => data?.position,
+    color: ({data}) => data?.color,
     scale: 1.4
   });
 
@@ -34,7 +33,6 @@ export default async (map: google.maps.Map) => {
   });
 
   return () => {
-    markers.map = null;
     clearInterval(intervalId);
   };
 };

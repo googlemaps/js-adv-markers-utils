@@ -1,6 +1,6 @@
 // title: draggable markers / update position after drag
-import {Marker} from './lib/marker';
-import {MaterialIcons} from './lib/icons';
+import {Marker} from '@ubilabs/google-maps-marker';
+import {MaterialIcons} from '@ubilabs/google-maps-marker/icons';
 
 export default (map: google.maps.Map) => {
   Marker.registerIconProvider(MaterialIcons());
@@ -10,8 +10,8 @@ export default (map: google.maps.Map) => {
   m1.map = map;
 
   m1.draggable = true;
-  m1.addListener('dragend', ev => {
-    console.log('dragend', ev.latLng.toJSON());
-    m1.position = ev.latLng.toJSON();
+  m1.addListener('dragend', (ev: google.maps.MapMouseEvent) => {
+    console.log('dragend', ev.latLng?.toJSON());
+    m1.position = ev.latLng?.toJSON();
   });
 };
