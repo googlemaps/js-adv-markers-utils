@@ -6,29 +6,13 @@ import {
   rgbaToString
 } from './color';
 import {assertMapsApiLoaded, assertNotNull, warnOnce} from './util';
+import {MapStateObserver} from './map-state-observer';
+import {ComputedMarkerAttributes} from './computed-marker-attributes';
+import {attributeKeys} from './marker-attributes';
 
 import type {IconProvider} from './icons';
 import type {MapState} from './map-state-observer';
-import {MapStateObserver} from './map-state-observer';
-
-// These keys are used to create the dynamic properties (mostly to save us
-// from having to type them all out and to make adding attributes a bit easier).
-const attributeKeys: readonly AttributeKey[] = [
-  'position',
-  'draggable',
-  'collisionBehavior',
-  'title',
-  'zIndex',
-
-  'color',
-  'backgroundColor',
-  'borderColor',
-  'glyphColor',
-
-  'icon',
-  'glyph',
-  'scale'
-] as const;
+import type {Attributes, StaticAttributes} from './marker-attributes';
 
 /**
  * The Marker class. The optional type-parameter T can be used to specify a type
@@ -38,6 +22,19 @@ const attributeKeys: readonly AttributeKey[] = [
 export class Marker<TUserData = unknown> {
   private static iconProviders: Map<string, IconProvider> = new Map();
 
+  /**
+   * Registers a new icon-provider that resolves the value of the icon-attribute
+   * to something that can be used as glyph. When multiple providers are used,
+   * you can additionally provide a namespace for the icons.
+   *
+   * For example:
+   *
+   *     marker.icon = 'star'; // requests the 'star' icon from the 'default' provider
+   *     marker.icon = 'other:star'; // requests the icon from the 'other' provider
+   *
+   * @param provider
+   * @param namespace
+   */
   static registerIconProvider(
     provider: IconProvider,
     namespace: string = 'default'
@@ -45,8 +42,8 @@ export class Marker<TUserData = unknown> {
     Marker.iconProviders.set(namespace, provider);
   }
 
-  // attributes are only declared here, they are dynamically added to the
-  // prototype below the class-declaration
+  // attributes are declaration-only, they are dynamically added to the
+  // prototype in the static-initializer
   declare position?: Attributes<TUserData>['position'];
   declare draggable?: Attributes<TUserData>['draggable'];
   declare collisionBehavior?: Attributes<TUserData>['collisionBehavior'];
@@ -65,24 +62,27 @@ export class Marker<TUserData = unknown> {
   private mapObserver_: MapStateObserver | null = null;
   private mapEventListener_: google.maps.MapsEventListener | null = null;
 
-  // since updates can be triggered in multiple ways, we store the last
-  // known state of the three contributing sources
   private data_: TUserData | null = null;
   private markerState_: MarkerState = {visible: false, hovered: false};
 
-  // attributes set by the user are stored in attributes_ and
-  // dynamicAttributes_. Since the ComputedAttributes need access to
-  // these fields, they have to be public.
-  readonly attributes_: Partial<StaticAttributes> = {};
-  readonly dynamicAttributes_: Partial<DynamicAttributes<TUserData>> = {};
-  readonly computedAttributes_ = new ComputedMarkerAttributes(this);
+  /** Attributes set by the user. */
+  private readonly attributes_: Partial<Attributes<TUserData>> = {};
+
+  /**
+   * Computed attributes take care of resolving the dynamic attributes into the
+   * static values at the time of evaluation.
+   */
+  private readonly computedAttributes_: ComputedMarkerAttributes<TUserData> =
+    new ComputedMarkerAttributes(this);
 
   // AdvancedMarkerView and PinView instances used to render the marker
   private markerView_: google.maps.marker.AdvancedMarkerView;
   private pinView_: google.maps.marker.PinView;
 
-  // internal flag to prevent multiple updates in the same execution frame
-  // (updates start as microtasks after being requested)
+  /**
+   * Internal flag to prevent multiple updates in the same execution frame
+   * (updates start as microtasks after being requested)
+   */
   private updateScheduled_: boolean = false;
 
   /**
@@ -204,49 +204,8 @@ export class Marker<TUserData = unknown> {
    * @param attributes
    */
   setAttributes(attributes: Partial<Attributes<TUserData>>) {
-    // set all remaining parameters as attributes
-    for (const [key, value] of Object.entries(attributes)) {
-      this.setAttribute_(key as AttributeKey, value);
-    }
-  }
-
-  /**
-   * Internal method to set attribute values. Splits specified attributes into
-   * static and dynamic attributes and triggers an update.
-   *
-   * @param name
-   * @param value
-   */
-  private setAttribute_<
-    TKey extends AttributeKey,
-    TValue extends Attributes<TUserData>[TKey]
-  >(name: TKey, value: TValue) {
-    // update the marker when we're done
+    Object.assign(this.attributes_, attributes);
     this.update();
-
-    if (typeof value === 'function') {
-      this.dynamicAttributes_[name] =
-        value as DynamicAttributes<TUserData>[TKey];
-    } else {
-      this.attributes_[name] = value as StaticAttributes[TKey];
-      delete this.dynamicAttributes_[name];
-    }
-  }
-
-  /**
-   * Internal method to get the attribute value as it was specified by the user
-   * (e.g. will return the dynamic attribute function instead of the effective
-   * value).
-   *
-   * @param name
-   */
-  private getAttribute_<TKey extends AttributeKey>(
-    name: TKey
-  ): Attributes<TUserData>[TKey] {
-    return (
-      (this.dynamicAttributes_[name] as DynamicAttributes<TUserData>[TKey]) ||
-      (this.attributes_[name] as StaticAttributes[TKey])
-    );
   }
 
   /**
@@ -381,7 +340,8 @@ export class Marker<TUserData = unknown> {
   };
 
   /**
-   * Retrieve the parameters to be passed to dynamic attribute callbacks.
+   * Retrieve the parameters to be passed to dynamic attribute callbacks. This
+   * method is part of the internal API used by the ComputedMarkerAttributes.
    *
    * @internal
    */
@@ -406,80 +366,14 @@ export class Marker<TUserData = unknown> {
     // ComputedMarkerAttributes. For performance reasons, these are defined on
     // the prototype instead of the object itself.
     for (const key of attributeKeys) {
-      // Note: In the static initializer, `this` points to the class constructor,
-      // so `this.prototype` is the same as `Marker.prototype` (which isn't
-      // allowed). Within the get/set functions, this is bound to the actual
-      // marker instance.
+      // Note: in a static initializer, `this` refers to the class itself.
       Object.defineProperty(this.prototype, key, {
         get(this: Marker) {
-          return this.getAttribute_(key);
+          return this.attributes_[key];
         },
         set(this: Marker, value) {
-          this.setAttribute_(key, value);
-        }
-      });
-    }
-  }
-}
-
-/**
- * ComputedMarkerAttributes resolves all attributes based on dynamic and static
- * values and makes them behave as if there were only static attributes.
- *
- * @internal
- */
-class ComputedMarkerAttributes<TUserData = unknown>
-  implements Partial<StaticAttributes>
-{
-  private marker_: Marker<TUserData>;
-  private callbackDepth_: number = 0;
-
-  // attributes are only declared here, they are dynamically added to the
-  // prototype in the static initializer below.
-  declare position?: StaticAttributes['position'];
-  declare draggable?: StaticAttributes['draggable'];
-  declare collisionBehavior?: StaticAttributes['collisionBehavior'];
-  declare title?: StaticAttributes['title'];
-  declare zIndex?: StaticAttributes['zIndex'];
-
-  declare glyph?: StaticAttributes['glyph'];
-  declare scale?: StaticAttributes['scale'];
-  declare color?: StaticAttributes['color'];
-  declare backgroundColor?: StaticAttributes['backgroundColor'];
-  declare borderColor?: StaticAttributes['borderColor'];
-  declare glyphColor?: StaticAttributes['glyphColor'];
-  declare icon?: StaticAttributes['icon'];
-
-  constructor(marker: Marker<TUserData>) {
-    this.marker_ = marker;
-  }
-
-  static {
-    for (const key of attributeKeys) {
-      // set up internal properties of the ComputedMarkerAttributes class,
-      // resolve all dynamic to static values.
-      Object.defineProperty(this.prototype, key, {
-        get(this: ComputedMarkerAttributes) {
-          const {map, data, marker} = this.marker_.getDynamicAttributeState();
-          const callback = this.marker_.dynamicAttributes_[key];
-
-          if (!callback) {
-            return this.marker_.attributes_[key];
-          } else {
-            this.callbackDepth_++;
-
-            if (this.callbackDepth_ > 10) {
-              throw new Error(
-                'maximum recursion depth reached. ' +
-                  'This is probably caused by a cyclic dependency in dynamic attributes.'
-              );
-            }
-
-            const res = callback({data, map, marker, attr: this});
-            this.callbackDepth_--;
-
-            return res;
-          }
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          this.attributes_[key] = value;
         }
       });
     }
@@ -510,66 +404,6 @@ export enum CollisionBehavior {
    */
   REQUIRED_AND_HIDES_OPTIONAL = 'REQUIRED_AND_HIDES_OPTIONAL'
 }
-
-/** StaticAttributes contains the base definition for all attribute-values. */
-export interface StaticAttributes {
-  /**
-   * The position of the marker on the map, specified as
-   * google.maps.LatLngLiteral.
-   */
-  position: google.maps.LatLngLiteral;
-  /**
-   * Should the marker be draggable? In this case whatever value is written to
-   * the position-attribute will be automatically overwritten by the maps-API
-   * when the position changes.
-   */
-  draggable: boolean;
-  collisionBehavior: CollisionBehavior;
-  title: string;
-  zIndex: number;
-
-  color: string;
-  backgroundColor: string;
-  borderColor: string;
-  glyphColor: string;
-  icon: string;
-  glyph: string | Element | URL;
-  scale: number;
-}
-
-// just the keys for all attributes
-export type AttributeKey = keyof StaticAttributes;
-
-/**
- * DynamicAttributeValues are functions that take a state object consisting of
- * internal state and user-data and return the attribute value. They are
- * evaluated whenever a state-change happens or user-data is updated.
- */
-export type DynamicAttributeValue<TUserData, TAttr> = (
-  state: {data?: TUserData} & {
-    map: MapState;
-    marker: MarkerState;
-    attr: Partial<StaticAttributes>;
-  }
-) => TAttr | undefined;
-
-/** An AttributeValue can be either a static value of a dynamic attribute. */
-export type AttributeValue<TUserData, T> =
-  | T
-  | DynamicAttributeValue<TUserData, T>;
-
-/** Internally used to store the attributes with dynamic values separately. */
-export type DynamicAttributes<T> = {
-  [key in AttributeKey]: DynamicAttributeValue<T, StaticAttributes[key]>;
-};
-
-/**
- * These are the attribute-types as specified to the constructor and individual
- * attribute setters
- */
-export type Attributes<T = unknown> = {
-  [key in AttributeKey]: AttributeValue<T, StaticAttributes[key]>;
-};
 
 /**
  * The single options argument for the marker-class contains the attributes as

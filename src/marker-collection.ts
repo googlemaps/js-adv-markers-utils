@@ -1,26 +1,24 @@
 import {Marker, MarkerOptions} from './marker';
-import type {Attributes} from './marker';
 import {warnOnce} from './util';
+import type {Attributes} from './marker-attributes';
 
 /**
- * a collection provides bindings between an array of arbitrary records and
- * the corresponding markers.
+ * A collection provides bindings between an array of arbitrary records and the
+ * corresponding markers.
  *
- * - attributes: attributes are shared with all markers, which is where
- *   dynamic attributes can really shine
- *
- * - data-updates: data in the collection can be updated after creation.
- *   This will assume that complete sets of records are passed on every
- *   update. If incremental updates are needed, those have to be applied
- *   to the data before updating the marker collection.
- *   When transitions are implemented (also for performance reasons), it
- *   will become important to recognize identical records, so those can be
- *   updated instead of re-created with every update.
+ * - Attributes: attributes are shared with all markers, which is where dynamic
+ *   attributes can really shine
+ * - Data-updates: data in the collection can be updated after creation. This will
+ *   assume that complete sets of records are passed on every update. If
+ *   incremental updates are needed, those have to be applied to the data before
+ *   updating the marker collection. When transitions are implemented (also for
+ *   performance reasons), it will become important to recognize identical
+ *   records, so those can be updated instead of re-created with every update.
  */
 
 /**
- * Markers in a collection can have additional (virtual) attributes that
- * are defined here.
+ * Markers in a collection can have additional (virtual) attributes that are
+ * defined here.
  */
 export type CollectionMarkerAttributes<T> = Attributes<T> & {
   key: (data: T) => string;
@@ -39,15 +37,16 @@ export class MarkerCollection<TUserData extends object = object> {
   private generatedKeyCache_ = new WeakMap<TUserData, string>();
 
   /**
-   * Creates a new MarkerCollection without specifying the data yet.
-   * This could be useful since fetching the data typically happens at
-   * a different time Providing data when creating the marker-collection
-   * is optional.
+   * Creates a new MarkerCollection without specifying the data yet. This could
+   * be useful since fetching the data typically happens at a different time
+   * Providing data when creating the marker-collection is optional.
+   *
    * @param options
    */
   constructor(options: MarkerCollectionOptions<TUserData>);
   /**
    * Creates a new MarkerCollection with existing data.
+   *
    * @param data
    * @param options
    */

@@ -71,6 +71,7 @@ export function PlaceIcons(): IconProvider {
 
 /**
  * Creates the span element for the specified icon.
+ *
  * @param className
  * @param content
  */
@@ -86,6 +87,7 @@ function createSpan(className: string, content: string): HTMLElement {
 /**
  * Checks existing google fonts link tags for the specified material-icons
  * font-family.
+ *
  * @param family
  */
 function isFontLoaded(family: string): boolean {
@@ -116,6 +118,7 @@ function isFontLoaded(family: string): boolean {
 
 /**
  * Appends the stylesheet to load the specified font-family.
+ *
  * @param family
  */
 function appendFontStylesheet(family: string) {
