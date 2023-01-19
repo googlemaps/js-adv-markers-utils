@@ -1,6 +1,6 @@
 import {
-  darken,
   brighten,
+  darken,
   luminance,
   parseCssColorValue,
   rgbaToString
@@ -11,8 +11,8 @@ import {ComputedMarkerAttributes} from './computed-marker-attributes';
 import {attributeKeys} from './marker-attributes';
 
 import type {IconProvider} from './icons';
+import type {Attributes} from './marker-attributes';
 import type {MapState} from './map-state-observer';
-import type {Attributes, StaticAttributes} from './marker-attributes';
 
 /**
  * The Marker class. The optional type-parameter T can be used to specify a type
@@ -60,7 +60,7 @@ export class Marker<TUserData = unknown> {
 
   private map_: google.maps.Map | null = null;
   private mapObserver_: MapStateObserver | null = null;
-  private mapEventListener_: google.maps.MapsEventListener | null = null;
+  private mapEventListeners_: google.maps.MapsEventListener[] = [];
 
   private data_: TUserData | null = null;
   private markerState_: MarkerState = {visible: false, hovered: false};
@@ -101,8 +101,6 @@ export class Marker<TUserData = unknown> {
     this.markerView_ = new google.maps.marker.AdvancedMarkerView();
     this.markerView_.content = this.pinView_.element;
 
-    this.bindMarkerEvents();
-
     if (data) this.data_ = data;
 
     // set all remaining parameters as attributes
@@ -120,13 +118,19 @@ export class Marker<TUserData = unknown> {
    * event system, while any dom-events will be added to the marker-element
    * itself.
    *
-   * - FIXME: normalize event-handler-parameters
-   * - FIXME: extend the typings to be explicit about the callback-parameters
-   *
    * @param eventName 'click', 'dragstart', 'dragend', 'drag' or any DOM
    *   event-name.
    * @param handler
    */
+  addListener<K extends keyof GoogleMapsAMVEventMap>(
+    eventName: K,
+    handler: (ev: GoogleMapsAMVEventMap[K]) => void
+  ): google.maps.MapsEventListener;
+  addListener<K extends keyof HTMLElementEventMap>(
+    eventName: K,
+    handler: (ev: HTMLElementEventMap[K]) => void
+  ): google.maps.MapsEventListener;
+
   addListener(
     eventName: string,
     handler: ((ev: google.maps.MapMouseEvent) => void) | ((ev: Event) => void)
@@ -155,8 +159,8 @@ export class Marker<TUserData = unknown> {
   }
 
   /**
-   * The map property is a proxy for this.map_, setting the map will also start
-   * listening for map-state events and update the marker.
+   * Stores the map-instance. The map will be passed on to the
+   * AdvancedMarkerView in `performUpdate()`.
    */
   get map(): google.maps.Map | null {
     return this.map_ || null;
@@ -167,24 +171,16 @@ export class Marker<TUserData = unknown> {
       return;
     }
 
-    if (this.mapEventListener_) {
-      this.mapEventListener_.remove();
-      this.mapEventListener_ = null;
-      this.mapObserver_ = null;
-    }
-
+    this.unbindEvents_();
+    this.mapObserver_ = null;
     this.map_ = map;
 
     if (map) {
       this.mapObserver_ = MapStateObserver.getInstance(map);
-      this.mapEventListener_ = this.mapObserver_.addListener(() =>
-        this.update()
-      );
-
-      this.update();
-    } else {
-      this.markerView_.map = null;
+      this.bindEvents_();
     }
+
+    this.update();
   }
 
   /**
@@ -234,12 +230,13 @@ export class Marker<TUserData = unknown> {
    * @internal
    */
   private performUpdate() {
-    if (!this.map || !this.mapObserver_) {
-      console.warn('marker update skipped: missing map');
+    if (!this.map) {
+      this.markerView_.map = null;
+
       return;
     }
 
-    const attrs = this.computedAttributes_;
+    const attrs = this.computedAttributes_ as ComputedMarkerAttributes;
     const position = attrs.position;
 
     // if the marker doesn't have a position, we can skip it entirely and
@@ -254,12 +251,6 @@ export class Marker<TUserData = unknown> {
       this.markerView_.map = this.map_;
     }
 
-    this.updateColors(attrs);
-
-    // FIXME: in cases where there's an `if` here, we need to make sure that
-    //   state updates might require us to reset the state (i.e. icon changes
-    //   from 'some-icon' to undefined).
-
     this.markerView_.position = position;
     this.markerView_.draggable = attrs.draggable;
     this.markerView_.title = attrs.title;
@@ -267,31 +258,8 @@ export class Marker<TUserData = unknown> {
     this.markerView_.collisionBehavior = attrs.collisionBehavior;
     this.pinView_.scale = attrs.scale;
 
-    if (attrs.icon) {
-      let namespace = 'default';
-      let iconId = attrs.icon;
-
-      if (attrs.icon.includes(':')) {
-        [namespace, iconId] = attrs.icon.split(':');
-      }
-
-      const provider = Marker.iconProviders.get(namespace);
-      if (provider) {
-        this.pinView_.glyph = provider(iconId);
-      } else {
-        const nsText =
-          namespace === 'default' ? '' : `with namespace '${namespace}' `;
-
-        warnOnce(
-          `An icon is set but no icon provider ${nsText}is configured.\n` +
-            `You can register an icon-provider using e.g. ` +
-            `\`Marker.iconProvider = MaterialIcons()\` to use the material ` +
-            `icons webfont.`
-        );
-      }
-    } else if (attrs.glyph) {
-      this.pinView_.glyph = attrs.glyph;
-    }
+    this.updateColors_(attrs);
+    this.updateGlyph_(attrs);
   }
 
   /**
@@ -300,7 +268,7 @@ export class Marker<TUserData = unknown> {
    *
    * @param attributes
    */
-  private updateColors(attributes: Partial<StaticAttributes>) {
+  private updateColors_(attributes: ComputedMarkerAttributes) {
     let {color, backgroundColor, borderColor, glyphColor} = attributes;
 
     if (color) {
@@ -321,23 +289,63 @@ export class Marker<TUserData = unknown> {
     this.pinView_.glyphColor = glyphColor;
   }
 
-  /** Binds the required dom-events to the marker-instance. */
-  private bindMarkerEvents = () => {
-    // fixme: do we want those to be always bound?
-    //   a) add/remove listeners when the marker is added to the map?
-    //   b) should there be a property to control wether we have these
-    //      events at all?
+  /**
+   * Updates the pinview glyph based on the `icon` and `glyph` attributes.
+   *
+   * @param attrs
+   */
+  private updateGlyph_(attrs: ComputedMarkerAttributes) {
+    if (!attrs.icon) {
+      this.pinView_.glyph = attrs.glyph || undefined;
 
-    this.addListener('pointerenter', () => {
-      this.markerState_.hovered = true;
-      this.update();
-    });
+      return;
+    }
 
-    this.addListener('pointerleave', () => {
-      this.markerState_.hovered = false;
-      this.update();
-    });
-  };
+    let namespace = 'default';
+    let iconId = attrs.icon;
+
+    if (attrs.icon.includes(':')) {
+      [namespace, iconId] = attrs.icon.split(':');
+    }
+
+    const provider = Marker.iconProviders.get(namespace);
+    if (provider) {
+      this.pinView_.glyph = provider(iconId);
+    } else {
+      const nsText =
+        namespace === 'default' ? '' : `with namespace '${namespace}' `;
+
+      warnOnce(
+        `An icon is set but no icon provider ${nsText}is configured.\n` +
+          `You can register an icon-provider using e.g. ` +
+          `\`Marker.iconProvider = MaterialIcons()\` to use the material ` +
+          `icons webfont.`
+      );
+    }
+  }
+
+  /** Binds the required dom- and map-events to the marker-instance. */
+  private bindEvents_() {
+    assertNotNull(this.mapObserver_);
+
+    this.mapEventListeners_ = [
+      this.mapObserver_.addListener(() => this.update()),
+      this.addListener('pointerenter', () => {
+        this.markerState_.hovered = true;
+        this.update();
+      }),
+      this.addListener('pointerleave', () => {
+        this.markerState_.hovered = false;
+        this.update();
+      })
+    ];
+  }
+
+  /** Unbinds all event listeners from the marker. */
+  private unbindEvents_() {
+    for (const listener of this.mapEventListeners_) listener.remove();
+    this.mapEventListeners_ = [];
+  }
 
   /**
    * Retrieve the parameters to be passed to dynamic attribute callbacks. This
@@ -352,11 +360,9 @@ export class Marker<TUserData = unknown> {
   } {
     assertNotNull(this.mapObserver_, 'this.mapObserver_ is not defined');
 
-    const mapState = this.mapObserver_.getMapState();
-
     return {
       data: this.data_,
-      map: mapState,
+      map: this.mapObserver_.getMapState(),
       marker: this.markerState_
     };
   }
@@ -427,4 +433,11 @@ enum MarkerEvents {
   dragstart = 'dragstart',
   drag = 'drag',
   dragend = 'dragend'
+}
+
+interface GoogleMapsAMVEventMap {
+  click: google.maps.MapMouseEvent;
+  dragstart: google.maps.MapMouseEvent;
+  drag: google.maps.MapMouseEvent;
+  dragend: google.maps.MapMouseEvent;
 }

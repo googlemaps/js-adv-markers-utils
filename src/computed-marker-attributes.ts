@@ -1,10 +1,5 @@
 import {toLatLng} from './position-formats';
-import {
-  AttributeKey,
-  attributeKeys,
-  Attributes,
-  Position
-} from './marker-attributes';
+import {AttributeKey, attributeKeys} from './marker-attributes';
 
 import type {Marker} from './marker';
 import type {StaticAttributes} from './marker-attributes';
@@ -16,7 +11,7 @@ import type {StaticAttributes} from './marker-attributes';
 export class ComputedMarkerAttributes<T = unknown>
   implements Partial<StaticAttributes>
 {
-  private marker_: Marker<T>;
+  private readonly marker_: Marker<T>;
   private callbackDepth_: number = 0;
 
   // Attributes are declaration-only, the implementataion uses dynamic
@@ -42,6 +37,12 @@ export class ComputedMarkerAttributes<T = unknown>
     this.marker_ = marker;
   }
 
+  /**
+   * Resolves the specified attribute into a static value, calling a dynamic
+   * attribute function.
+   *
+   * @param key
+   */
   private getComputedAttributeValue<TKey extends AttributeKey>(
     key: TKey
   ): StaticAttributes[TKey] | undefined {
@@ -78,11 +79,9 @@ export class ComputedMarkerAttributes<T = unknown>
       }
     });
 
-    // position is treated separately, so it is skipped here
     for (const key of attributeKeys) {
-      if (key === 'position') {
-        continue;
-      }
+      // position is treated separately, so it is skipped here
+      if (key === 'position') continue;
 
       Object.defineProperty(this.prototype, key, {
         get(this: ComputedMarkerAttributes) {
