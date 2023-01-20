@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <title>Map / Marker example using importmaps</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      #map {
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+
+    <!-- Import maps polyfill -->
+    <script
+      async
+      src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"
+    ></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "@googlemaps/marker": "https://storage.ubidev.net/marker-api-playground/lib/index.module.js",
+          "@googlemaps/marker/icons": "https://storage.ubidev.net/marker-api-playground/lib/icons.module.js",
+          "@googlemaps/marker/places": "https://storage.ubidev.net/marker-api-playground/lib/places.module.js"
+        }
+      }
+    </script>
+
+    <script>
+      // get API key from URL
+      const url = new URL(location);
+      const GOOGLE_MAPS_API_KEY = url.searchParams.get('apiKey');
+
+      if (!GOOGLE_MAPS_API_KEY) {
+        const key = prompt(
+          'Please provide your Google Maps API key in the URL\n' +
+            '(using the parameter `?apiKey=YOUR_API_KEY_HERE`) or enter it here:'
+        );
+
+        if (key) {
+          url.searchParams.set('apiKey', key);
+          location.replace(url.toString());
+        }
+      }
+
+      // Google Maps importLibrary loader
+      //   see: https://developers.google.com/maps/documentation/javascript/dynamic-loading
+      // prettier-ignore
+      (g=>{var h,b,k,n="The Google Maps JavaScript API",c="google",l="importLibrary",p="__ib__",q=document,a=window;a=a[c]||(a[c]={});var d=a.maps||(a.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,m)=>{await (b=q.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+p);b.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[p]=f;b.onerror=()=>h=m(Error(n+" could not load."));q.head.append(b)}));d[l]?console.warn(n+" only loads once. Ignoring:",g):d[l]=(f,...m)=>r.add(f)&&u().then(()=>d[l](f,...m))})
+      ({
+        key: GOOGLE_MAPS_API_KEY,
+        v: "beta"
+      });
+    </script>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <script type="module">
+      import {Marker} from '@googlemaps/marker';
+
+      async function main() {
+        const {Map} = await google.maps.importLibrary('maps');
+
+        await google.maps.importLibrary('marker');
+
+        const map = new Map(document.querySelector('#map'), {
+          mapId: 'bf51a910020fa25a',
+          center: {lat: 53.555, lng: 10.001},
+          zoom: 12
+        });
+
+        const marker = new Marker({map, position: {lat: 53.555, lng: 10.001}});
+      }
+      main();
+    </script>
+  </body>
+</html>
