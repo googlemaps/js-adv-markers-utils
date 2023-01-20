@@ -50,6 +50,29 @@ Attributes can be passed to the constructor as an object or can be set as
 properties on the marker-object. Any change to an attribute will
 be forwarded to the Google Maps advanced marker immediately.
 
+The following attributes are implemented right now:
+
+- **`position`**: the position of the marker, can be specified as
+  `google.maps.LatLng`, `google.maps.LatLngLiteral` or GeoJSON
+  style `[lng, lat]`
+- **`scale`**: scaling for the marker
+- **`collisionBehaviour`**: the collision behaviour of the marker
+  ([see Google Maps docs](https://developers.google.com/maps/documentation/javascript/manage-marker-label-collisions))
+- **`draggable`**: flag to make the marker draggable, enables the `dragstart`, `drag` and `dragend` events.
+- **`zIndex`**: the z-ordering of the marker
+- **`title`**: the title of the marker
+- **Colors: `backgroundColor`, `borderColor`, `glyphColor`**:
+  individual colors used for the pin itself and its content
+  ([see here](https://developers.google.com/maps/documentation/javascript/advanced-markers/basic-customization)).
+- **`color`**: this is a shorthand to allow easier handling of colors,
+  setting this will automatically set the three color-values based on
+  the value provided. Accepts any valid css color-value.
+- **`glyph`**: the symbol or letter/number to be shown inside the
+  marker pin, can be a `string`, a `DOMElement` or a `URL` object pointing
+  to an image file.
+  ([see here](https://developers.google.com/maps/documentation/javascript/advanced-markers/graphic-markers#use_a_graphic_file_as_the_glyph))
+- **`icon`**: a simplified way to use the glyph-property when using icon-fonts.
+
 ### Static and Dynamic Attributes
 
 Every attribute can be specified either as a static value
