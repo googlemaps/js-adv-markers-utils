@@ -63,7 +63,7 @@ export class Marker<TUserData = unknown> {
   private mapEventListeners_: google.maps.MapsEventListener[] = [];
 
   private data_: TUserData | null = null;
-  private markerState_: MarkerState = {visible: false, hovered: false};
+  private markerState_: MarkerState = {hovered: false};
 
   /** Attributes set by the user. */
   private readonly attributes_: Partial<Attributes<TUserData>> = {};
@@ -380,6 +380,7 @@ export class Marker<TUserData = unknown> {
         set(this: Marker, value) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           this.attributes_[key] = value;
+          this.update();
         }
       });
     }
@@ -425,7 +426,6 @@ export type MarkerOptions<T> = {
  */
 export type MarkerState = {
   hovered: boolean;
-  visible: boolean;
 };
 
 enum MarkerEvents {

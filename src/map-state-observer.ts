@@ -66,7 +66,7 @@ export class MapStateObserver {
     const bounds = this.map_.getBounds();
 
     if (!center || !bounds) {
-      console.error(
+      console.debug(
         'MapStateObserver.handleBoundsChange(): map center and/or bounds ' +
           'undefined. Not updating map state.'
       );

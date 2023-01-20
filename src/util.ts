@@ -21,7 +21,9 @@ export function assertMapsApiLoaded() {
   if (google.maps && !google.maps.marker) {
     console.error(
       `Google Maps API was loaded without the required marker-library. ` +
-        `To load it, add the '&libraries=marker' parameter to the API url.`
+        `To load it, add the '&libraries=marker' parameter to the API url ` +
+        `or use \`await google.maps.importLibrary('marker');\` before creating ` +
+        `a marker.`
     );
     throw new Error('Google Maps Marker Library not found.');
   }
