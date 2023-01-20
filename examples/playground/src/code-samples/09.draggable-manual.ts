@@ -10,7 +10,7 @@ export default (map: google.maps.Map) => {
   m1.map = map;
 
   m1.draggable = true;
-  m1.addListener('dragend', (ev: google.maps.MapMouseEvent) => {
+  m1.addListener('dragend', ev => {
     console.log('dragend', ev.latLng?.toJSON());
     m1.position = ev.latLng?.toJSON();
   });

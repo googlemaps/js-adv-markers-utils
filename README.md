@@ -1,126 +1,148 @@
 # Simplified Markers for Google Maps API
 
-## Concepts
+## Installation
+
+As of writing this, the module hasn't been published to npm, so there's some
+extra hoops to jump through to install it.
+
+When you're using a bundler and want to use an npm-module, you can install
+it from the tarball [published here][npm-pack-url]:
+
+    npm install https://storage.ubidev.net/marker-api-playground/lib/ubilabs-google-maps-marker.tgz
+
+And use it in your project:
+
+```javascript
+import {Marker} from '@ubilabs/google-maps-marker';
+
+async function main() {
+  const {Map} = await google.maps.importLibrary('maps');
+  await google.maps.importLibrary('marker');
+
+  const map = new Map(domElement, mapOptions);
+  const marker = new Marker({
+    position: {lat: 53.5, lng: 10.05},
+    map
+  });
+}
+main();
+```
+
+The module can also be used via [ESM](./examples/html/esm.html)
+or [UMD](./examples/html/umd.html) without any bundlers, check
+out the examples in [`./examples/html`](./examples/html) for
+simple examples of that.
+
+[npm-pack-url]: https://storage.ubidev.net/marker-api-playground/lib/ubilabs-google-maps-marker.tgz
+
+## Core Concepts
+
+The Marker class was build to be as simple as possible, while also providing
+enough flexibility for more advanced use-cases.
 
 ### Attributes
 
 Marker attributes are all the different values that make
 up the marker's appearance and are generally passed on to the google maps
-implementation. They are either passed to the constructor or can be set as
-properties on the marker-object. Any change to a marker-attribute will
-be immediately written to the google maps advanced marker.
+AdvancedMarkerView implementation.
 
-- **all markers:** position, collisionBehaviour, draggable, ...
-- **pinview markers:** background, borderColor, glyph, ...
-- **html markers:** element, classes
-- **additional attributes:** where it makes sense, we will introduce more
-  attributes that control a combination of aspects in the maps-api (e.g. the
-  `color` attribute which controls all other color-attributes) or additional
-  features not present in the maps api (e.g. marker shapes).
+Attributes can be passed to the constructor as an object or can be set as
+properties on the marker-object. Any change to an attribute will
+be forwarded to the Google Maps advanced marker immediately.
 
 ### Static and Dynamic Attributes
 
-Every attribute can be specified either as a direct value
-(e.g. `marker.color = 'green'`) or as a function, that receives a state-object
-and can use that to compute the final values
-(`marker.color = ({map}) => map.zoom > 12 ? 'green' : 'blue'`).
+Every attribute can be specified either as a static value
+(e.g. `marker.color = 'green'`) or as a function that computes the final values
+based on values from a state-object, for example
 
-For dynamic attributes the computed value is updated with every change to
+```javascript
+// static attribute value
+marker.scale = 1.2;
+
+// dynamic attribute value
+marker.color = ({map}) => (map.zoom > 12 ? 'green' : 'blue');
+```
+
+Dynamic attributes are updated with every change to
 the state. This state contains information about the map (all camera
-parameters and current map bounds), the marker (interaction state, map
-visibility, ...), the current value of all other attributes and user-specified
-data.
+parameters and current map bounds), the marker (interaction state),
+the current value of all other attributes and user-specified
+data. The parameter for a dynamic attribute function contains following properties:
 
-### Adding new Attributes
+- `map`: this contains information about the current map viewport
+  (center, zoom, heading, tilt, bounds).
+- `marker`: state-information about the marker (hovered)
+- `attr`: the computed values for all other attributes
+- `data`: user-data
 
-To add a new attribute
+### User Data
 
-1. add the attribute name to `attributeKeys`
-2. add the name and type to the StaticAttributes type definition
-3. add declarations for the attribute to the Marker class and the
-   ComputedMarkerAttributes class
-4. implement the attribute logic within the `update()` function
+All markers can be further customized using arbitrary data, which is especially
+useful when creating custom marker classes or when using marker-collections.
+Every dynamic attribute can use the user-data specified via
+`marker.setData(myData)` to change the marker styling.
+
+### MarkerCollection
+
+The marker-library also makes it incredibly easy to dynamically render multiple
+markers from a dataset by using marker-collections. The dataset could be any
+array of records, and dynamic attributes are used to extract the relevant values
+from it.
+
+Here is a quick example for how this looks with an array like it might be loaded
+from a plain csv-file:
+
+```javascript
+import {MarkerCollection} from '@ubilabs/google-maps-marker';
+
+const fieldIndex = {id: 0, latitude: 1, longitude: 2 /* ... */};
+const data = [
+  [1, 53.555, 10.014]
+  // ...
+];
+
+const collection = new MarkerCollection(data, {
+  position: ({data}) =>
+    data && {
+      lat: data[fieldIndex.latitude],
+      lng: data[fieldIndex.longitude]
+    }
+});
+collection.map = map;
+```
+
+This example will create a marker with the specified attributes (the second
+parameter of the `MarkerCollection` constructor) for every entry in the data-array.
+
+Using dynamic attributes, you can realize even simple data-visualizations by
+having the colors, icons or scaling of the markers react to the values of
+certain properties in the data-array.
+
+Marker collections also work well with data that is updated regularly.
+Here for example, we continually update a marker-collection with data loaded
+from a server:
+
+```javascript
+const markers = new MarkerCollection({
+  key: data => data.id.toString(),
+  position: ({data}) => data?.position
+});
+
+// simulate updating data every 500ms
+const intervalId = setInterval(async () => {
+  markers.setData(await loadData());
+}, 1000 / 2);
+```
+
+By using the special `key` property, the marker-collection knows which markers
+belong to which record in the data, allowing it to efficiently update markers
+even with larger datasets.
+
+## API Documentation
+
+TBD
 
 # Contributing
 
-## Code Organization
-
-- `/`: contains `index.html` and configuration-files
-- `/scripts`: this is the place for utility scripts, mostly written in [zx][]
-- `/src`: the typescript source-root. At this level, the
-  playground-application entrypoint is located
-- `/src/lib`: contains everything that will eventually become
-  the markers-library
-- `/src/editor`: contains all the source-files for editor-specific
-  functionality (monaco setup etc.)
-- `/examples`: contains the examples-index-page and source-files for all
-  examples. The typescript files here should all follow the conventions for
-  examples below. For the examples index-page, these files are packaged
-  into examples.json by the `build:examples` npm task (see
-  `/scripts/update-examples.mjs`)
-- `/examples/lib`: contains the typescript declaration-files used by the
-  editor and referenced by the examples. Those files are generated by
-  `npm run build:dts` from the library files in `src/lib`
-- `/types` is for additional typescript declarations
-
-[zx]: https://github.com/google/zx
-
-## scripts, npm-tasks and deployment
-
-The published version of this is hosted on google cloud storage and available
-here: https://storage.ubidev.net/marker-api-playground
-
-Be aware that people outside ubilabs have access to the deployed version
-and while we can actively develop and publish new versions, the deployed
-version should always be manually checked after a deployment.
-
-The following supporting scripts and tasks are available:
-
-- `npm start`: starts the vite dev-server (this will also run the `build:dts`
-  and `build:examples` tasks)
-- `npm run build:dts`: compiles all typescript-files in `./src/lib`
-  into corresponding declaration files in `./examples/lib`
-- `npm run build:examples`: runs the `script/update-examples.mjs` script to
-  update the examples index in `./examples/examples.json`. The index is
-  loaded in `examples.html` to render the list of examples
-- `npm run build`: runs all `build:*` tasks followed by `vite build` to
-  generate the full application in `./dist`
-- `npm run preview`: runs the full build and starts the vite preview server
-  to review everything as if it were in production
-- `npm run deploy`: deploys the application to google cloud storage bucket
-  `gs://storage.ubidev.net/marker-api-playground`
-
-### deployment process
-
-We're deploying from our local repository, so first of all, make sure that
-a) you are in the main branch, b) it is up to date and c) you don't have any
-uncomitted changes:
-
-    git pull
-    git status
-
-Next, create a new version and push it to github. Which kind of version to
-create depends on the type of changes since the last deployment.
-
-    npm version major
-    # or: npm version minor / npm version patch
-
-This will update the package.json and create a new commit as well as a
-version-tag. To push the new commit and release-tag to github:
-
-    git push ; git push --tags
-
-Now, run a preview build and verify it's working as intended:
-
-    npm run preview
-
-Deploy to production:
-
-    npm run deploy
-
-Finally, document the API changes in the [Marker-API Documentation][marker-doc].
-You can see all commits since the last release using:
-
-    git log $(git describe --tags --abbrev=0)..HEAD --oneline
-
-[marker-doc]: https://docs.google.com/document/d/1L1RUW2kRSkSn02qthbimJZtjsCfdTtzXys3thCxv5O4/edit#heading=h.h498zgrs94df
+TBD
