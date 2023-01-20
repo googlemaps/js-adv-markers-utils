@@ -20,6 +20,12 @@
       "require": "./dist/icons.js",
       "umd": "./dist/icons.umd.js",
       "browser": "./dist/icons.module.js"
+    },
+    "./places": {
+      "import": "./dist/places.modern.js",
+      "require": "./dist/places.js",
+      "umd": "./dist/places.umd.js",
+      "browser": "./dist/places.module.js"
     }
   },
   "files": [
@@ -30,27 +36,25 @@
     "test": "test/"
   },
   "scripts": {
-    "build": "microbundle src/index.ts src/icons.ts",
-    "watch": "microbundle watch src/index.ts src/icons.ts",
-    "test": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha"
+    "clean": "rm -rf ./dist",
+    "test": "run-s test:*",
+    "test:tsc": "tsc",
+    "test:prettier": "prettier -c ./src",
+    "build": "microbundle src/index.ts src/icons.ts src/places.ts",
+    "watch": "microbundle watch src/index.ts src/icons.ts src/places.ts",
+    "deploy:playground": "cd examples/playground && npm run deploy",
+    "deploy:archive": "npm run clean && npm run build && npm pack --pack-destination ./dist && mv ./dist/ubilabs-google-maps-marker*.tgz ./dist/ubilabs-google-maps-marker.tgz && gsutil -m rsync -rc ./dist/ gs://storage.ubidev.net/marker-api-playground/lib/",
+    "deploy": "run-s deploy:*"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.4",
     "@types/google.maps": "^3.50.5",
-    "@types/mocha": "^10.0.0",
-    "@types/sinon": "^10.0.13",
     "@typescript-eslint/eslint-plugin": "^5.43.0",
     "@typescript-eslint/parser": "^5.43.0",
-    "chai": "^4.3.7",
     "eslint": "^8.27.0",
-    "jsdom-global": "^3.0.2",
     "microbundle": "^0.15.1",
-    "mocha": "^10.1.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.7.1",
     "prettier-plugin-jsdoc": "^0.4.2",
-    "sinon": "^15.0.1",
-    "ts-node": "^10.9.1",
     "typescript": "^4.8.4"
   }
 }
