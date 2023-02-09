@@ -1,5 +1,5 @@
 {
-  "include": ["./src/*","./src/**/*"],
+  "include": ["./src/*", "./src/**/*"],
   "compilerOptions": {
     "module": "ES2020",
     "target": "ES2020",
@@ -7,7 +7,6 @@
     "baseUrl": "./",
     "typeRoots": ["./node_modules/@types"],
     "importsNotUsedAsValues": "error",
-    "isolatedModules": true,
     "noEmit": true,
     "esModuleInterop": true,
     "strict": true,
