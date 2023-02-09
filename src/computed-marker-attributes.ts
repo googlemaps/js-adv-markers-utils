@@ -33,6 +33,9 @@ export class ComputedMarkerAttributes<T = unknown>
   declare readonly glyphColor?: StaticAttributes['glyphColor'];
   declare readonly icon?: StaticAttributes['icon'];
 
+  declare readonly content?: StaticAttributes['content'];
+  declare readonly classList?: StaticAttributes['classList'];
+
   constructor(marker: Marker<T>) {
     this.marker_ = marker;
   }

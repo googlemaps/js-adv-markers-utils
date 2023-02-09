@@ -58,12 +58,15 @@ export class Marker<TUserData = unknown> {
   declare glyphColor?: Attributes<TUserData>['glyphColor'];
   declare icon?: Attributes<TUserData>['icon'];
 
+  declare content?: Attributes<TUserData>['content'];
+  declare classList?: Attributes<TUserData>['classList'];
+
   private map_: google.maps.Map | null = null;
   private mapObserver_: MapStateObserver | null = null;
   private mapEventListeners_: google.maps.MapsEventListener[] = [];
 
   private data_: TUserData | null = null;
-  private markerState_: MarkerState = {hovered: false};
+  private markerState_: MarkerState = {hovered: false, content: null};
 
   /** Attributes set by the user. */
   private readonly attributes_: Partial<Attributes<TUserData>> = {};
@@ -258,8 +261,42 @@ export class Marker<TUserData = unknown> {
     this.markerView_.collisionBehavior = attrs.collisionBehavior;
     this.pinView_.scale = attrs.scale;
 
-    this.updateColors_(attrs);
-    this.updateGlyph_(attrs);
+    this.updateContent_(attrs);
+
+    // the element is stored in markerState to allow for dom updates
+    // in dynamic attributes instead of creating new elements all
+    // the time.
+    this.markerState_.content = attrs.content || null;
+  }
+
+  private updateContent_(attrs: ComputedMarkerAttributes) {
+    const {content, classList} = attrs;
+
+    if (content) {
+      content.className = classList ? classList.join(' ') : '';
+      this.markerView_.content = content;
+    } else {
+      this.markerView_.content = this.pinView_.element;
+      this.updateColors_(attrs);
+      this.updateGlyph_(attrs);
+    }
+
+    if (content && this.markerView_.element) {
+      const el = this.markerView_.element as HTMLElement;
+      const {
+        color = null,
+        backgroundColor = null,
+        glyphColor = null,
+        borderColor = null,
+        scale = null
+      } = attrs;
+
+      el.style.setProperty('--marker-color', color);
+      el.style.setProperty('--marker-background-color', backgroundColor);
+      el.style.setProperty('--marker-glyph-color', glyphColor);
+      el.style.setProperty('--marker-border-color', borderColor);
+      el.style.setProperty('--marker-scale', scale ? scale.toString() : null);
+    }
   }
 
   /**
@@ -426,6 +463,7 @@ export type MarkerOptions<T> = {
  */
 export type MarkerState = {
   hovered: boolean;
+  content: HTMLElement | null;
 };
 
 enum MarkerEvents {

@@ -18,7 +18,10 @@ export const attributeKeys: readonly AttributeKey[] = [
 
   'icon',
   'glyph',
-  'scale'
+  'scale',
+
+  'content',
+  'classList'
 ] as const;
 
 export type LngLatArray = [lng: number, lat: number];
@@ -52,6 +55,9 @@ export interface StaticAttributes {
   icon: string;
   glyph: string | Element | URL;
   scale: number;
+
+  content: HTMLElement;
+  classList: string[];
 }
 
 // just the keys for all attributes
