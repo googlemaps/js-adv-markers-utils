@@ -14,23 +14,23 @@ import {configureMonacoWorkers} from './configure-monaco-workers';
  * dependencies (Google Maps and our marker library).
  */
 async function initEditorFilesystem() {
-  const markerLibFiles = import.meta.glob(`../../../dist/*.d.ts`, {as: 'raw'});
+  const markerLibFiles = import.meta.glob(`../../../dist/*.d.ts`, {
+    as: 'raw',
+    eager: true
+  });
 
   languages.typescript.typescriptDefaults.addExtraLib(
     (await import('../node_modules/@types/google.maps/index.d.ts?raw')).default,
     `file:///node_modules/@types/google.maps/index.d.ts`
   );
 
-  for (const [path, loadFile] of Object.entries(markerLibFiles)) {
+  for (const [path, content] of Object.entries(markerLibFiles)) {
     const editorPath = path.replace(
       /^.*\/dist\//,
       `file:///node_modules/${packageName}/`
     );
 
-    languages.typescript.typescriptDefaults.addExtraLib(
-      await loadFile(),
-      editorPath
-    );
+    languages.typescript.typescriptDefaults.addExtraLib(content, editorPath);
   }
 }
 
@@ -41,14 +41,17 @@ type CodeSample = {
 };
 
 async function loadCodeSamples(): Promise<Record<string, CodeSample>> {
-  const exampleFiles = import.meta.glob('./code-samples/*.ts', {as: 'raw'});
+  const exampleFiles = import.meta.glob('./code-samples/*.ts', {
+    as: 'raw',
+    eager: true
+  });
   const codeSamples: Record<string, CodeSample> = {};
 
-  for (const [path, loadFile] of Object.entries(exampleFiles)) {
+  for (const [path, content] of Object.entries(exampleFiles)) {
     const filename = path.replace('./code-samples/', '');
     const editorPath = `file:///${filename}`;
     const model = editor.createModel(
-      await loadFile(),
+      content,
       'typescript',
       Uri.parse(editorPath)
     );
