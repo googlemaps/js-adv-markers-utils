@@ -135,11 +135,18 @@ export class MarkerCollection<TUserData extends object = object> {
     }
   }
 
+  setAttributes(attributes: Partial<Attributes<TUserData>>) {
+    this.markerAttributes_ = attributes;
+
+    for (const marker of this.markers_.values()) {
+      marker.setAttributes(attributes);
+    }
+  }
+
   protected generateKey(record: TUserData): string {
     if (!this.key_) {
       // if we don't have a key-function, we use a WeakMap to store
       // generated keys and issue a warning when updating.
-
       let key = this.generatedKeyCache_.get(record);
       if (!key) {
         key = Math.random().toString(36).slice(2);
