@@ -69,7 +69,15 @@ export class Marker<TUserData = unknown> {
   private markerState_: MarkerState = {hovered: false, content: null};
 
   /** Attributes set by the user. */
-  private readonly attributes_: Partial<Attributes<TUserData>> = {};
+  private attributes_: Partial<Attributes<TUserData>> = {};
+
+  /**
+   * Attributes set by inheriting classes. These are applied at a lower
+   * precedence than the values in attributes_ and allow inheriting classes to
+   * provide values that can be overridden by the user and restored to their
+   * original value.
+   */
+  protected attributeDefaults_: Partial<Attributes<TUserData>> = {};
 
   /**
    * Computed attributes take care of resolving the dynamic attributes into the
@@ -269,6 +277,11 @@ export class Marker<TUserData = unknown> {
     this.markerState_.content = attrs.content || null;
   }
 
+  /**
+   * Updates the content element, it's classes and css custom properties.
+   *
+   * @param attrs
+   */
   private updateContent_(attrs: ComputedMarkerAttributes) {
     const {content, classList} = attrs;
 
@@ -412,8 +425,9 @@ export class Marker<TUserData = unknown> {
       // Note: in a static initializer, `this` refers to the class itself.
       Object.defineProperty(this.prototype, key, {
         get(this: Marker) {
-          return this.attributes_[key];
+          return this.attributes_[key] || this.attributeDefaults_[key];
         },
+
         set(this: Marker, value) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           this.attributes_[key] = value;
