@@ -41,6 +41,7 @@
     "test": "run-s test:*",
     "test:tsc": "tsc",
     "test:prettier": "prettier -c ./src",
+    "test:eslint": "eslint './src/**/*ts' './examples/playground/src/*.ts'",
     "test:jest": "jest",
     "build": "microbundle src/index.ts src/icons.ts src/places.ts",
     "watch": "microbundle watch src/index.ts src/icons.ts src/places.ts",

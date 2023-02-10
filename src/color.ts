@@ -75,7 +75,7 @@ function parseHexColor(color: string): RGBAColor {
 
 function parseRgbColor(color: string): RGBAColor {
   try {
-    const [, r, g, b, a = '1'] = color.match(rxRgbColor)!;
+    const [, r, g, b, a = '1'] = color.match(rxRgbColor) as RegExpMatchArray;
     const rgba = [r, g, b, a];
 
     return rgba.map(s =>
