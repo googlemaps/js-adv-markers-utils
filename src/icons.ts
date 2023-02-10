@@ -59,7 +59,9 @@ export function MaterialIcons(
   }
 
   return iconId =>
-    createSpan(materialIconsClasses[optionsWithDefaults.style], iconId);
+    createSpan(materialIconsClasses[optionsWithDefaults.style], iconId, {
+      fontSize: 'calc(15px * var(--marker-scale, 1.0))'
+    });
 }
 
 export function PlaceIcons(): IconProvider {
@@ -74,12 +76,19 @@ export function PlaceIcons(): IconProvider {
  *
  * @param className
  * @param content
+ * @param styles
  */
-function createSpan(className: string, content: string): HTMLElement {
+function createSpan(
+  className: string,
+  content: string,
+  styles: Record<string, string | number> | null = null
+): HTMLElement {
   const el = document.createElement('span');
 
   el.className = className;
   el.textContent = content;
+
+  Object.assign(el.style, styles);
 
   return el;
 }

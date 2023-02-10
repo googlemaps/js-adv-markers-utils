@@ -281,7 +281,7 @@ export class Marker<TUserData = unknown> {
       this.updateGlyph_(attrs);
     }
 
-    if (content && this.markerView_.element) {
+    if (this.markerView_.element) {
       const el = this.markerView_.element as HTMLElement;
       const {
         color = null,
