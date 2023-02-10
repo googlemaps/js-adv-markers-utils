@@ -1,4 +1,5 @@
 import {Marker, MarkerOptions} from './marker';
+import {MarkerCollection} from './marker-collection';
 
 export type PlaceMarkerOptions = {
   place?: google.maps.places.PlaceResult;
@@ -39,5 +40,14 @@ export class PlaceMarker extends Marker<google.maps.places.PlaceResult> {
     if (place) {
       this.setData(place);
     }
+  }
+}
+
+export class PlaceMarkerCollection extends MarkerCollection<google.maps.places.PlaceResult> {
+  protected createMarker(
+    options: MarkerOptions<google.maps.places.PlaceResult>,
+    data: google.maps.places.PlaceResult
+  ): Marker<google.maps.places.PlaceResult> {
+    return new PlaceMarker(options, data);
   }
 }
