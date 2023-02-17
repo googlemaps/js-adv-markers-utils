@@ -1,5 +1,21 @@
 # Simplified Markers for Google Maps API
 
+The `@googlemaps/marker class aims at being a simple and powerful abstraction
+over the handling of advanced markers in the Google Maps API. The design goals
+are
+
+- it should provide a very simple API that can be used after only a few
+  minutes into the documentation
+- it should make basic use cases effortless
+- it should allow for lots of flexibility and extensibility to support the more
+  complex use-cases
+- it shouldn’t provide multiple different ways to get to the same result
+
+One key design choice made here is to use dynamic properties instead of
+individual getter/setter methods. So instead of `marker.setMap(map);`
+we’ll use the `marker.map = map;` syntax. This applies to all attributes of the
+marker.
+
 ## Installation
 
 As of writing this, the module hasn't been published to npm, so there's some
@@ -37,55 +53,99 @@ simple examples of that.
 
 ## Core Concepts
 
-The Marker class was build to be as simple as possible, while also providing
-enough flexibility for more advanced use-cases.
+### Options and Attributes
 
-### Attributes
+Marker attributes are all the different values that make up the marker's
+appearance. Attributes are generally optional and can be accessed as
+object-properties of the marker (e.g. `marker.position` or `marker.color`) or
+passed to the constructor or the `setAttributes`-function as an object
+(e.g. `new Marker({color: ‘red’})`).
 
-Marker attributes are all the different values that make
-up the marker's appearance and are generally passed on to the google maps
-AdvancedMarkerView implementation.
+Other values that can be specified to the Marker-constructor are called
+options, right now this is only the map option, but this might change in
+the future.
 
-Attributes can be passed to the constructor as an object or can be set as
-properties on the marker-object. Any change to an attribute will
-be forwarded to the Google Maps advanced marker immediately.
+Attribute values can be specified either as static values, or as a function
+that will return the final value (dynamic attributes). This function has access
+to viewport-parameters of the map (center, zoom, heading, tilt and bounds),
+metadata about the marker and arbitrary user-provided data.
 
-The following attributes are implemented right now:
+```typescript
+// static attributes
+marker.color = 'lightblue';
+marker.position = {lng: 34, lat: 23};
+
+// dynamic attributes
+marker.scale =
+  ({map}) =>
+  ({map}) =>
+    Math.max(1, Math.pow(1.45, map.zoom) / 64);
+
+marker.color = ({data}) => (data.someValue > 10 ? 'red' : 'blue');
+```
+
+The following attributes and options are implemented, all of them can both
+be passed to the constructor or set on the marker-object at any time:
+
+#### Options
+
+- **`map`**: The map instance the marker is added to.
+
+#### Basic Marker Attributes
+
+These attributes are directly forwarded to the AdvancedMarkerView instance
+and work for all markers. See the [official documentation][gmp-adv-marker]
+for details.
 
 - **`position`**: the position of the marker, can be specified as
   `google.maps.LatLng`, `google.maps.LatLngLiteral` or GeoJSON
   style `[lng, lat]`
-- **`scale`**: scaling for the marker
-- **`collisionBehaviour`**: the collision behaviour of the marker
-  ([see Google Maps docs](https://developers.google.com/maps/documentation/javascript/manage-marker-label-collisions))
-- **`draggable`**: flag to make the marker draggable, enables the `dragstart`, `drag` and `dragend` events.
+- **`draggable`**: flag to make the marker draggable, enables the `dragstart`,
+  `drag` and `dragend` events.
 - **`zIndex`**: the z-ordering of the marker
 - **`title`**: the title of the marker
-- **Colors: `backgroundColor`, `borderColor`, `glyphColor`**:
+- **`collisionBehaviour`**: the collision behaviour of the marker
+  ([see Google Maps docs][gmp-collisions])
+
+[gmp-adv-marker]: https://developers.google.com/maps/documentation/javascript/reference/advanced-markers#AdvancedMarkerViewOptions
+[gmp-collisions]: https://developers.google.com/maps/documentation/javascript/manage-marker-label-collisions
+
+#### PinView Style Attributes
+
+These attributes are forwarded to the `PinView` instance or passed into the
+html via css-variables. See [the official documentation][gmp-pinview] for details.
+
+[gmp-pinview]: https://developers.google.com/maps/documentation/javascript/reference/advanced-markers#PinViewOptions
+
+- **`scale`**: scaling for the marker
+- **`backgroundColor`**, **`borderColor`** and **`glyphColor`**:
   individual colors used for the pin itself and its content
-  ([see here](https://developers.google.com/maps/documentation/javascript/advanced-markers/basic-customization)).
+  ([see here][gmp-customization]).
 - **`color`**: this is a shorthand to allow easier handling of colors,
   setting this will automatically set the three color-values based on
   the value provided. Accepts any valid css color-value.
 - **`glyph`**: the symbol or letter/number to be shown inside the
   marker pin, can be a `string`, a `DOMElement` or a `URL` object pointing
   to an image file.
-  ([see here](https://developers.google.com/maps/documentation/javascript/advanced-markers/graphic-markers#use_a_graphic_file_as_the_glyph))
+  ([see here][gmp-glyph])
 - **`icon`**: a simplified way to use the glyph-property when using icon-fonts.
 
-### Static and Dynamic Attributes
+[gmp-customization]: https://developers.google.com/maps/documentation/javascript/advanced-markers/basic-customization
+[gmp-glyph]: https://developers.google.com/maps/documentation/javascript/advanced-markers/graphic-markers#use_a_graphic_file_as_the_glyph
 
-Every attribute can be specified either as a static value
-(e.g. `marker.color = 'green'`) or as a function that computes the final values
-based on values from a state-object, for example
+#### HTML Marker Attributes
 
-```javascript
-// static attribute value
-marker.scale = 1.2;
+The remaing two attributes are used to replace the default map-pin marker with
+arbitrary html-elements.
 
-// dynamic attribute value
-marker.color = ({map}) => (map.zoom > 12 ? 'green' : 'blue');
-```
+- **`content`**: a dom-element that will be used instead of the default PinView
+  element. The dom-element can be styled in css, the values of the different
+  pinView-attributes are available in the css variables (so you could write
+  `color: var(--marker-color)`).
+- **`classList`**: a single classname or an array of classnames that will be
+  written to the content-element.
+
+### Dynamic Attributes
 
 Dynamic attributes are updated with every change to
 the state. This state contains information about the map (all camera
@@ -108,10 +168,22 @@ Every dynamic attribute can use the user-data specified via
 
 ### MarkerCollection
 
-The marker-library also makes it incredibly easy to dynamically render multiple
-markers from a dataset by using marker-collections. The dataset could be any
-array of records, and dynamic attributes are used to extract the relevant values
-from it.
+Marker Collections provide a way to create markers for small to medium sized
+datasets with a minimal amount of code. A Marker Collection uses a very similar
+interface to single markers, that is it also uses static and dynamic attributes
+and user-supplied data. A collection is created with a single call and the
+markers are added to the map all at once.
+
+```javascript
+const data = await loadData();
+
+const markers = new MarkerCollection(data, {
+  position: ({data}) => data?.position,
+  icon: ({data}) => data?.category
+});
+
+markers.map = map;
+```
 
 Here is a quick example for how this looks with an array like it might be loaded
 from a plain csv-file:
@@ -138,34 +210,30 @@ collection.map = map;
 This example will create a marker with the specified attributes (the second
 parameter of the `MarkerCollection` constructor) for every entry in the data-array.
 
-Using dynamic attributes, you can realize even simple data-visualizations by
-having the colors, icons or scaling of the markers react to the values of
-certain properties in the data-array.
-
 Marker collections also work well with data that is updated regularly.
 Here for example, we continually update a marker-collection with data loaded
 from a server:
 
 ```javascript
 const markers = new MarkerCollection({
-  key: data => data.id.toString(),
-  position: ({data}) => data?.position
+  key: data => data.id,
+  position: ({data}) => data?.position,
+  icon: ({data}) => data?.category
 });
 
-// simulate updating data every 500ms
-const intervalId = setInterval(async () => {
-  markers.setData(await loadData());
-}, 1000 / 2);
+markers.map = map;
+
+// assuming apiStream is an async generator that yields updated data
+// at a certain interval
+for await (let data of apiStream) {
+  markers.setData(data);
+}
 ```
+
+This also allows users to implement filtering by updating the data-array for
+the collection with a reduced set of records and simple configurable
+data-visualizations by updating the dynamic attributes.
 
 By using the special `key` property, the marker-collection knows which markers
 belong to which record in the data, allowing it to efficiently update markers
 even with larger datasets.
-
-## API Documentation
-
-TBD
-
-# Contributing
-
-TBD
