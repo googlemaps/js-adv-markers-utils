@@ -3,38 +3,66 @@ import {warnOnce} from './util';
 import type {Attributes} from './marker-attributes';
 
 /**
- * A collection provides bindings between an array of arbitrary records and the
- * corresponding markers.
- *
- * - Attributes: attributes are shared with all markers, which is where dynamic
- *   attributes can really shine
- * - Data-updates: data in the collection can be updated after creation. This will
- *   assume that complete sets of records are passed on every update. If
- *   incremental updates are needed, those have to be applied to the data before
- *   updating the marker collection. When transitions are implemented (also for
- *   performance reasons), it will become important to recognize identical
- *   records, so those can be updated instead of re-created with every update.
- */
-
-/**
  * Markers in a collection can have additional (virtual) attributes that are
  * defined here.
  */
-export type CollectionMarkerAttributes<T> = Attributes<T> & {
-  key: (data: T) => string;
+export type CollectionMarkerAttributes<TUserData> = Attributes<TUserData> & {
+  /**
+   * The key function used to create string ids for the records in the
+   * collection. Specifying this function is highly recommended when the data
+   * needs to be updated.
+   */
+  key: (data: TUserData) => string;
 };
 
 export type MarkerCollectionOptions<T> = {
   map?: google.maps.Map | null;
 } & Partial<CollectionMarkerAttributes<T>>;
 
-export class MarkerCollection<TUserData extends object = object> {
-  private map_: google.maps.Map | null = null;
-  private markers_: Map<string, Marker<TUserData>> = new Map();
-  private markerAttributes_: Partial<Attributes<TUserData>> = {};
-  private key_?: (data: TUserData) => string;
+/**
+ * The MarkerCollection provides bindings between an array of arbitrary records
+ * and the corresponding markers.
+ *
+ * - Attributes: attributes are shared with all markers, for the
+ *   position-attribute this has to be a dynamic attribute, all other attributes
+ *   could be either static or dynamic attributes.
+ * - Data-updates: data in the collection can be updated after creation. This will
+ *   assume that complete sets of records are passed on every update. If
+ *   incremental updates are needed, those have to be applied to the data before
+ *   updating the marker collection. When transitions are implemented (also for
+ *   performance reasons), it will become important to recognize identical
+ *   records, so those can be updated instead of re-created with every update.
+ *
+ * @example
+ *   const myData = [{position: [10, 53.5]}, {position: [-110, 23]}];
+ *
+ *   const markers = new MarkerCollection(myData, {
+ *     position: ({data}) => data.position
+ *   });
+ *
+ *   markers.map = map;
+ */
 
+export class MarkerCollection<TUserData extends object = object> {
+  /** The map instance the markers are added to. */
+  private map_: google.maps.Map | null = null;
+  /** The markers, stored by their keys */
+  private markers_: Map<string, Marker<TUserData>> = new Map();
+  /** The shared marker-attributes. */
+  private markerAttributes_: Partial<Attributes<TUserData>> = {};
+  /**
+   * When a key-function is missing, unique keys are automatically generated. In
+   * case the same objects are passed into setData() again, the generated keys
+   * can be looked up in this map.
+   */
   private generatedKeyCache_ = new WeakMap<TUserData, string>();
+
+  /**
+   * The key function used to create string ids for the records in the
+   * collection. Specifying this function is highly recommended when the data
+   * needs to be updated.
+   */
+  key?: (data: TUserData) => string;
 
   /**
    * Creates a new MarkerCollection without specifying the data yet. This could
@@ -44,6 +72,7 @@ export class MarkerCollection<TUserData extends object = object> {
    * @param options
    */
   constructor(options: MarkerCollectionOptions<TUserData>);
+
   /**
    * Creates a new MarkerCollection with existing data.
    *
@@ -68,7 +97,7 @@ export class MarkerCollection<TUserData extends object = object> {
 
     const {map, key, ...attributes} = options;
 
-    this.key_ = key;
+    this.key = key;
     this.markerAttributes_ = attributes;
     this.setData(data);
 
@@ -77,10 +106,15 @@ export class MarkerCollection<TUserData extends object = object> {
     }
   }
 
+  /** Returns the Google Map instance this collection was added to. */
   get map(): google.maps.Map | null {
     return this.map_;
   }
 
+  /**
+   * Adds this collection to the specified map instance. This will add all
+   * markers to the map.
+   */
   set map(map: google.maps.Map | null) {
     if (map === this.map) return;
 
@@ -90,6 +124,14 @@ export class MarkerCollection<TUserData extends object = object> {
     }
   }
 
+  /**
+   * Sets or updates the data for this collection. When updating data, the
+   * implementation will use the key-function provided with the Options to
+   * detrmine which records were added, removed or changed and update the
+   * underlying marker instances accordingly.
+   *
+   * @param data
+   */
   setData(data: TUserData[]) {
     const keyedData = new Map(data.map(r => [this.generateKey(r), r]));
     const currentKeys = new Set(this.markers_.keys());
@@ -119,7 +161,7 @@ export class MarkerCollection<TUserData extends object = object> {
       this.markers_.set(key, marker);
     }
 
-    if (toUpdate.length > 0 && !this.key_) {
+    if (toUpdate.length > 0 && !this.key) {
       warnOnce(
         `MarkerCollection: updating markers without a key can ` +
           `cause performance issues. Add an attribute named 'key' to the ` +
@@ -135,6 +177,11 @@ export class MarkerCollection<TUserData extends object = object> {
     }
   }
 
+  /**
+   * Sets the attributes for all markers.
+   *
+   * @param attributes
+   */
   setAttributes(attributes: Partial<Attributes<TUserData>>) {
     this.markerAttributes_ = attributes;
 
@@ -143,8 +190,14 @@ export class MarkerCollection<TUserData extends object = object> {
     }
   }
 
+  /**
+   * Generates a key for the passed user-data record. This implementation calls
+   * the key-function if specified or generates a random key and stores it.
+   *
+   * @param record
+   */
   protected generateKey(record: TUserData): string {
-    if (!this.key_) {
+    if (!this.key) {
       // if we don't have a key-function, we use a WeakMap to store
       // generated keys and issue a warning when updating.
       let key = this.generatedKeyCache_.get(record);
@@ -155,9 +208,15 @@ export class MarkerCollection<TUserData extends object = object> {
       return key;
     }
 
-    return this.key_(record);
+    return this.key(record);
   }
 
+  /**
+   * Creates a new Marker with the specified options and data.
+   *
+   * @param options
+   * @param data
+   */
   protected createMarker(
     options: MarkerOptions<TUserData>,
     data: TUserData

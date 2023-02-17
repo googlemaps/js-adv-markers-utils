@@ -53,6 +53,11 @@ export function parseCssColorValue(color: string): RGBAColor {
   return (colorCache[color] = parseRgbColor(rgb));
 }
 
+/**
+ * Parses a color in hex-notation and returns the RGBA array.
+ *
+ * @param color
+ */
 function parseHexColor(color: string): RGBAColor {
   if (color.length < 7) {
     // '#rgb'
@@ -73,6 +78,11 @@ function parseHexColor(color: string): RGBAColor {
   ];
 }
 
+/**
+ * Parses a color in rgb/rgba notation and returns the RGBA array.
+ *
+ * @param color
+ */
 function parseRgbColor(color: string): RGBAColor {
   try {
     const [, r, g, b, a = '1'] = color.match(rxRgbColor) as RegExpMatchArray;
@@ -88,6 +98,11 @@ function parseRgbColor(color: string): RGBAColor {
   }
 }
 
+/**
+ * Converts a color-value in array-format into a rgb/rgba-string.
+ *
+ * @param rgb
+ */
 export function rgbaToString(rgb: RGBColor | RGBAColor): string {
   return (rgb.length === 4 ? `rgba` : `rgb`) + `(${rgb.join(',')})`;
 }
@@ -147,7 +162,7 @@ function labBrightnessAdjust(rgbIn: RGBColor | RGBAColor, amount = 1) {
 
 // the code below was adapted from the implementation in chroma.js
 // Copyright (c) 2011-2019, Gregor Aisch
-// Licensed under BSD-3-Clause / Apache-2.0
+// Dual Licensed under BSD-3-Clause / Apache-2.0
 // https://raw.githubusercontent.com/gka/chroma.js/b2fc17a34d729f4d1fc3a30dabd61caa34245526/LICENSE
 
 const LAB_CONSTANTS = {

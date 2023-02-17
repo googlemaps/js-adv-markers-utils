@@ -43,6 +43,22 @@ export class PlaceMarker extends Marker<google.maps.places.PlaceResult> {
   }
 }
 
+/**
+ * An extended MarkerCollection that can directly be used with results from the
+ * PlacesService.
+ *
+ * @example
+ *   const markers = new PlaceMarkerCollection({map});
+ *   const placesService = new google.maps.places.PlacesService(map);
+ *
+ *   const searchQuery = {keyword: 'coffee', radius: 2000};
+ *
+ *   placesService.nearbySearch(searchQuery, (result, status) => {
+ *     if (status !== 'OK' || !result) return;
+ *
+ *     markers.setData(result);
+ *   });
+ */
 export class PlaceMarkerCollection extends MarkerCollection<google.maps.places.PlaceResult> {
   protected createMarker(
     options: MarkerOptions<google.maps.places.PlaceResult>,

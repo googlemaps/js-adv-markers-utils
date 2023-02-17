@@ -1,4 +1,4 @@
-import type {LngLatArray, Position} from './marker-attributes';
+import type {LngLatArray} from './marker-attributes';
 
 type PositionFormat<T> = {
   isValid(value: unknown): value is T;
@@ -53,12 +53,24 @@ const LatLngLiteralFormat: PositionFormat<google.maps.LatLngLiteral> = {
   }
 };
 
+/** Union type of all position-formats supported by the markers. */
+export type Position =
+  | google.maps.LatLngLiteral
+  | google.maps.LatLng
+  | LngLatArray;
+
+/** The supported position-formats. */
 export const positionFormats = [
   LatLngFormat,
   LngLatArrayFormat,
   LatLngLiteralFormat
 ];
 
+/**
+ * Returns the position-format for the specified datum.
+ *
+ * @param p
+ */
 export function getPositionFormat(p: Position): PositionFormat<typeof p> {
   for (const fmt of positionFormats) {
     if (fmt.isValid(p)) return fmt;
@@ -67,6 +79,12 @@ export function getPositionFormat(p: Position): PositionFormat<typeof p> {
   throw new Error('unknown position format');
 }
 
+/**
+ * Converts the specified datum into the google.maps.LatLng format used
+ * internally.
+ *
+ * @param p
+ */
 export function toLatLng(p: Position): google.maps.LatLng {
   return getPositionFormat(p).toLatLng(p);
 }

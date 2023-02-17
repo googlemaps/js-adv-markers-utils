@@ -5,13 +5,15 @@ import type {Marker} from './marker';
 import type {StaticAttributes} from './marker-attributes';
 
 /**
- * ComputedMarkerAttributes resolves all attributes based on dynamic and static
+ * Internal class that resolves all attributes based on dynamic and static
  * values and makes them behave as if there were only static attributes.
+ *
+ * @typeParam TUserData - Can be used to specify a type for the data specified
+ *   in {@link Marker.setData} and available in dynamic attribute callbacks.
+ * @internal
  */
-export class ComputedMarkerAttributes<T = unknown>
-  implements Partial<StaticAttributes>
-{
-  private readonly marker_: Marker<T>;
+export class ComputedMarkerAttributes<TUserData = unknown> {
+  private readonly marker_: Marker<TUserData>;
   private callbackDepth_: number = 0;
 
   // Attributes are declaration-only, the implementataion uses dynamic
@@ -36,7 +38,7 @@ export class ComputedMarkerAttributes<T = unknown>
   declare readonly content?: StaticAttributes['content'];
   declare readonly classList?: StaticAttributes['classList'];
 
-  constructor(marker: Marker<T>) {
+  constructor(marker: Marker<TUserData>) {
     this.marker_ = marker;
   }
 
@@ -69,10 +71,8 @@ export class ComputedMarkerAttributes<T = unknown>
     return res as StaticAttributes[TKey];
   }
 
-  /**
-   * The static initializer sets up the implementation for the properties of the
-   * ComputedMarkerAttributes class.
-   */
+  // The static initializer sets up the implementation for the properties of the
+  // ComputedMarkerAttributes class.
   static {
     Object.defineProperty(this.prototype, 'position', {
       get(this: ComputedMarkerAttributes) {

@@ -8,8 +8,14 @@ export enum MaterialIconsStyle {
   TWOTONE = 'twotone'
 }
 
+/** The options for the MaterialIcons icon-provider. */
 export type MaterialIconsOptions = {
+  /** The material icon style to use. */
   style: MaterialIconsStyle;
+  /**
+   * Wether or not to automatically append the required stylesheet for the
+   * icon-font.
+   */
   appendFontStylesheet: boolean;
 };
 
@@ -36,6 +42,13 @@ const materialIconsGFontsFamily = {
 
 const GFONTS_BASE_URL = 'https://fonts.googleapis.com/css2';
 
+/**
+ * Creates the MaterialIcons icon-provider. This will load the appropriate
+ * material icons font if it's not detected and return the icon-provider
+ * function that creates the dom-elements for the requested icon.
+ *
+ * @param options
+ */
 export function MaterialIcons(
   options?: Partial<MaterialIconsOptions>
 ): IconProvider {
@@ -64,6 +77,10 @@ export function MaterialIcons(
     });
 }
 
+/**
+ * Creates the PlaceIcons icon provider. This provider will use the SVG-icons
+ * for the places API.
+ */
 export function PlaceIcons(): IconProvider {
   return iconId =>
     new URL(

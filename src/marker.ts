@@ -15,15 +15,16 @@ import type {Attributes} from './marker-attributes';
 import type {MapState} from './map-state-observer';
 
 /**
- * The Marker class. The optional type-parameter T can be used to specify a type
- * to be used for the data specified in setData and available in the dynamic
- * attribute callbacks.
+ * The Marker class.
+ *
+ * @typeParam TUserData - Can be used to specify a type for the data specified
+ *   in {@link Marker.setData} and available in dynamic attribute callbacks.
  */
 export class Marker<TUserData = unknown> {
   private static iconProviders: Map<string, IconProvider> = new Map();
 
   /**
-   * Registers a new icon-provider that resolves the value of the icon-attribute
+   * Registers a new icon provider that resolves the value of the icon-attribute
    * to something that can be used as glyph. When multiple providers are used,
    * you can additionally provide a namespace for the icons.
    *
@@ -44,29 +45,135 @@ export class Marker<TUserData = unknown> {
 
   // attributes are declaration-only, they are dynamically added to the
   // prototype in the static-initializer
+
+  /** The position of the marker on the map. */
   declare position?: Attributes<TUserData>['position'];
+
+  /**
+   * Flag to enable draggable markers. When using draggable markers, the
+   * position-attribute of the marker will not be automatically updated. You
+   * have to listen to the `dragstart`, `drag` and `dragend` events and update
+   * the position accordingly.
+   */
   declare draggable?: Attributes<TUserData>['draggable'];
+
+  /**
+   * The collision behavior controls how the marker interacts with other markers
+   * and labels on the map. See {@link CollisionBehavior} for more information.
+   */
   declare collisionBehavior?: Attributes<TUserData>['collisionBehavior'];
+
+  /**
+   * The title of the marker element. Will be shown in the browsers default
+   * tooltip and should be provided for accessibility reasons.
+   */
   declare title?: Attributes<TUserData>['title'];
+
+  /**
+   * Defines the z-ordering for the marker and is used to compute the priority
+   * for collision handling. See [the official documentation][gmp-marker-zindex]
+   * for more information.
+   *
+   * [gmp-marker-zindex]: https://developers.google.com/maps/documentation/javascript/reference/advanced-markers#AdvancedMarkerViewOptions.zIndex
+   */
   declare zIndex?: Attributes<TUserData>['zIndex'];
 
+  /**
+   * The glyph to be shown inside the marker-pin. This can be a single letter or
+   * number, a dom-element or a URL-object pointing to an image file.
+   */
   declare glyph?: Attributes<TUserData>['glyph'];
+
+  /** The scale of the marker as a multiple of the original scale. */
   declare scale?: Attributes<TUserData>['scale'];
+
+  /**
+   * The color of the marker. Can be specified in any format supported by CSS.
+   *
+   * This is a shorthand property to set a default value for the three
+   * color-values (`backgroundColor`, `borderColor` and `glyphColor`) to
+   * matching colors.
+   *
+   * The `backgroundColor` will be set to the specified color, the border-color
+   * will be a darkened vertsion of the color and the glyph-color is set based
+   * on the brightness of the specified color to either a darkened or lightened
+   * version.
+   */
   declare color?: Attributes<TUserData>['color'];
+
+  /**
+   * The background-color for the marker pin. Can be specified in any format
+   * supported by CSS.
+   */
   declare backgroundColor?: Attributes<TUserData>['backgroundColor'];
+
+  /**
+   * The border-color for the marker pin. Can be specified in any format
+   * supported by CSS.
+   */
   declare borderColor?: Attributes<TUserData>['borderColor'];
+
+  /**
+   * The color of the glyph within the marker pin. Can be specified in any
+   * format supported by CSS.
+   */
   declare glyphColor?: Attributes<TUserData>['glyphColor'];
+
+  /**
+   * The id of an icon to be fetched via the {@link icons.IconProvider}. The
+   * resulting icon will be shown
+   */
   declare icon?: Attributes<TUserData>['icon'];
 
+  /**
+   * The content to replace the default pin. The specified html-element will be
+   * rendered instead of the default pin.
+   *
+   * The content element you provide here will have access to the
+   * style-properties of the marker (colors and scale) via css custom properties
+   * (e.g. `color: var(--marker-glyph-color, white)`).
+   */
   declare content?: Attributes<TUserData>['content'];
+
+  /**
+   * A single classname or list of class names to be added to the content
+   * element.
+   */
   declare classList?: Attributes<TUserData>['classList'];
 
+  /** The map instance the marker is added to. */
   private map_: google.maps.Map | null = null;
+
+  /**
+   * The map-observer receives the `bounds_changed` event from the map-instances
+   * and provides the map-data for the dynamic attributes.
+   */
   private mapObserver_: MapStateObserver | null = null;
+
+  /**
+   * All listeners bound to the marker, it's dom-element or the map-instance are
+   * stored here, so they can be easily removed when the marker is removed from
+   * the map.
+   *
+   * @see Marker.bindEvents_()
+   * @see Marker.unbindEvents_()
+   */
   private mapEventListeners_: google.maps.MapsEventListener[] = [];
 
+  /**
+   * User-data that has been passed to the constructor or the
+   * {@link Marker.setData} method.
+   */
   private data_: TUserData | null = null;
-  private markerState_: MarkerState = {hovered: false, content: null};
+
+  /**
+   * Special state attributes of the marker that are made available in dynamic
+   * attribute callbacks.
+   */
+  private markerState_: MarkerState = {
+    hovered: false,
+    content: document.createElement('div')
+  };
 
   /** Attributes set by the user. */
   private attributes_: Partial<Attributes<TUserData>> = {};
@@ -137,6 +244,7 @@ export class Marker<TUserData = unknown> {
     eventName: K,
     handler: (ev: GoogleMapsAMVEventMap[K]) => void
   ): google.maps.MapsEventListener;
+
   addListener<K extends keyof HTMLElementEventMap>(
     eventName: K,
     handler: (ev: HTMLElementEventMap[K]) => void
@@ -216,8 +324,9 @@ export class Marker<TUserData = unknown> {
   }
 
   /**
-   * Schedules an update via microtask. This makes sure that we won't run
-   * multiple updates when multiple attributes are changed sequentially.
+   * Schedules an update of the marker, writing all attribute values to the
+   * underlying advanced marker objects. Calling this manually should not be
+   * needed.
    */
   update() {
     if (this.updateScheduled_) return;
@@ -237,8 +346,6 @@ export class Marker<TUserData = unknown> {
    * - Avoid object allocations if possible
    * - Avoid expensive computations. These can likely be moved into setAttribute_
    *   or the ComputedMarkerAttributes class
-   *
-   * @internal
    */
   private performUpdate() {
     if (!this.map) {
@@ -271,10 +378,10 @@ export class Marker<TUserData = unknown> {
 
     this.updateContent_(attrs);
 
-    // the element is stored in markerState to allow for dom updates
-    // in dynamic attributes instead of creating new elements all
-    // the time.
-    this.markerState_.content = attrs.content || null;
+    // the element returned by a dynamic content attribute is stored in the
+    // markerState to allow for dom updates in dynamic attributes instead of
+    // creating new elements for every update.
+    if (attrs.content) this.markerState_.content = attrs.content;
   }
 
   /**
@@ -286,7 +393,11 @@ export class Marker<TUserData = unknown> {
     const {content, classList} = attrs;
 
     if (content) {
-      content.className = classList ? classList.join(' ') : '';
+      content.className = classList
+        ? Array.isArray(classList)
+          ? classList.join(' ')
+          : classList
+        : '';
       this.markerView_.content = content;
     } else {
       this.markerView_.content = this.pinView_.element;
@@ -418,9 +529,8 @@ export class Marker<TUserData = unknown> {
   }
 
   static {
-    // set up all attributes for the prototypes of Marker and
-    // ComputedMarkerAttributes. For performance reasons, these are defined on
-    // the prototype instead of the object itself.
+    // set up all attributes for the Marker prototype. For performance reasons,
+    // these are defined on the prototype instead of the object itself.
     for (const key of attributeKeys) {
       // Note: in a static initializer, `this` refers to the class itself.
       Object.defineProperty(this.prototype, key, {
@@ -466,10 +576,14 @@ export enum CollisionBehavior {
 /**
  * The single options argument for the marker-class contains the attributes as
  * well as additional options.
+ *
+ * @typeParam TUserData - The type of the user-specified data passed to
+ *   `setData()` and made available in the arguments of the dynamic attribute
+ *   callbacks.
  */
-export type MarkerOptions<T> = {
+export type MarkerOptions<TUserData> = {
   map?: google.maps.Map | null;
-} & Partial<Attributes<T>>;
+} & Partial<Attributes<TUserData>>;
 
 /**
  * The MarkerState contains additional state-information about the marker
@@ -477,9 +591,13 @@ export type MarkerOptions<T> = {
  */
 export type MarkerState = {
   hovered: boolean;
-  content: HTMLElement | null;
+  content: HTMLElement;
 };
 
+/**
+ * The names of events that will be forwarded to the Google Maps implementation
+ * instead of using standard dom-events.
+ */
 enum MarkerEvents {
   click = 'click',
   dragstart = 'dragstart',
@@ -487,6 +605,10 @@ enum MarkerEvents {
   dragend = 'dragend'
 }
 
+/**
+ * Maps the supported Google Maps events to the type of event-object the
+ * callbacks will receive.
+ */
 interface GoogleMapsAMVEventMap {
   click: google.maps.MapMouseEvent;
   dragstart: google.maps.MapMouseEvent;

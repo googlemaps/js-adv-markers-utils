@@ -11,9 +11,9 @@ export type MapStateListener = (state: MapState) => void;
 
 /**
  * Since we have many more markers than maps, it doesn't make sense to have each
- * marker observe the map for changes by itself. Instead, a state-handler is
- * created for every map that observes the map for changes and triggers updates
- * for all added markers.
+ * marker observe the map for changes by itself. Instead, a MapStateObserver is
+ * created for every map that receives 'bounds_changed'-events from the map and
+ * triggers updates for all added markers.
  */
 export class MapStateObserver {
   private static instances_ = new Map<google.maps.Map, MapStateObserver>();
@@ -57,6 +57,10 @@ export class MapStateObserver {
     };
   }
 
+  /**
+   * Returns the map-state as it will be passed into the dynamic attribute
+   * callbacks of the markers.
+   */
   getMapState(): MapState {
     return this.mapState_;
   }

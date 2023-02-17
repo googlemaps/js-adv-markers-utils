@@ -1,5 +1,12 @@
 const warnings = new Set();
 
+/**
+ * Prints the specified message to the console the first time it is called with
+ * the message.
+ *
+ * @param message
+ * @param params
+ */
 export function warnOnce(message: string, ...params: unknown[]) {
   if (warnings.has(message)) return;
 
@@ -9,6 +16,10 @@ export function warnOnce(message: string, ...params: unknown[]) {
   }
 }
 
+/**
+ * Verifies that the Google Maps API is properly loaded and throws an exception
+ * if it isn't.
+ */
 export function assertMapsApiLoaded() {
   if (!('google' in window) || !google.maps) {
     console.error(
@@ -29,6 +40,13 @@ export function assertMapsApiLoaded() {
   }
 }
 
+/**
+ * A typescript assertion function used in cases where typescript has to be
+ * convinced that the object in question can not be null.
+ *
+ * @param value
+ * @param message
+ */
 export function assertNotNull<TValue>(
   value: TValue,
   message: string = 'assertion failed'
