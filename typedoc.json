@@ -1,0 +1,8 @@
+{
+  "out": "./dist/docs",
+  "entryPoints": ["src/index.ts", "src/icons.ts", "src/places.ts"],
+  "exclude": ["**/node_modules/**", "**/*.test.ts"],
+  "name": "@googlemaps/marker",
+  "excludePrivate": true,
+  "excludeInternal": false
+}
