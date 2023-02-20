@@ -1,6 +1,6 @@
 # Simplified Markers for Google Maps API
 
-The `@googlemaps/marker class aims at being a simple and powerful abstraction
+The `@googlemaps/marker` class aims at being a simple and powerful abstraction
 over the handling of advanced markers in the Google Maps API. The design goals
 are
 
@@ -18,8 +18,33 @@ marker.
 
 ## Installation
 
-As of writing this, the module hasn't been published to npm, so there's some
-extra hoops to jump through to install it.
+> As of writing this, the module hasn't been published to npm, so installing
+> isn't as simple as it's going to be.
+
+If you're using a bundler (like webpack, rollup, vite, etc.) for your project,
+you can install the package using npm:
+
+```
+npm install --save @googlemaps/marker
+```
+
+The package is also distributed in esm and umd formats that can be loaded
+via a script-tag either from a CDN or from any other webserver.
+
+```html
+<!-- umd module, available as google.maps.plugins.marker in your code -->
+<script src="https://unpkg.com/@googlemaps/marker/dist/index.umd.js"></script>
+
+<!-- alternative: native esm -->
+<script type="module">
+  import {Marker} from 'https://unpkg.com/@googlemaps/marker/dist/index.module.js';
+</script>
+```
+
+See the examples in [./examples/html](./examples/html) for full examples on 
+how to use the library without a bundler.
+
+### npm Installation (for now)
 
 When you're using a bundler and want to use an npm-module, you can install
 it from the tarball [published here][npm-pack-url]:

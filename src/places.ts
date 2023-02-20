@@ -1,5 +1,4 @@
-import {Marker, MarkerOptions} from './marker';
-import {MarkerCollection} from './marker-collection';
+import {Marker, MarkerCollection, MarkerOptions} from '@googlemaps/marker';
 
 export type PlaceMarkerOptions = {
   place?: google.maps.places.PlaceResult;

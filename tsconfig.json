@@ -1,20 +1,15 @@
 {
-  "include": ["./src/*", "./src/**/*"],
+  "include": ["./src/**/*"],
   "compilerOptions": {
     "module": "ES2020",
     "target": "ES2020",
-    "moduleResolution": "node",
-    "baseUrl": "./",
-    "typeRoots": ["./node_modules/@types"],
-    "importsNotUsedAsValues": "error",
-    "noEmit": true,
+    "moduleResolution": "nodenext",
     "esModuleInterop": true,
+    "paths": {
+      "@googlemaps/marker": ["./src/index.ts"]
+    },
+    "noEmit": true,
     "strict": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "stripInternal": true
-  },
-  "ts-node": {
-    "experimentalResolverFeatures": true
+    "skipLibCheck": true
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@ubilabs/google-maps-marker",
+  "name": "@googlemaps/marker",
   "version": "1.5.0",
   "license": "Apache-2.0",
   "keywords": [],
@@ -12,23 +12,24 @@
   "exports": {
     ".": {
       "import": "./dist/index.modern.js",
-      "require": "./dist/index.js",
+      "require": "./dist/index.cjs",
       "umd": "./dist/index.umd.js",
       "browser": "./dist/index.module.js"
     },
     "./icons": {
       "import": "./dist/icons.modern.js",
-      "require": "./dist/icons.js",
+      "require": "./dist/icons.cjs",
       "umd": "./dist/icons.umd.js",
       "browser": "./dist/icons.module.js"
     },
     "./places": {
       "import": "./dist/places.modern.js",
-      "require": "./dist/places.js",
+      "require": "./dist/places.cjs",
       "umd": "./dist/places.umd.js",
       "browser": "./dist/places.module.js"
     }
   },
+  "amdName": "google.maps.plugins.marker",
   "files": [
     "/src",
     "/dist"
@@ -43,7 +44,7 @@
     "test:prettier": "prettier -c ./src",
     "test:eslint": "eslint './src/**/*ts' './examples/playground/src/*.ts'",
     "test:jest": "jest",
-    "build": "microbundle src/index.ts src/icons.ts src/places.ts",
+    "build": "microbundle src/index.ts src/icons.ts src/places.ts --external @googlemaps/marker --globals @googlemaps/marker=google.maps.plugins.marker",
     "build:docs": "typedoc",
     "watch": "microbundle watch src/index.ts src/icons.ts src/places.ts",
     "watch:docs": "typedoc --watch",
