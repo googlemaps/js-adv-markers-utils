@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`attributes color attributes / advanced colors 1`] = `
+[
+  "rgba(255,204,34,1)",
+  "rgb(188.3491699542124,146.15589969289357,-74.78284871417785)",
+  "rgb(188.3491699542124,146.15589969289357,-74.78284871417785)",
+]
+`;
+
+exports[`attributes color attributes / advanced colors 2`] = `
+[
+  "rgba(17,34,136,1)",
+  "rgb(-45.75590682481448,-20.99695957230959,81.18087113724224)",
+  "rgb(91.81286774407013,82.9069049503011,194.924692317348)",
+]
+`;
+
+exports[`initialization throws when maps api is missing 1`] = `
+[
+  "Google Maps API couldn't be found. Please make sure to wait for the Google Maps API to load before creating markers.",
+]
+`;
+
+exports[`initialization throws when markers library is missing 1`] = `
+[
+  "Google Maps API was loaded without the required marker-library. To load it, add the '&libraries=marker' parameter to the API url or use \`await google.maps.importLibrary('marker');\` before creating a marker.",
+]
+`;
