@@ -9,6 +9,7 @@ import {
  */
 
 /* eslint-disable
+    @typescript-eslint/no-unused-vars,
     @typescript-eslint/no-explicit-any,
     @typescript-eslint/no-unsafe-assignment,
     @typescript-eslint/ban-types */

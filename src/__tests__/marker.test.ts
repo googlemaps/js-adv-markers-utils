@@ -1,10 +1,5 @@
 import {CollisionBehavior, Marker} from '../marker';
-import type {
-  AttributeKey,
-  Attributes,
-  AttributeValue,
-  StaticAttributes
-} from '../marker-attributes';
+import type {Attributes, StaticAttributes} from '../marker-attributes';
 
 import '@googlemaps/jest-mocks';
 import {
@@ -14,7 +9,10 @@ import {
   PinView
 } from './lib/mocks';
 
-/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable
+    @typescript-eslint/ban-ts-comment,
+    @typescript-eslint/no-non-null-assertion
+*/
 
 describe('initialization', () => {
   test('throws when maps api is missing', () => {
@@ -111,7 +109,6 @@ describe('attributes', () => {
   let map: google.maps.Map;
   let marker: Marker;
   let pinView: google.maps.marker.PinView;
-  let markerView: google.maps.marker.AdvancedMarkerView;
 
   beforeEach(async () => {
     initialize();
@@ -120,10 +117,8 @@ describe('attributes', () => {
     marker = new Marker({position, map});
 
     const [pv] = mockInstances.get(PinView);
-    const [amv] = mockInstances.get(AdvancedMarkerView);
 
     pinView = pv;
-    markerView = amv;
   });
 
   test('basic attributes / constructor', async () => {
