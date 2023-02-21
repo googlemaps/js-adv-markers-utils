@@ -13,8 +13,7 @@ export default defineConfig(({mode}) => {
     build: {
       rollupOptions: {
         input: {
-          main: resolve(__dirname, 'index.html'),
-          examples: resolve(__dirname, './examples.html')
+          main: resolve(__dirname, 'index.html')
         }
       }
     },

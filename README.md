@@ -41,20 +41,20 @@ via a script-tag either from a CDN or from any other webserver.
 </script>
 ```
 
-See the examples in [./examples/html](./examples/html) for full examples on 
+See the examples in [./examples/html](./examples/html) for full examples on
 how to use the library without a bundler.
 
-### npm Installation (for now)
+## Installation (for now)
 
 When you're using a bundler and want to use an npm-module, you can install
 it from the tarball [published here][npm-pack-url]:
 
-    npm install https://storage.ubidev.net/marker-api-playground/lib/ubilabs-google-maps-marker.tgz
+    npm install https://storage.ubidev.net/marker-api-playground/lib/googlemaps-marker.tgz
 
 And use it in your project:
 
 ```javascript
-import {Marker} from '@ubilabs/google-maps-marker';
+import {Marker} from '@googlemaps/marker';
 
 async function main() {
   const {Map} = await google.maps.importLibrary('maps');
@@ -101,11 +101,7 @@ marker.color = 'lightblue';
 marker.position = {lng: 34, lat: 23};
 
 // dynamic attributes
-marker.scale =
-  ({map}) =>
-  ({map}) =>
-    Math.max(1, Math.pow(1.45, map.zoom) / 64);
-
+marker.scale = ({map}) => Math.max(1, Math.pow(1.45, map.zoom) / 64);
 marker.color = ({data}) => (data.someValue > 10 ? 'red' : 'blue');
 ```
 
