@@ -1,6 +1,6 @@
 // title: draggable markers / update position after drag
-import {Marker} from '@ubilabs/google-maps-marker';
-import {MaterialIcons} from '@ubilabs/google-maps-marker/icons';
+import {Marker} from '@googlemaps/marker';
+import {MaterialIcons} from '@googlemaps/marker/icons';
 
 export default (map: google.maps.Map) => {
   Marker.registerIconProvider(MaterialIcons());

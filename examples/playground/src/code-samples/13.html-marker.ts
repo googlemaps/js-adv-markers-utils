@@ -1,6 +1,6 @@
 // title: dynamic html marker
 
-import {Marker} from '@ubilabs/google-maps-marker';
+import {Marker} from '@googlemaps/marker';
 
 export default (map: google.maps.Map) => {
   // create a stylesheet to be used by the marker

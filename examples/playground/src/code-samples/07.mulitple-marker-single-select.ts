@@ -1,5 +1,5 @@
 // title: multiple markers / single selection (w/ user-data)
-import {Marker} from '@ubilabs/google-maps-marker';
+import {Marker} from '@googlemaps/marker';
 
 function rnd(min: number, max: number) {
   return min + Math.random() * (max - min);

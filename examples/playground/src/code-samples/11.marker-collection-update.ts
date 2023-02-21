@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-misused-promises */
 
-import {MarkerCollection} from '@ubilabs/google-maps-marker';
+import {MarkerCollection} from '@googlemaps/marker';
 
 type MyData = {
   id: number;

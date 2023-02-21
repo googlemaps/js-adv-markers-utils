@@ -6,8 +6,8 @@
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
-      "@ubilabs/google-maps-marker": ["../../src/index.ts"],
-      "@ubilabs/google-maps-marker/*": ["../../src/*"]
+      "@googlemaps/marker": ["../../src/index.ts"],
+      "@googlemaps/marker/*": ["../../src/*"]
     },
     "typeRoots": ["./types", "./node_modules/@types"],
     "importsNotUsedAsValues": "error",

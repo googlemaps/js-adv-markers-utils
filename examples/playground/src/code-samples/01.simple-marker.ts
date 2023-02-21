@@ -1,5 +1,5 @@
 // title: create marker and add it to the map
-import {Marker} from '@ubilabs/google-maps-marker';
+import {Marker} from '@googlemaps/marker';
 
 export default (map: google.maps.Map) => {
   const m1 = new Marker();

@@ -1,7 +1,7 @@
 // title: simple marker customizations: Google Maps Places API icons
 
-import {Marker} from '@ubilabs/google-maps-marker';
-import {PlaceIcons} from '@ubilabs/google-maps-marker/icons';
+import {Marker} from '@googlemaps/marker';
+import {PlaceIcons} from '@googlemaps/marker/icons';
 
 export default (map: google.maps.Map) => {
   Marker.registerIconProvider(PlaceIcons());

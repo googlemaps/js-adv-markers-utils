@@ -23,6 +23,7 @@ async function loadModules() {
     const moduleCallback = moduleCallbacks[
       src.replace('./', '../../../src/') + '.ts'
     ] as () => Promise<object>;
+
     modules[src.replace('.', packageName)] = await moduleCallback();
   }
 

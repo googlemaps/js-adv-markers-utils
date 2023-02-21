@@ -1,5 +1,5 @@
 // title: multiple markers / single selection (alternative w/ 'style objects')
-import {Attributes, Marker} from '@ubilabs/google-maps-marker';
+import {Attributes, Marker} from '@googlemaps/marker';
 
 function rnd(min: number, max: number) {
   return min + Math.random() * (max - min);

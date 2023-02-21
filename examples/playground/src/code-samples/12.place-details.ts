@@ -1,5 +1,5 @@
 // title: simple marker for google places API PlaceResult
-import {Marker} from '@ubilabs/google-maps-marker';
+import {Marker} from '@googlemaps/marker';
 
 export default (map: google.maps.Map) => {
   const marker = new Marker<google.maps.places.PlaceResult>({

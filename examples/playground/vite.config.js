@@ -17,6 +17,11 @@ export default defineConfig(({mode}) => {
           examples: resolve(__dirname, './examples.html')
         }
       }
+    },
+    resolve: {
+      alias: {
+        '@googlemaps/marker': resolve(__dirname, '../../src')
+      }
     }
   };
 });

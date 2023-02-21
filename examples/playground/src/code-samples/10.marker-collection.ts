@@ -1,11 +1,7 @@
 // title: basic marker collection
 
-import {
-  CollisionBehavior,
-  Marker,
-  MarkerCollection
-} from '@ubilabs/google-maps-marker';
-import {MaterialIcons} from '@ubilabs/google-maps-marker/icons';
+import {CollisionBehavior, Marker, MarkerCollection} from '@googlemaps/marker';
+import {MaterialIcons} from '@googlemaps/marker/icons';
 
 type MyData = {
   id: number;

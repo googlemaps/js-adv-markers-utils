@@ -1,5 +1,5 @@
 // title: specifying and updating position
-import {Marker} from '@ubilabs/google-maps-marker';
+import {Marker} from '@googlemaps/marker';
 
 export default (map: google.maps.Map) => {
   // position can be speecified in a number of different formats:

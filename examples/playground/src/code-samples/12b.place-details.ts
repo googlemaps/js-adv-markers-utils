@@ -1,6 +1,6 @@
 // title: PlaceResult using the PlaceMarker class
 
-import {PlaceMarker} from '@ubilabs/google-maps-marker/places';
+import {PlaceMarker} from '@googlemaps/marker/places';
 
 export default (map: google.maps.Map) => {
   res.forEach(result => {
