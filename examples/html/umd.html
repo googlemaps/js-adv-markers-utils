@@ -53,7 +53,7 @@
         const {Map} = await google.maps.importLibrary('maps');
         await google.maps.importLibrary('marker');
 
-        const {Marker} = googleMapsMarker;
+        const {Marker} = google.maps.plugins.marker;
 
         const map = new Map(document.querySelector('#map'), {
           mapId: 'bf51a910020fa25a',

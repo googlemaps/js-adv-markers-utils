@@ -18,8 +18,11 @@ marker.
 
 ## Installation
 
+> **Important**
+>
 > As of writing this, the module hasn't been published to npm, so installing
-> isn't as simple as it's going to be.
+> isn't as simple as it's going to be. See the next section for more
+> information.
 
 If you're using a bundler (like webpack, rollup, vite, etc.) for your project,
 you can install the package using npm:
@@ -28,12 +31,35 @@ you can install the package using npm:
 npm install --save @googlemaps/marker
 ```
 
+And use it in your project:
+
+```javascript
+import {Marker} from '@googlemaps/marker';
+
+async function main() {
+  const {Map} = await google.maps.importLibrary('maps');
+  await google.maps.importLibrary('marker');
+
+  const map = new Map(domElement, mapOptions);
+
+  // create the first marker and add it to the map.
+  const marker = new Marker({
+    position: {lat: 53.5, lng: 10.05},
+    map
+  });
+}
+main();
+```
+
 The package is also distributed in esm and umd formats that can be loaded
-via a script-tag either from a CDN or from any other webserver.
+via a script-tag either from a CDN or any other webserver.
 
 ```html
 <!-- umd module, available as google.maps.plugins.marker in your code -->
 <script src="https://unpkg.com/@googlemaps/marker/dist/index.umd.js"></script>
+<script>
+  const {Marker} = google.maps.plugins.marker;
+</script>
 
 <!-- alternative: native esm -->
 <script type="module">
@@ -46,35 +72,23 @@ how to use the library without a bundler.
 
 ## Installation (for now)
 
-When you're using a bundler and want to use an npm-module, you can install
-it from the tarball [published here][npm-pack-url]:
+Since it's not yet published to npm, the next best thing to install it with npm
+is to use the tarball [available here][npm-pack-url]:
 
     npm install https://storage.ubidev.net/marker-api-playground/lib/googlemaps-marker.tgz
 
-And use it in your project:
+The examples in [`./examples/html`](./examples/html) contain the URLs for the
+esm and umd versions you can use for now.
 
-```javascript
-import {Marker} from '@googlemaps/marker';
+[npm-pack-url]: https://storage.ubidev.net/marker-api-playground/lib/googlemaps-marker.tgz
 
-async function main() {
-  const {Map} = await google.maps.importLibrary('maps');
-  await google.maps.importLibrary('marker');
+## "Try before buy"
 
-  const map = new Map(domElement, mapOptions);
-  const marker = new Marker({
-    position: {lat: 53.5, lng: 10.05},
-    map
-  });
-}
-main();
-```
+If you just want to get a feel for the library and try it out, head over to our
+interactive playground where you can see some examples in action and experiment
+with the new markers in a live-coding environment:
 
-The module can also be used via [ESM](./examples/html/esm.html)
-or [UMD](./examples/html/umd.html) without any bundlers, check
-out the examples in [`./examples/html`](./examples/html) for
-simple examples of that.
-
-[npm-pack-url]: https://storage.ubidev.net/marker-api-playground/lib/ubilabs-google-maps-marker.tgz
+[Marker API Playground](https://storage.ubidev.net/marker-api-playground/index.html)
 
 ## Core Concepts
 
