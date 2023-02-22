@@ -53,7 +53,7 @@
     "deploy:playground": "cd examples/playground && npm run deploy",
     "deploy:archive": "run-s clean build && npm pack --pack-destination ./dist && mv ./dist/googlemaps-marker*.tgz ./dist/googlemaps-marker.tgz && gsutil -m rsync -rc ./dist/ gs://storage.ubidev.net/marker-api-playground/lib/",
     "deploy:docs": "npm run build:docs && gsutil -m rsync -rc ./dist/docs gs://storage.ubidev.net/marker-api-playground/api-docs/",
-    "deploy": "run-s deploy:*"
+    "deploy": "run-s test deploy:*"
   },
   "devDependencies": {
     "@googlemaps/jest-mocks": "^2.7.5",
