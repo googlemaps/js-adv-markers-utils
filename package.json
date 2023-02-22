@@ -51,7 +51,8 @@
     "server:docs": "http-server ./dist/docs",
     "docs": "run-p watch:docs server:docs",
     "deploy:playground": "cd examples/playground && npm run deploy",
-    "deploy:archive": "npm run clean && npm run build && npm pack --pack-destination ./dist && mv ./dist/googlemaps-marker*.tgz ./dist/googlemaps-marker.tgz && gsutil -m rsync -rc ./dist/ gs://storage.ubidev.net/marker-api-playground/lib/",
+    "deploy:archive": "run-s clean build && npm pack --pack-destination ./dist && mv ./dist/googlemaps-marker*.tgz ./dist/googlemaps-marker.tgz && gsutil -m rsync -rc ./dist/ gs://storage.ubidev.net/marker-api-playground/lib/",
+    "deploy:docs": "npm run build:docs && gsutil -m rsync -rc ./dist/docs gs://storage.ubidev.net/marker-api-playground/api-docs/",
     "deploy": "run-s deploy:*"
   },
   "devDependencies": {
