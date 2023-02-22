@@ -3,12 +3,15 @@
 import {PlaceMarker} from '@googlemaps/marker/places';
 
 export default (map: google.maps.Map) => {
-  res.forEach(result => {
-    new PlaceMarker({
-      map,
-      place: result
-    });
-  });
+  const markers = res.map(
+    result =>
+      new PlaceMarker({
+        map,
+        place: result
+      })
+  );
+
+  return () => markers.forEach(m => (m.map = null));
 };
 
 const res: google.maps.places.PlaceResult[] = [
