@@ -1,20 +1,18 @@
 # Simplified Markers for Google Maps API
 
-The `@googlemaps/marker` class aims at being a simple and powerful abstraction
-over the handling of advanced markers in the Google Maps API. The design goals
-are
+The `@googlemaps/marker` package provides a simple, powerful and intuitive
+library to simplify handling of advanced markers in the Google Maps API.
 
-- it should provide a very simple API that can be used after only a few
-  minutes into the documentation
-- it should make basic use cases effortless
-- it should allow for lots of flexibility and extensibility to support the more
-  complex use-cases
-- it shouldn’t provide multiple different ways to get to the same result
+It combines all features from the `google.maps.marker.AdvancedMarkerView` and
+`google.maps.marker.PinView` classes into a single interface and adds some
+useful features like automatic color selection, handling for icon-fonts and
+automatic handling of small to medium datasets.
 
-One key design choice made here is to use dynamic properties instead of
-individual getter/setter methods. So instead of `marker.setMap(map);`
-we’ll use the `marker.map = map;` syntax. This applies to all attributes of the
-marker.
+If you just want to get a feel for the library and try it out, head over to our
+interactive playground where you can see some examples in action and experiment
+with the new API in a live-coding environment:
+
+[Marker Playground](https://storage.ubidev.net/marker-api-playground/index.html)
 
 ## Installation
 
@@ -25,10 +23,13 @@ marker.
 > information.
 
 If you're using a bundler (like webpack, rollup, vite, etc.) for your project,
-you can install the package using npm:
+you can install the package using npm or yarn:
 
-```
+```shell
 npm install --save @googlemaps/marker
+
+# or:
+yarn add @googlemaps/marker
 ```
 
 And use it in your project:
@@ -36,13 +37,18 @@ And use it in your project:
 ```javascript
 import {Marker} from '@googlemaps/marker';
 
+const domElement = document.querySelector('#map');
+
 async function main() {
+  // load Google Maps API
+  // (see https://developers.google.com/maps/documentation/javascript/dynamic-loading)
   const {Map} = await google.maps.importLibrary('maps');
   await google.maps.importLibrary('marker');
 
-  const map = new Map(domElement, mapOptions);
+  // create the map
+  const map = new Map(domElement, {center: {lat: 53.5, lng: 10.05}, zoom: 12});
 
-  // create the first marker and add it to the map.
+  // create a marker and add it to the map.
   const marker = new Marker({
     position: {lat: 53.5, lng: 10.05},
     map
@@ -50,6 +56,8 @@ async function main() {
 }
 main();
 ```
+
+### installation without a package-manager
 
 The package is also distributed in esm and umd formats that can be loaded
 via a script-tag either from a CDN or any other webserver.
@@ -82,15 +90,12 @@ esm and umd versions you can use for now.
 
 [npm-pack-url]: https://storage.ubidev.net/marker-api-playground/lib/googlemaps-marker.tgz
 
-## "Try before buy"
-
-If you just want to get a feel for the library and try it out, head over to our
-interactive playground where you can see some examples in action and experiment
-with the new markers in a live-coding environment:
-
-[Marker API Playground](https://storage.ubidev.net/marker-api-playground/index.html)
-
 ## Core Concepts
+
+One key design choice made here is to use dynamic properties instead of
+individual getter/setter methods. So instead of `marker.setMap(map);`
+we’ll use the `marker.map = map;` syntax. This applies to all attributes of the
+marker.
 
 ### Options and Attributes
 
@@ -124,7 +129,9 @@ be passed to the constructor or set on the marker-object at any time:
 
 #### Options
 
-- **`map`**: The map instance the marker is added to.
+- **`map`**: The map instance the marker is added to. Setting this to a Map
+  instance will automatically add the marker to the map as long as it has
+  a position set.
 
 #### Basic Marker Attributes
 
@@ -224,7 +231,7 @@ Here is a quick example for how this looks with an array like it might be loaded
 from a plain csv-file:
 
 ```javascript
-import {MarkerCollection} from '@ubilabs/google-maps-marker';
+import {MarkerCollection} from '@googlemaps/marker';
 
 const fieldIndex = {id: 0, latitude: 1, longitude: 2 /* ... */};
 const data = [
