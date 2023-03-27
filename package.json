@@ -1,5 +1,5 @@
 {
-  "name": "@googlemaps/marker",
+  "name": "@googlemaps/adv-markers-utils",
   "version": "2.0.3",
   "license": "Apache-2.0",
   "keywords": [],
@@ -29,7 +29,7 @@
       "browser": "./dist/places.module.js"
     }
   },
-  "amdName": "google.maps.plugins.marker",
+  "amdName": "google.maps.plugins.adv-markers-utils",
   "files": [
     "/src",
     "/dist"
@@ -44,14 +44,14 @@
     "test:prettier": "prettier -c ./src",
     "test:eslint": "eslint './src/**/*ts' './examples/playground/src/*.ts'",
     "test:jest": "jest",
-    "build": "microbundle src/index.ts src/icons.ts src/places.ts --external @googlemaps/marker --globals @googlemaps/marker=google.maps.plugins.marker",
+    "build": "microbundle src/index.ts src/icons.ts src/places.ts --external @googlemaps/adv-markers-utils --globals @googlemaps/adv-markers-utils=google.maps.plugins.adv-markers-utils",
     "build:docs": "typedoc",
     "watch": "microbundle watch src/index.ts src/icons.ts src/places.ts",
     "watch:docs": "typedoc --watch",
     "server:docs": "http-server ./dist/docs",
     "docs": "run-p watch:docs server:docs",
     "deploy:playground": "cd examples/playground && npm run deploy",
-    "deploy:archive": "run-s clean build && npm pack --pack-destination ./dist && mv ./dist/googlemaps-marker*.tgz ./dist/googlemaps-marker.tgz && gsutil -m rsync -rc ./dist/ gs://storage.ubidev.net/marker-api-playground/lib/",
+    "deploy:archive": "run-s clean build && npm pack --pack-destination ./dist && mv ./dist/googlemaps-adv-markers-utils*.tgz ./dist/googlemaps-adv-markers-utils.tgz",
     "deploy:docs": "npm run build:docs && gsutil -m rsync -rc ./dist/docs gs://storage.ubidev.net/marker-api-playground/api-docs/",
     "deploy": "run-s test deploy:*"
   },
