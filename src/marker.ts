@@ -386,8 +386,8 @@ export class Marker<TUserData = unknown> {
     }
 
     this.markerView_.position = position;
-    this.markerView_.draggable = attrs.draggable;
-    this.markerView_.title = attrs.title;
+    this.markerView_.draggable = attrs.draggable || false;
+    this.markerView_.title = attrs.title || '';
     this.markerView_.zIndex = attrs.zIndex;
     this.markerView_.collisionBehavior = attrs.collisionBehavior;
     this.pinView_.scale = attrs.scale;
