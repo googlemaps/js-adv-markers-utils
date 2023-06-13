@@ -19,10 +19,10 @@ import type {Attributes, StaticAttributes} from '../marker-attributes';
 
 import '@googlemaps/jest-mocks';
 import {
-  AdvancedMarkerView,
+  AdvancedMarkerElement,
+  PinElement,
   initialize,
-  mockInstances,
-  PinView
+  mockInstances
 } from './lib/mocks';
 
 /* eslint-disable
@@ -86,7 +86,7 @@ describe('basic functionality', () => {
 
     expect(m.map).toBe(map);
 
-    const [amv] = mockInstances.get(AdvancedMarkerView);
+    const [amv] = mockInstances.get(AdvancedMarkerElement);
     expect(amv).toBeDefined();
     expect(amv.map).toEqual(null);
   });
@@ -102,8 +102,8 @@ describe('basic functionality', () => {
     expect(m.position).toBe(position);
 
     // marker creates backing marker-view and pin-view instances
-    const [amv] = mockInstances.get(AdvancedMarkerView);
-    const [pv] = mockInstances.get(PinView);
+    const [amv] = mockInstances.get(AdvancedMarkerElement);
+    const [pv] = mockInstances.get(PinElement);
 
     expect(pv).toBeDefined();
     expect(amv).toBeDefined();
@@ -124,7 +124,7 @@ describe('attributes', () => {
 
   let map: google.maps.Map;
   let marker: Marker;
-  let pinView: google.maps.marker.PinView;
+  let pinView: google.maps.marker.PinElement;
 
   beforeEach(async () => {
     initialize();
@@ -132,7 +132,9 @@ describe('attributes', () => {
     map = new google.maps.Map(document.createElement('div'));
     marker = new Marker({position, map});
 
-    const [pv] = mockInstances.get(PinView);
+    const [pv] = mockInstances.get(
+      PinElement
+    ) as unknown as google.maps.marker.PinElement[];
 
     pinView = pv;
   });
@@ -157,14 +159,14 @@ describe('attributes', () => {
     }
 
     // check that attributes are properly forwarded to implementation
-    const pv = mockInstances.get(PinView).at(-1)!;
+    const pv = mockInstances.get(PinElement).at(-1)!;
     expect(pv.scale).toEqual(attributes.scale);
     expect(pv.glyph).toBe(attributes.glyph);
 
-    const amv = mockInstances.get(AdvancedMarkerView).at(-1)!;
+    const amv = mockInstances.get(AdvancedMarkerElement).at(-1)!;
     expect(amv.zIndex).toEqual(attributes.zIndex);
     expect(amv.title).toEqual(attributes.title);
-    expect(amv.draggable).toEqual(attributes.draggable);
+    expect(amv.gmpDraggable).toEqual(attributes.draggable);
     expect(amv.collisionBehavior).toEqual(attributes.collisionBehavior);
   });
 
@@ -188,14 +190,14 @@ describe('attributes', () => {
     }
 
     // check that attributes are properly forwarded to implementation
-    const [pv] = mockInstances.get(PinView);
+    const [pv] = mockInstances.get(PinElement);
     expect(pv.scale).toEqual(attributes.scale);
     expect(pv.glyph).toBe(attributes.glyph);
 
-    const [amv] = mockInstances.get(AdvancedMarkerView);
+    const [amv] = mockInstances.get(AdvancedMarkerElement);
     expect(amv.zIndex).toEqual(attributes.zIndex);
     expect(amv.title).toEqual(attributes.title);
-    expect(amv.draggable).toEqual(attributes.draggable);
+    expect(amv.gmpDraggable).toEqual(attributes.draggable);
     expect(amv.collisionBehavior).toEqual(attributes.collisionBehavior);
   });
 
@@ -252,7 +254,7 @@ describe('html attributes', () => {
 
   let map: google.maps.Map;
   let marker: Marker;
-  let markerView: google.maps.marker.AdvancedMarkerView;
+  let markerView: google.maps.marker.AdvancedMarkerElement;
   let contentEl: HTMLElement;
 
   beforeEach(async () => {
@@ -262,7 +264,9 @@ describe('html attributes', () => {
     map = new google.maps.Map(document.createElement('div'));
     marker = new Marker({position, map, content: contentEl});
 
-    const [amv] = mockInstances.get(AdvancedMarkerView);
+    const [amv] = mockInstances.get(
+      AdvancedMarkerElement
+    ) as google.maps.marker.AdvancedMarkerElement[];
     markerView = amv;
   });
 
@@ -281,7 +285,7 @@ describe('html attributes', () => {
 
       await Promise.resolve();
 
-      expect(markerView.content?.className).toBe(result);
+      expect((markerView.content as HTMLElement).className).toBe(result);
     }
   });
 
@@ -304,7 +308,7 @@ describe('html attributes', () => {
 
       await Promise.resolve();
 
-      const style = (markerView.element as HTMLElement).style;
+      const style = markerView.element.style;
       expect(style.getPropertyValue(propName)).toEqual(expectedValue);
     }
   });

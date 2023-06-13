@@ -194,7 +194,7 @@ export async function initEditor(
     throw new Error('failed to load editor models');
   }
 
-  const defaultModel = codeSampleIds.at(0) as string;
+  const defaultModel = codeSampleIds[0];
   editorInstance.setModel(userCodeModel || codeSamples[defaultModel].model);
 
   // populate examples dropdown
@@ -223,7 +223,7 @@ export async function initEditor(
   runButton.addEventListener('click', () => {
     editorInstance
       .getAction('compile-and-run')
-      .run()
+      ?.run()
       .catch(err => {
         console.error('compile-and-run failed', err);
       });

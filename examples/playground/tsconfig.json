@@ -1,27 +1,26 @@
 {
   "include": ["./src/**/*", "./types/**/*"],
   "compilerOptions": {
-    "module": "ES2020",
-    "target": "ES2020",
-    "moduleResolution": "node",
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "moduleResolution": "Node",
+    "strict": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "skipLibCheck": true,
+
     "baseUrl": "./",
     "paths": {
       "@googlemaps/marker": ["../../src/index.ts"],
       "@googlemaps/marker/*": ["../../src/*"]
     },
     "typeRoots": ["./types", "./node_modules/@types"],
-    "importsNotUsedAsValues": "error",
-    "isolatedModules": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "stripInternal": true,
-    "resolveJsonModule": true
-  },
-
-  "ts-node": {
-    "experimentalResolverFeatures": true
   }
 }

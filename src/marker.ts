@@ -210,8 +210,8 @@ export class Marker<TUserData = unknown> {
     new ComputedMarkerAttributes(this);
 
   // AdvancedMarkerView and PinView instances used to render the marker
-  private markerView_: google.maps.marker.AdvancedMarkerView;
-  private pinView_: google.maps.marker.PinView;
+  private markerView_: google.maps.marker.AdvancedMarkerElement;
+  private pinView_: google.maps.marker.PinElement;
 
   /**
    * Internal flag to prevent multiple updates in the same execution frame
@@ -231,8 +231,8 @@ export class Marker<TUserData = unknown> {
 
     assertMapsApiLoaded();
 
-    this.pinView_ = new google.maps.marker.PinView();
-    this.markerView_ = new google.maps.marker.AdvancedMarkerView();
+    this.pinView_ = new google.maps.marker.PinElement();
+    this.markerView_ = new google.maps.marker.AdvancedMarkerElement();
     this.markerView_.content = this.pinView_.element;
 
     if (data) this.data_ = data;
@@ -386,7 +386,7 @@ export class Marker<TUserData = unknown> {
     }
 
     this.markerView_.position = position;
-    this.markerView_.draggable = attrs.draggable || false;
+    this.markerView_.gmpDraggable = attrs.draggable || false;
     this.markerView_.title = attrs.title || '';
     this.markerView_.zIndex = attrs.zIndex;
     this.markerView_.collisionBehavior = attrs.collisionBehavior;
@@ -422,7 +422,7 @@ export class Marker<TUserData = unknown> {
     }
 
     if (this.markerView_.element) {
-      const el = this.markerView_.element as HTMLElement;
+      const el = this.markerView_.element;
       const {
         color = null,
         backgroundColor = null,

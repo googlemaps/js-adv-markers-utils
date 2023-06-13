@@ -16,76 +16,16 @@
 
 import {
   initialize as initializeBaseMocks,
-  mockInstances as baseMockInstances
+  mockInstances as baseMockInstances,
+  AdvancedMarkerElement as BaseAdvancedMarkerElement,
+  PinElement as BasePinElement
 } from '@googlemaps/jest-mocks';
-
-/*
- * This file only exists to avoid having to deal with getting support for the
- * markers library into the @googlemaps/jest-mocks repo first.
- */
 
 /* eslint-disable
     @typescript-eslint/no-unused-vars,
     @typescript-eslint/no-explicit-any,
     @typescript-eslint/no-unsafe-assignment,
     @typescript-eslint/ban-types */
-
-export const MapsEventListener: google.maps.MapsEventListener = {
-  remove: jest.fn()
-};
-
-export class AdvancedMarkerView
-  implements google.maps.marker.AdvancedMarkerViewOptions
-{
-  public addListener = jest
-    .fn()
-    .mockImplementation(
-      (
-        eventName: string,
-        handler: (this: AdvancedMarkerView, event: MouseEvent) => void
-      ): google.maps.MapsEventListener => MapsEventListener
-    );
-
-  element?: Element | null = document.createElement('div');
-  map?: google.maps.Map | null;
-  content?: Element | null;
-  collisionBehavior?: google.maps.CollisionBehavior | null;
-  zIndex?: number | null;
-  title?: string | null;
-  draggable?: boolean | null;
-
-  position?:
-    | google.maps.LatLng
-    | google.maps.LatLngLiteral
-    | google.maps.LatLngAltitudeLiteral
-    | null;
-
-  constructor(options?: google.maps.marker.AdvancedMarkerViewOptions) {
-    __registerMockInstance(AdvancedMarkerView, this);
-  }
-}
-
-export class PinView implements google.maps.marker.PinViewOptions {
-  public addListener = jest
-    .fn()
-    .mockImplementation(
-      (
-        eventName: string,
-        handler: (this: PinView, event: MouseEvent) => void
-      ): google.maps.MapsEventListener => MapsEventListener
-    );
-
-  background?: string | null;
-  borderColor?: string | null;
-  element?: null | Element = document.createElement('div');
-  glyph?: string | null | Element | URL;
-  glyphColor?: string | null;
-  scale?: number | null;
-
-  constructor(options?: google.maps.marker.PinViewOptions) {
-    __registerMockInstance(PinView, this);
-  }
-}
 
 class LatLng implements google.maps.LatLng {
   private readonly lat_: number = 0;
@@ -133,6 +73,21 @@ class LatLng implements google.maps.LatLng {
   }
 }
 
+// the mocked AdvancedMarkerElement incorrectly doesn't initialize the element
+// property, which is guaranteed to be a html-element by the real API.
+export class AdvancedMarkerElement extends BaseAdvancedMarkerElement {
+  constructor(options: google.maps.marker.AdvancedMarkerElementOptions) {
+    super(options);
+
+    this.element = document.createElement('div');
+  }
+}
+// custom-elements can't be extended by a regular class, so it has to
+// be registered
+customElements.define('test-marker-element', AdvancedMarkerElement);
+
+export class PinElement extends BasePinElement {}
+
 export function initialize() {
   initializeBaseMocks();
   clearAll();
@@ -141,9 +96,9 @@ export function initialize() {
   global.google.maps.LatLng = LatLng;
 
   global.google.maps.marker = {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    AdvancedMarkerView,
-    PinView
+    AdvancedMarkerElement,
+    PinElement: PinElement as any,
+    AdvancedMarkerClickEvent: google.maps.marker.AdvancedMarkerClickEvent
   };
 }
 
@@ -163,24 +118,6 @@ function clearAll(): void {
   REGISTRY.clear();
 }
 
-// Signature to require at least one item
-function clear<T extends Constructable, K extends Constructable[]>(
-  item: T,
-  ...rest: K
-): void {
-  baseMockInstances.clear(item, ...rest);
-  for (const ctr of [item, ...rest]) {
-    REGISTRY.delete(ctr.name);
-  }
-}
-
 export const mockInstances = {
-  get,
-  clear,
-  clearAll
+  get
 };
-
-function __registerMockInstance(ctr: Function, instance: any): void {
-  const existing = REGISTRY.get(ctr.name) || [];
-  REGISTRY.set(ctr.name, [...existing, instance]);
-}
