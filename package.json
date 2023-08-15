@@ -11,7 +11,7 @@
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/googlemaps/js-adv-markers-utils.git"
+    "url": "https://github.com/googlemaps/js-adv-markers-utils.git"
   },
   "publishConfig": {
     "access": "public",
