@@ -52,7 +52,7 @@
     "docs": "run-p watch:docs server:docs",
     "deploy:playground": "cd examples/playground && npm run deploy",
     "deploy:archive": "run-s clean build && npm pack --pack-destination ./dist && mv ./dist/googlemaps-adv-markers-utils*.tgz ./dist/googlemaps-adv-markers-utils.tgz",
-    "deploy:docs": "npm run build:docs && gsutil -m rsync -rc ./dist/docs gs://storage.ubidev.net/marker-api-playground/api-docs/",
+    "deploy:docs": "npm run build:docs && gsutil -m rsync -rc ./dist/docs gs://geo-devrel-public-buckets/adv-markers-util-playground/api-docs/",
     "deploy": "run-s test deploy:*"
   },
   "devDependencies": {

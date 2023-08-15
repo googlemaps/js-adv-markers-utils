@@ -7,12 +7,6 @@ It combines all features from the `google.maps.marker.AdvancedMarkerElement` and
 useful features like automatic color selection, handling for icon-fonts, and
 automatic handling of small to medium datasets.
 
-If you just want to get a feel for the library and try it out, head over to our
-interactive playground where you can see some examples in action and experiment
-with the new API in a live-coding environment:
-
-[Marker Playground](https://storage.ubidev.net/marker-api-playground/index.html)
-
 ## Installation
 If you're using a bundler (like webpack, rollup, vite, etc.) for your project,
 you can install the package using npm or yarn:
