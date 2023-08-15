@@ -37,7 +37,7 @@ jobs:
       - name: Test
         run: |
           npm i
-          npm test
+          npm run test:jest
       - name: Release
         uses: cycjimmy/semantic-release-action@v3
         with:
