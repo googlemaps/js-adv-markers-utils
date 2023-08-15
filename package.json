@@ -9,8 +9,12 @@
   "module": "dist/index.module.js",
   "jsnext:main": "dist/index.module.js",
   "types": "dist/index.d.ts",
-  "repository":"googlemaps/js-adv-markers-utils",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/googlemaps/js-adv-markers-utils.git"
+  },
   "publishConfig": {
+    "access": "public",
     "registry": "https://wombat-dressing-room.appspot.com"
   },
   "exports": {
