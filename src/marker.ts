@@ -90,7 +90,7 @@ export class Marker<TUserData = unknown> {
    * for collision handling. See [the official documentation][gmp-marker-zindex]
    * for more information.
    *
-   * [gmp-marker-zindex]: https://developers.google.com/maps/documentation/javascript/reference/advanced-markers#AdvancedMarkerViewOptions.zIndex
+   * [gmp-marker-zindex]: https://developers.google.com/maps/documentation/javascript/reference/advanced-markers#AdvancedMarkerElementOptions.zIndex
    */
   declare zIndex?: Attributes<TUserData>['zIndex'];
 
@@ -209,7 +209,7 @@ export class Marker<TUserData = unknown> {
   private readonly computedAttributes_: ComputedMarkerAttributes<TUserData> =
     new ComputedMarkerAttributes(this);
 
-  // AdvancedMarkerView and PinView instances used to render the marker
+  // AdvancedMarkerElement and PinElement instances used to render the marker
   private markerView_: google.maps.marker.AdvancedMarkerElement;
   private pinView_: google.maps.marker.PinElement;
 
@@ -295,7 +295,7 @@ export class Marker<TUserData = unknown> {
 
   /**
    * Stores the map-instance. The map will be passed on to the
-   * AdvancedMarkerView in `performUpdate()`.
+   * AdvancedMarkerElement in `performUpdate()`.
    */
   get map(): google.maps.Map | null {
     return this.map_ || null;
@@ -356,7 +356,7 @@ export class Marker<TUserData = unknown> {
 
   /**
    * Updates the rendered objects for this marker, typically an
-   * AdvancedMarkerView and PinView. This method is called very often, so it is
+   * AdvancedMarkerElement and PinElement. This method is called very often, so it is
    * critical to keep it as performant as possible:
    *
    * - Avoid object allocations if possible
@@ -467,7 +467,7 @@ export class Marker<TUserData = unknown> {
   }
 
   /**
-   * Updates the pinview glyph based on the `icon` and `glyph` attributes.
+   * Updates the pinelement glyph based on the `icon` and `glyph` attributes.
    *
    * @param attrs
    */

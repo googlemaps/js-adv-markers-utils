@@ -1,0 +1,14 @@
+{
+  "files": [
+    {
+      "path": "dist/*.js"
+    },
+    {
+      "path": "dist/samples/*.css"
+    }
+  ],
+  "ci": {
+    "trackBranches": ["main", "next"],
+    "repoBranchBase": "main"
+  }
+}

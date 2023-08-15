@@ -270,7 +270,7 @@ describe('html attributes', () => {
     markerView = amv;
   });
 
-  test('AdvancedMarkerView.content is set', async () => {
+  test('AdvancedMarkerElement.content is set', async () => {
     expect(markerView.content).toBe(contentEl);
   });
 

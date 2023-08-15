@@ -2,8 +2,8 @@
 
 The `@googlemaps/adv-markers-utils` package is a library to simplify common patterns for using [Advanced Markers](https://developers.google.com/maps/documentation/javascript/advanced-markers/overview) in the Maps JavaScript API.
 
-It combines all features from the `google.maps.marker.AdvancedMarkerView` and
-`google.maps.marker.PinView` classes into a single interface and adds some
+It combines all features from the `google.maps.marker.AdvancedMarkerElement` and
+`google.maps.marker.PinElement` classes into a single interface and adds some
 useful features like automatic color selection, handling for icon-fonts, and
 automatic handling of small to medium datasets.
 
@@ -95,9 +95,9 @@ be passed to the constructor or set on the marker-object at any time:
   instance will automatically add the marker to the map as long as it has
   a position set.
 
-#### AdvancedMarkerView Properties
+#### AdvancedMarkerElement Properties
 
-These properties are directly forwarded to the AdvancedMarkerView instance
+These properties are directly forwarded to the AdvancedMarkerElement instance
 and work for all markers. See the [official documentation][gmp-adv-marker]
 for details.
 
@@ -111,15 +111,15 @@ for details.
 - **`collisionBehaviour`**: the collision behaviour of the marker
   ([see Google Maps docs][gmp-collisions])
 
-[gmp-adv-marker]: https://developers.google.com/maps/documentation/javascript/reference/advanced-markers#AdvancedMarkerViewOptions
+[gmp-adv-marker]: https://developers.google.com/maps/documentation/javascript/reference/advanced-markers#AdvancedMarkerElementOptions
 [gmp-collisions]: https://developers.google.com/maps/documentation/javascript/manage-marker-label-collisions
 
-#### PinView Properties
+#### PinElement Properties
 
-These properties are forwarded to the `PinView` instance or passed into the
-HTML via CSS-variables. See [the official documentation][gmp-pinview] for details.
+These properties are forwarded to the `PinElement` instance or passed into the
+HTML via CSS-variables. See [the official documentation][gmp-pinelement] for details.
 
-[gmp-pinview]: https://developers.google.com/maps/documentation/javascript/reference/advanced-markers#PinViewOptions
+[gmp-pinelement]: https://developers.google.com/maps/documentation/javascript/reference/advanced-markers#PinElementOptions
 
 - **`scale`**: scaling for the marker
 - **`backgroundColor`**, **`borderColor`** and **`glyphColor`**:
@@ -142,9 +142,9 @@ HTML via CSS-variables. See [the official documentation][gmp-pinview] for detail
 The remaing two attributes are used to replace the default map-pin marker with
 arbitrary html-elements.
 
-- **`content`**: a dom-element that will be used instead of the default PinView
+- **`content`**: a dom-element that will be used instead of the default PinElement
   element. The dom-element can be styled in css, the values of the different
-  pinView-attributes are available in the css variables (so you could write
+  pinelement-attributes are available in the css variables (so you could write
   `color: var(--marker-color)`).
 - **`classList`**: a single classname or an array of classnames that will be
   written to the content-element.
