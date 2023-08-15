@@ -52,25 +52,25 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.SYNCED_GITHUB_TOKEN_REPO }}
           NPM_TOKEN: ${{ secrets.NPM_WOMBAT_TOKEN }}
-  playground:
-    permissions:
-      contents: 'read'
-      id-token: 'write'
+  # playground:
+  #   permissions:
+  #     contents: 'read'
+  #     id-token: 'write'
 
-    steps:
-    - uses: 'actions/checkout@v3'
+  #   steps:
+  #   - uses: 'actions/checkout@v3'
     
-    - id: 'auth'
-      uses: 'google-github-actions/auth@v1'
-      with:
-        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+  #   - id: 'auth'
+  #     uses: 'google-github-actions/auth@v1'
+  #     with:
+  #       credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
-    - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v1'
-      with:
-        version: '>= 363.0.0'
+  #   - name: 'Set up Cloud SDK'
+  #     uses: 'google-github-actions/setup-gcloud@v1'
+  #     with:
+  #       version: '>= 363.0.0'
 
-    - name: 'Use gcloud CLI'
-      run: 'gcloud info'
+  #   - name: 'Use gcloud CLI'
+  #     run: 'gcloud info'
 
-    - run: npm run deploy
+  #   - run: npm run deploy
