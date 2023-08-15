@@ -46,11 +46,14 @@ jobs:
         with:
           semantic_version: 19
           extra_plugins: |
-            "@semantic-release/commit-analyzer"
-            "@semantic-release/release-notes-generator"
-            "@semantic-release/git
-            "@semantic-release/github
-            "@semantic-release/npm
+            @semantic-release/commit-analyzer@^9
+            semantic-release-interval
+            @semantic-release/release-notes-generator@^10
+            @semantic-release/git
+            @semantic-release/github@^8
+            @semantic-release/npm@^9
+            @googlemaps/semantic-release-config
+            semantic-release-npm-deprecate
         env:
           GH_TOKEN: ${{ secrets.SYNCED_GITHUB_TOKEN_REPO }}
           NPM_TOKEN: ${{ secrets.NPM_WOMBAT_TOKEN }}
