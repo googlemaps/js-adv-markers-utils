@@ -1,17 +1,17 @@
 /**
  * Copyright 2023 Google LLC
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 import {
@@ -356,8 +356,8 @@ export class Marker<TUserData = unknown> {
 
   /**
    * Updates the rendered objects for this marker, typically an
-   * AdvancedMarkerElement and PinElement. This method is called very often, so it is
-   * critical to keep it as performant as possible:
+   * AdvancedMarkerElement and PinElement. This method is called very often, so
+   * it is critical to keep it as performant as possible:
    *
    * - Avoid object allocations if possible
    * - Avoid expensive computations. These can likely be moved into setAttribute_
