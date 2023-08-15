@@ -50,7 +50,7 @@ jobs:
             "@semantic-release/github
             "@semantic-release/npm
         env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
+          NODE_OPTIONS: --max_old_space_size=4096
           GH_TOKEN: ${{ secrets.SYNCED_GITHUB_TOKEN_REPO }}
           NPM_TOKEN: ${{ secrets.NPM_WOMBAT_TOKEN }}
   # playground:
