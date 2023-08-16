@@ -15,7 +15,7 @@
  */
 
 // title: specifying and updating position
-import {Marker} from '@googlemaps/marker';
+import {Marker} from '@googlemaps/adv-markers-utils';
 
 export default (map: google.maps.Map) => {
   // position can be speecified in a number of different formats:

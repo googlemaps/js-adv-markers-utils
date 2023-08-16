@@ -15,8 +15,8 @@
  */
 
 // title: draggable markers / update position after drag
-import {Marker} from '@googlemaps/marker';
-import {MaterialIcons} from '@googlemaps/marker/icons';
+import {Marker} from '@googlemaps/adv-markers-utils';
+import {MaterialIcons} from '@googlemaps/adv-markers-utils/icons';
 
 export default (map: google.maps.Map) => {
   Marker.registerIconProvider(MaterialIcons());

@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/no-misused-promises */
 
-import {MarkerCollection} from '@googlemaps/marker';
+import {MarkerCollection} from '@googlemaps/adv-markers-utils';
 
 type MyData = {
   id: number;

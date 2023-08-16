@@ -15,8 +15,8 @@
  */
 
 // title: simple marker customizations: icons
-import {Marker} from '@googlemaps/marker';
-import {MaterialIcons, MaterialIconsStyle} from '@googlemaps/marker/icons';
+import {Marker} from '@googlemaps/adv-markers-utils';
+import {MaterialIcons, MaterialIconsStyle} from '@googlemaps/adv-markers-utils/icons';
 
 export default (map: google.maps.Map) => {
   // first we need to register the icon-provider, which is a function that knows how to create the kind of dom-element needed for an icon-set

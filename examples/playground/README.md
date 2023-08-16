@@ -5,23 +5,23 @@ the marker API.
 
 ## Get Started
 
-1. Install dependencies:
+1. Change into the playground-folder and install dependencies:
 
-       npm install
+        cd examples/playground
+        npm install
 
-2. create the `.env` file. The API Key to use
-   [can be found here][gcloud_console_maps_credentials].
+2. [Create an API-key][gmp_create_apikey] for the Google Maps API.
+3. create a file `.env` with the API key in the following format:
 
        GOOGLE_MAPS_API_KEY="<INSERT API KEY HERE>"
-       PRODUCTION_BASEURL="/marker-api-playground/"
 
-3. start the 'playground' environment:
+4. start the development server:
 
        npm start
 
-4. open http://localhost:5173 in your browser
+5. open http://localhost:5173 in your browser
 
-[gcloud_console_maps_credentials]: https://console.cloud.google.com/apis/credentials/key/cace4819-4b19-489c-bd49-d91300d72dab?project=ubilabs-dev
+[gmp_create_apikey]: https://developers.google.com/maps/documentation/embed/get-api-key#create-api-keys
 
 ## Overview
 

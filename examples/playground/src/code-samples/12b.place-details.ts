@@ -16,7 +16,7 @@
 
 // title: PlaceResult using the PlaceMarker class
 
-import {PlaceMarker} from '@googlemaps/marker/places';
+import {PlaceMarker} from '@googlemaps/adv-markers-utils/places';
 
 export default (map: google.maps.Map) => {
   const markers = res.map(
