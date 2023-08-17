@@ -48,6 +48,7 @@
   "scripts": {
     "clean": "rm -rf ./dist",
     "test": "run-s test:*",
+     "prepack": "npm run build",
     "test:tsc": "tsc",
     "test:prettier": "prettier -c ./src",
     "test:eslint": "eslint './src/**/*ts' './examples/playground/src/*.ts'",
