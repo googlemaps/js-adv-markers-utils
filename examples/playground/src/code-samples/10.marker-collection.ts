@@ -16,8 +16,8 @@
 
 // title: basic marker collection
 
-import {CollisionBehavior, Marker, MarkerCollection} from '@googlemaps/marker';
-import {MaterialIcons} from '@googlemaps/marker/icons';
+import {CollisionBehavior, Marker, MarkerCollection} from '@googlemaps/adv-markers-utils';
+import {MaterialIcons} from '@googlemaps/adv-markers-utils/icons';
 
 type MyData = {
   id: number;

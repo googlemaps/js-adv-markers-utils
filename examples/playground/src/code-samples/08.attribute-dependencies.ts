@@ -16,7 +16,7 @@
 
 // title: dynamic attributes depending on each other
 
-import {Marker} from '@googlemaps/marker';
+import {Marker} from '@googlemaps/adv-markers-utils';
 
 // dynamic attributes can be written to reliably depend on the current value
 // of another attribute, for example to make colors depend on the icon shown

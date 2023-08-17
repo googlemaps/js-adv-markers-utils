@@ -18,9 +18,9 @@
 
     "baseUrl": "./",
     "paths": {
-      "@googlemaps/marker": ["../../src/index.ts"],
-      "@googlemaps/marker/*": ["../../src/*"]
+      "@googlemaps/adv-markers-utils": ["../../src/index.ts"],
+      "@googlemaps/adv-markers-utils/*": ["../../src/*"]
     },
-    "typeRoots": ["./types", "./node_modules/@types"],
+    "typeRoots": ["./types", "./node_modules/@types"]
   }
 }

@@ -15,7 +15,8 @@
  */
 
 // title: simple marker customizations: color
-import {Marker} from '@googlemaps/marker';
+
+import {Marker} from '@googlemaps/adv-markers-utils';
 
 export default (map: google.maps.Map) => {
   const m1 = new Marker({map, position: {lat: 50, lng: 10}});

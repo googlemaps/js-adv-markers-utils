@@ -15,7 +15,7 @@
  */
 
 // title: multiple markers / single selection (alternative w/ 'style objects')
-import {Attributes, Marker} from '@googlemaps/marker';
+import {Attributes, Marker} from '@googlemaps/adv-markers-utils';
 
 function rnd(min: number, max: number) {
   return min + Math.random() * (max - min);
