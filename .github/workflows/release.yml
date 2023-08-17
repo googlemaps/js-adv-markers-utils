@@ -54,4 +54,5 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.SYNCED_GITHUB_TOKEN_REPO }}
           NPM_TOKEN: ${{ secrets.NPM_WOMBAT_TOKEN }}
+          NODE_OPTIONS: "--max_old_space_size=4096"
           RUNNER_DEBUG: 1
