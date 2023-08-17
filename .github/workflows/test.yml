@@ -14,9 +14,7 @@
 
 name: Test
 on:
-  push:
-    branches-ignore:
-      - master
+  [push, pull_request]
 concurrency: 
   group: test-${{ github.ref }}
   cancel-in-progress: true
