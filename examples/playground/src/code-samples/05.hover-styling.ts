@@ -15,7 +15,7 @@
  */
 
 // title: marker interactivity: hover
-import {Marker} from '@googlemaps/marker';
+import {Marker} from '@googlemaps/adv-markers-utils';
 
 export default (map: google.maps.Map) => {
   const position = {lat: 53.5, lng: 10};

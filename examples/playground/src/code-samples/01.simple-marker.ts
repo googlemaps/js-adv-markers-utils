@@ -15,7 +15,7 @@
  */
 
 // title: create marker and add it to the map
-import {Marker} from '@googlemaps/marker';
+import {Marker} from '@googlemaps/adv-markers-utils';
 
 export default (map: google.maps.Map) => {
   const m1 = new Marker();
