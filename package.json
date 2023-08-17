@@ -1,6 +1,6 @@
 {
   "name": "@googlemaps/adv-markers-utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "Apache-2.0",
   "keywords": [],
   "type": "module",
@@ -48,7 +48,7 @@
   "scripts": {
     "clean": "rm -rf ./dist",
     "test": "run-s test:*",
-     "prepack": "npm run build",
+    "prepack": "npm run build",
     "test:tsc": "tsc",
     "test:prettier": "prettier -c ./src",
     "test:eslint": "eslint './src/**/*ts' './examples/playground/src/*.ts'",
