@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <!--
  Copyright 2023 Google LLC
 
@@ -22,7 +22,7 @@
       name="viewport"
       content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
-    <title>Map / Marker example using importmaps</title>
+    <title>Map / Marker example using native ES modules</title>
     <style>
       body {
         margin: 0;
@@ -64,11 +64,10 @@
     <div id="map"></div>
 
     <script type="module">
-      import {Marker} from 'https://storage.ubidev.net/marker-api-playground/lib/index.module.js';
+      import {Marker} from 'https://unpkg.com/@googlemaps/adv-markers-utils/dist/index.module.js';
 
       async function main() {
         const {Map} = await google.maps.importLibrary('maps');
-
         await google.maps.importLibrary('marker');
 
         const map = new Map(document.querySelector('#map'), {
