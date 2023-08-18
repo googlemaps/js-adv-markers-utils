@@ -17,7 +17,7 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    steps:      
+    steps:
       - uses: actions/checkout@v3
       - uses: actions/cache@v3
         with:
@@ -25,5 +25,5 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - run: npm i
-      - run: npm run test:jest
+      - run: npm ci
+      - run: npm run test
