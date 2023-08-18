@@ -49,6 +49,7 @@
     "clean": "rm -rf ./dist",
     "test": "run-s test:*",
     "prepack": "npm run build",
+    "pretest": "cd ./examples/playground && ( [ -d ./node_modules ] || npm install )",
     "test:tsc": "tsc",
     "test:prettier": "prettier -c ./src",
     "test:eslint": "eslint './src/**/*ts' './examples/playground/src/*.ts'",
