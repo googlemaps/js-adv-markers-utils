@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <!--
  Copyright 2023 Google LLC
 
@@ -59,17 +59,17 @@
         v: "beta"
       });
     </script>
-    <script src="https://storage.ubidev.net/marker-api-playground/lib/index.umd.js"></script>
+    <script src="https://unpkg.com/@googlemaps/adv-markers-utils/dist/index.umd.js"></script>
   </head>
   <body>
     <div id="map"></div>
 
-    <script type="module">
+    <script>
       async function main() {
         const {Map} = await google.maps.importLibrary('maps');
         await google.maps.importLibrary('marker');
 
-        const {Marker} = google.maps.plugins.marker;
+        const {Marker} = google.maps.plugins.advMarkersUtils;
 
         const map = new Map(document.querySelector('#map'), {
           mapId: 'bf51a910020fa25a',
