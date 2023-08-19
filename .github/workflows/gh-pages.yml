@@ -58,13 +58,13 @@ jobs:
         run: npm run build
         working-directory: ./examples/playground
         env:
-          PRODUCTION_BASEURL: ${{steps.configure_pages.outputs.base_url}}/playground
+          PRODUCTION_BASEURL: ${{steps.configure_pages.outputs.base_url}}
           NODE_OPTIONS: "--max_old_space_size=4096"
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: ./examples/playground
+          path: ./examples/playground/dist
 
   # Deployment job
   deploy:
