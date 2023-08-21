@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,15 +15,10 @@
  */
 
 import {editor, KeyCode, KeyMod, languages, Uri} from 'monaco-editor';
-import {decode, encode} from './snippet-encoder';
-
+import {configureMonacoWorkers} from './configure-monaco-workers';
 import packageJson from '../../../package.json';
 
-const {name: packageName}: {name: string} = packageJson as never;
-
-import './configure-monaco-workers';
-
-import {configureMonacoWorkers} from './configure-monaco-workers';
+const {name: packageName} = packageJson;
 
 /**
  * Set up the extraLibs for the typescript-editor to do code-completion for the
@@ -84,38 +79,6 @@ async function loadCodeSamples(): Promise<Record<string, CodeSample>> {
   return codeSamples;
 }
 
-/**
- * Load code from url-parameters and validate the version against the current
- * version.
- */
-function createModelFromUrl(): editor.IModel | null {
-  if (!location.hash) {
-    return null;
-  }
-
-  console.log('loading snippet from URL.');
-  const {code, version} = decode(location.hash.slice(1));
-
-  const [currentMajorVersion] = API_VERSION.split('.');
-  const [encodedMajorVersion] = version.split('.');
-
-  console.info(`loaded version ${version} (current ${API_VERSION})`);
-
-  if (import.meta.env.PROD && encodedMajorVersion !== currentMajorVersion) {
-    alert(
-      `The code-snippet you are loading was created with a different ` +
-        `API-version (loaded: ${version} / current: ${API_VERSION}).\n\n` +
-        `There might have been breaking changes.`
-    );
-  }
-
-  return editor.createModel(
-    code,
-    'typescript',
-    Uri.parse('file:///example.ts')
-  );
-}
-
 function createEditorActions(
   editorInstance: editor.IStandaloneCodeEditor,
   runCallback: (jsCode: string) => Promise<void>
@@ -141,19 +104,6 @@ function createEditorActions(
       await runCallback(jsCode);
     }
   });
-
-  editorInstance.addAction({
-    id: 'save-to-url',
-    label: 'Save to URL',
-    keybindings: [KeyMod.CtrlCmd | KeyCode.KeyS],
-    run(editor) {
-      const tsCode = editor.getModel()?.getValue();
-
-      if (!tsCode) return;
-
-      location.hash = encode({code: tsCode, version: API_VERSION});
-    }
-  });
 }
 
 function configureTypescriptDefaults() {
@@ -174,7 +124,6 @@ export async function initEditor(
   configureTypescriptDefaults();
 
   await initEditorFilesystem();
-  const userCodeModel = createModelFromUrl();
   const codeSamples = await loadCodeSamples();
 
   const editorContainer = document.querySelector('#editor') as HTMLElement;
@@ -195,7 +144,7 @@ export async function initEditor(
   }
 
   const defaultModel = codeSampleIds[0];
-  editorInstance.setModel(userCodeModel || codeSamples[defaultModel].model);
+  editorInstance.setModel(codeSamples[defaultModel].model);
 
   // populate examples dropdown
   const exampleSelect = document.querySelector(

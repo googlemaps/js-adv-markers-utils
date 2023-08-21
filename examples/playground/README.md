@@ -27,8 +27,7 @@ This directory contains a simple playground application for the marker API.
 The playground is a side-by-side view of a google map with a monaco editor (the
 editor-component of VSCode) where typescript code using the new
 marker-API can be written and executed to get a feel for the api and test
-different usage-scenarios in a fast way. The contents of the editor can be
-serialized into the URL for sharing.
+different usage-scenarios in a fast way.
 
 Compiling the typescript from the editor happens in a worker via the typescript-support
 already built into the monaco-editor. For execution, a wrapper emulates the
