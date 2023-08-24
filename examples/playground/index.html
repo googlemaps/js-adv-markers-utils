@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <!--
  Copyright 2023 Google LLC
 
@@ -22,94 +22,96 @@
       name="viewport"
       content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://ui-components.ubilabs.com/css/v1/ubilabs-styles.css"
+      href="https://fonts.googleapis.com/css?family=Google+Sans:400,500,700|Roboto+Mono:400,500,700&display=block"
     />
-    <style>
-      html,
-      body {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        display: flex;
-        flex-flow: row nowrap;
-      }
+    <link rel="stylesheet" href="styles.css" />
 
-      #map {
-        height: 100%;
-        width: 100%;
-        flex: 1 1 auto;
-      }
-
-      .sidebar {
-        width: 100%;
-        min-width: 480px;
-        flex: 1 1 auto;
-        display: flex;
-        flex-flow: column nowrap;
-      }
-
-      .header {
-        font-size: 24px;
-        padding: 1rem;
-        display: flex;
-        flex-flow: row nowrap;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .controls {
-        display: flex;
-        gap: 8px;
-      }
-
-      .controls select {
-        border: 1px solid rgba(0, 0, 0, 0.4);
-      }
-
-      h1 {
-        font-size: 1em;
-        margin: 0;
-        font-weight: normal;
-        display: inline-block;
-      }
-
-      #editor {
-        height: 100%;
-        flex: 1 1 auto;
-      }
-
-      .links {
-        padding: 1rem;
-      }
-
-      .links ul {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-      }
-
-      .links li {
-        display: inline-block;
-      }
-    </style>
-    <title>marker playground</title>
+    <title>Marker Playground</title>
   </head>
   <body>
     <div id="map"></div>
     <div class="sidebar">
       <div class="header">
-        <h1>marker playground</h1>
-        <div class="controls">
-          <select id="example-select"></select>
-          <button id="btn-compile-and-run" title="Run the code (⌘ + ⏎)">
-            Run ▶
+        <img src="/gmp-icon.svg" alt="Google Maps Platform" />
+
+        <div class="info-container">
+          <h1>Marker Playground</h1>
+          <button id="show-dialog-button">
+            <span class="info-icon"></span>
           </button>
         </div>
       </div>
+      <div class="controls">
+        <select id="example-select"></select>
+      </div>
       <div id="editor"></div>
+      <div class="footer">
+        <button id="btn-compile-and-run" title="Run the code (⌘ + ⏎)">
+          Run <span class="chevron-right"></span>
+        </button>
+      </div>
     </div>
+    <dialog id="info-dialog">
+      <form>
+        <div class="dialog-header">
+          <h3>Marker Playground</h3>
+          <button
+            class="close-dialog-button"
+            value="cancel"
+            formmethod="dialog"
+          >
+            <span class="close-icon"></span>
+          </button>
+        </div>
+        <div class="dialog-main">
+          <h2>How to use the Marker Playground</h2>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque
+            impedit excepturi eos, suscipit aut odio, quisquam adipisci facilis,
+            sapiente doloremque quod veniam! Id ratione aut asperiores tempora
+            excepturi repudiandae natus.
+          </p>
+          <div class="accordion">
+            <details>
+              <summary>General FAQ about the usage</summary>
+              <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima
+                commodi tempore, vero veniam incidunt id laudantium, at delectus
+                eos, atque illum ducimus. Molestias, aspernatur ea! Repellendus
+                quas distinctio voluptatibus incidunt.
+              </p>
+            </details>
+            <details>
+              <summary>Some other information</summary>
+              <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima
+                commodi tempore, vero veniam incidunt id laudantium, at delectus
+                eos, atque illum ducimus. Molestias, aspernatur ea! Repellendus
+                quas distinctio voluptatibus incidunt.
+              </p>
+            </details>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <a
+            href="https://github.com/googlemaps/js-adv-markers-utils/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Github</a
+          >
+          <a
+            href="https://googlemaps.github.io/adv-markers-utils/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Documentation</a
+          >
+        </div>
+      </form>
+    </dialog>
 
     <script type="module" src="./src/main.ts"></script>
   </body>

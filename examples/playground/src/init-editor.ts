@@ -117,47 +117,76 @@ function configureTypescriptDefaults() {
   });
 }
 
-export async function initEditor(
-  runCallback: (jsCode: string) => Promise<void>
-): Promise<editor.IStandaloneCodeEditor> {
-  configureMonacoWorkers();
-  configureTypescriptDefaults();
+function setUrlParams(value: string) {
+  const params = new URLSearchParams(location.search);
+  params.set('example', value);
+  const newUrlParams = '?' + params.toString();
 
-  await initEditorFilesystem();
-  const codeSamples = await loadCodeSamples();
+  window.history.pushState(null, '', newUrlParams);
+}
 
+function getUrlParam() {
+  const params = new URLSearchParams(location.search);
+
+  return params.get('example');
+}
+
+function setEditorTheme() {
+  editor.defineTheme('theme', {
+    base: 'vs',
+    inherit: true,
+    rules: [],
+    colors: {
+      'editor.background': '#F8F9FA',
+      'editorLineNumber.foreground': '#9AA0A6',
+      'editorLineNumber.activeForeground': '#202124'
+    }
+  });
+
+  editor.setTheme('theme');
+}
+
+function createEditorInstance() {
   const editorContainer = document.querySelector('#editor') as HTMLElement;
-  const runButton = document.querySelector(
-    '#btn-compile-and-run'
-  ) as HTMLElement;
-
   // create editor-instance
   const editorInstance = editor.create(editorContainer, {
     minimap: {enabled: false},
     fontSize: import.meta.env.PROD ? 20 : 12
   });
 
-  const codeSampleIds = Object.keys(codeSamples);
+  return editorInstance;
+}
 
-  if (codeSampleIds.length === 0) {
-    throw new Error('failed to load editor models');
-  }
+function compileAndRun(editorInstance: editor.IStandaloneCodeEditor) {
+  editorInstance
+    .getAction('compile-and-run')
+    ?.run()
+    .catch(err => {
+      console.error('compile-and-run failed', err);
+    });
+}
 
-  const defaultModel = codeSampleIds[0];
-  editorInstance.setModel(codeSamples[defaultModel].model);
-
-  // populate examples dropdown
+function populateExamplesDropdown(
+  editorInstance: editor.IStandaloneCodeEditor,
+  codeSamples: Record<string, CodeSample>,
+  selectedSampleId: string
+) {
   const exampleSelect = document.querySelector(
     '#example-select'
   ) as HTMLSelectElement;
 
   exampleSelect.innerHTML = '';
-  for (const [id, {title}] of Object.entries(codeSamples)) {
+  for (let i = 0; i < Object.entries(codeSamples).length; i++) {
+    const [id, {title}] = Object.entries(codeSamples)[i];
     const el = document.createElement('option');
     el.textContent = title;
     el.value = id;
 
     exampleSelect.appendChild(el);
+
+    if (id === selectedSampleId) {
+      exampleSelect.selectedIndex = i;
+    }
   }
 
   exampleSelect.addEventListener('change', () => {
@@ -167,15 +196,67 @@ export async function initEditor(
     editorInstance.focus();
   });
 
+  return exampleSelect;
+}
+
+function addDialogEventListener() {
+  const showdialogButton = document.getElementById(
+    'show-dialog-button'
+  ) as HTMLButtonElement;
+  const infoDialog = document.getElementById(
+    'info-dialog'
+  ) as HTMLDialogElement;
+
+  showdialogButton.addEventListener('click', () => infoDialog.showModal());
+}
+
+export async function initEditor(
+  runCallback: (jsCode: string) => Promise<void>
+): Promise<editor.IStandaloneCodeEditor> {
+  configureMonacoWorkers();
+  configureTypescriptDefaults();
+  setEditorTheme();
+  addDialogEventListener();
+
+  await initEditorFilesystem();
+
+  const codeSamples = await loadCodeSamples();
+  const editorInstance = createEditorInstance();
+  const codeSampleIds = Object.keys(codeSamples);
+
+  if (codeSampleIds.length === 0) {
+    throw new Error('failed to load editor models');
+  }
+
+  const selectedSampleId = getUrlParam() ?? codeSampleIds[0];
+
+  editorInstance.setModel(codeSamples[selectedSampleId].model);
+
+  const exampleSelect = populateExamplesDropdown(
+    editorInstance,
+    codeSamples,
+    selectedSampleId
+  );
+
+  window.onpopstate = () => {
+    const param = getUrlParam();
+    if (!param) {
+      return;
+    }
+
+    editorInstance.setModel(codeSamples[param].model);
+    exampleSelect.selectedIndex = codeSampleIds.indexOf(param);
+  };
+
   createEditorActions(editorInstance, runCallback);
 
+  const runButton = document.querySelector(
+    '#btn-compile-and-run'
+  ) as HTMLElement;
+
   runButton.addEventListener('click', () => {
-    editorInstance
-      .getAction('compile-and-run')
-      ?.run()
-      .catch(err => {
-        console.error('compile-and-run failed', err);
-      });
+    compileAndRun(editorInstance);
+    setUrlParams(exampleSelect.value);
   });
 
   editorInstance.focus();
