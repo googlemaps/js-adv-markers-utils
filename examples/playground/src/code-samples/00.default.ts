@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +14,9 @@
  * limitations under the License.
  */
 
+//
 // Marker-API Example Playground
-//
-// Edit the code and hit CMD + Enter to execute it.
-//
-// Key bindings:
-//
-// <Cmd> + <Return>   compile typescript and execute
-// <Cmd> + <S>        save the code to the URL
+// Edit the code and hit <CMD> + <Return> to execute it.
 //
 
 import {Marker} from '@googlemaps/adv-markers-utils';
@@ -32,10 +27,12 @@ export default (map: google.maps.Map) => {
 
   const m1 = new Marker();
   m1.position = {lat: 53.555, lng: 10.001};
+
+  // dynamically scale the marker so it gets bigger and smaller with increasing/decreasing zoom
   m1.scale = ({map}) => Math.max(1, Math.pow(1.45, map.zoom) / 64);
-  m1.map = map;
   m1.icon = 'restaurant';
   m1.color = '#DB4437';
+  m1.map = map;
 
   type M2Data = {color: string};
   const m2 = new Marker<M2Data>({
@@ -54,7 +51,8 @@ export default (map: google.maps.Map) => {
     colorIdx = (colorIdx + 1) % colors.length;
   }, 1000);
 
-  // the returned function will run before the running code is updated.
+  // the function returned here is a cleanup-function and will be executed before
+  // the sample currently running is replaced with a new version or another sample.
   // This gives you an opportunity to clean up everything that has been added
   // (don't worry about removing the markers, they will be automatically removed
   // from the map)
