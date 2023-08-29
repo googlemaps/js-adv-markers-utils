@@ -2,7 +2,7 @@
   "out": "./dist/docs",
   "entryPoints": ["src/index.ts", "src/icons.ts", "src/places.ts"],
   "exclude": ["**/node_modules/**", "**/*.test.ts"],
-  "name": "@googlemaps/marker",
+  "name": "@googlemaps/adv-markers-utils",
   "excludePrivate": true,
   "excludeInternal": false
 }
