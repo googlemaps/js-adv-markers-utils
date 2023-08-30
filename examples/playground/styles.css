@@ -27,9 +27,9 @@ body {
 
 .sidebar {
   width: 100%;
-  min-width: 480px;
+  max-width: 720px;
   overflow: hidden;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   display: flex;
   flex-flow: column nowrap;
   gap: 24px;

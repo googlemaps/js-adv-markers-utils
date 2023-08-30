@@ -58,7 +58,7 @@
     <dialog id="info-dialog">
       <form>
         <div class="dialog-header">
-          <h3>Marker Playground</h3>
+          <h3>Google Maps Advanced Markers Utils</h3>
           <button
             class="close-dialog-button"
             value="cancel"
@@ -68,30 +68,43 @@
           </button>
         </div>
         <div class="dialog-main">
-          <h2>How to use the Marker Playground</h2>
+          <h2>Marker Playground</h2>
           <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque
-            impedit excepturi eos, suscipit aut odio, quisquam adipisci facilis,
-            sapiente doloremque quod veniam! Id ratione aut asperiores tempora
-            excepturi repudiandae natus.
+            This application allows you to explore the examples and the API
+            provided by the <code>@googlemaps/adv-markers-utils</code> without
+            having to set up your own website and API key for that. The editor
+            provides full TypeScript code assistance for the Google Maps API as
+            well as the <code>@googlemaps/adv-markers-utils</code> module.
           </p>
           <div class="accordion">
             <details>
-              <summary>General FAQ about the usage</summary>
+              <summary>Writing and contributing examples</summary>
               <p>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima
-                commodi tempore, vero veniam incidunt id laudantium, at delectus
-                eos, atque illum ducimus. Molestias, aspernatur ea! Repellendus
-                quas distinctio voluptatibus incidunt.
+                Each example is a single typescript file with a function as it's
+                default export. When the example is run, that function will be
+                called with the <code>google.maps.Map</code> instance as
+                argument. If any permanent changes are done to the environment
+                (browser event handlers or timers for example), the function has
+                to return a cleanup-function that reverts the changes made to
+                the environment.
               </p>
-            </details>
-            <details>
-              <summary>Some other information</summary>
               <p>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima
-                commodi tempore, vero veniam incidunt id laudantium, at delectus
-                eos, atque illum ducimus. Molestias, aspernatur ea! Repellendus
-                quas distinctio voluptatibus incidunt.
+                Examples should generally focus on demonstrating a single
+                feature of the
+                <code>@googlemaps/adv-markers-utils</code> package or a unique
+                way to use the features to solve a real-world problem in a
+                simplified way. If you notice features not covered by examples
+                or if you have a good idea for an example, feel free to
+                <a
+                  href="https://github.com/googlemaps/js-adv-markers-utils/issues/new"
+                  target="_blank"
+                  >create a feature-request</a
+                >
+                or send us a pull-request for a new file in the
+                <a
+                  href="https://github.com/googlemaps/js-adv-markers-utils/tree/main/examples/playground/src/code-samples"
+                  >examples directory</a
+                >.
               </p>
             </details>
           </div>
