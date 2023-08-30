@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <!--
  Copyright 2023 Google LLC
 
@@ -22,94 +22,109 @@
       name="viewport"
       content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://ui-components.ubilabs.com/css/v1/ubilabs-styles.css"
+      href="https://fonts.googleapis.com/css?family=Google+Sans:400,500,700|Roboto+Mono:400,500,700&display=block"
     />
-    <style>
-      html,
-      body {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        display: flex;
-        flex-flow: row nowrap;
-      }
+    <link rel="stylesheet" href="styles.css" />
 
-      #map {
-        height: 100%;
-        width: 100%;
-        flex: 1 1 auto;
-      }
-
-      .sidebar {
-        width: 100%;
-        min-width: 480px;
-        flex: 1 1 auto;
-        display: flex;
-        flex-flow: column nowrap;
-      }
-
-      .header {
-        font-size: 24px;
-        padding: 1rem;
-        display: flex;
-        flex-flow: row nowrap;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .controls {
-        display: flex;
-        gap: 8px;
-      }
-
-      .controls select {
-        border: 1px solid rgba(0, 0, 0, 0.4);
-      }
-
-      h1 {
-        font-size: 1em;
-        margin: 0;
-        font-weight: normal;
-        display: inline-block;
-      }
-
-      #editor {
-        height: 100%;
-        flex: 1 1 auto;
-      }
-
-      .links {
-        padding: 1rem;
-      }
-
-      .links ul {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-      }
-
-      .links li {
-        display: inline-block;
-      }
-    </style>
-    <title>marker playground</title>
+    <title>Marker Playground</title>
   </head>
   <body>
     <div id="map"></div>
     <div class="sidebar">
       <div class="header">
-        <h1>marker playground</h1>
-        <div class="controls">
-          <select id="example-select"></select>
-          <button id="btn-compile-and-run" title="Run the code (⌘ + ⏎)">
-            Run ▶
+        <img src="/gmp-icon.svg" alt="Google Maps Platform" />
+
+        <div class="info-container">
+          <h1>Marker Playground</h1>
+          <button id="show-dialog-button">
+            <span class="info-icon"></span>
           </button>
         </div>
       </div>
+      <div class="controls">
+        <select id="example-select"></select>
+      </div>
       <div id="editor"></div>
+      <div class="footer">
+        <button id="btn-compile-and-run" title="Run the code (⌘ + ⏎)">
+          Run <span class="chevron-right"></span>
+        </button>
+      </div>
     </div>
+    <dialog id="info-dialog">
+      <form>
+        <div class="dialog-header">
+          <h3>Google Maps Advanced Markers Utils</h3>
+          <button
+            class="close-dialog-button"
+            value="cancel"
+            formmethod="dialog"
+          >
+            <span class="close-icon"></span>
+          </button>
+        </div>
+        <div class="dialog-main">
+          <h2>Marker Playground</h2>
+          <p>
+            This application allows you to explore the examples and the API
+            provided by the <code>@googlemaps/adv-markers-utils</code> without
+            having to set up your own website and API key for that. The editor
+            provides full TypeScript code assistance for the Google Maps API as
+            well as the <code>@googlemaps/adv-markers-utils</code> module.
+          </p>
+          <div class="accordion">
+            <details>
+              <summary>Writing and contributing examples</summary>
+              <p>
+                Each example is a single typescript file with a function as it's
+                default export. When the example is run, that function will be
+                called with the <code>google.maps.Map</code> instance as
+                argument. If any permanent changes are done to the environment
+                (browser event handlers or timers for example), the function has
+                to return a cleanup-function that reverts the changes made to
+                the environment.
+              </p>
+              <p>
+                Examples should generally focus on demonstrating a single
+                feature of the
+                <code>@googlemaps/adv-markers-utils</code> package or a unique
+                way to use the features to solve a real-world problem in a
+                simplified way. If you notice features not covered by examples
+                or if you have a good idea for an example, feel free to
+                <a
+                  href="https://github.com/googlemaps/js-adv-markers-utils/issues/new"
+                  target="_blank"
+                  >create a feature-request</a
+                >
+                or send us a pull-request for a new file in the
+                <a
+                  href="https://github.com/googlemaps/js-adv-markers-utils/tree/main/examples/playground/src/code-samples"
+                  >examples directory</a
+                >.
+              </p>
+            </details>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <a
+            href="https://github.com/googlemaps/js-adv-markers-utils/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Github</a
+          >
+          <a
+            href="https://googlemaps.github.io/adv-markers-utils/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Documentation</a
+          >
+        </div>
+      </form>
+    </dialog>
 
     <script type="module" src="./src/main.ts"></script>
   </body>
