@@ -271,7 +271,10 @@ export class Marker<TUserData = unknown> {
     handler: ((ev: google.maps.MapMouseEvent) => void) | ((ev: Event) => void)
   ): google.maps.MapsEventListener {
     if (eventName in MarkerEvents) {
-      return this.markerView_.addListener(eventName, handler);
+      return this.markerView_.addListener(
+        eventName === 'click' ? 'gmp-click' : eventName,
+        handler
+      );
     }
 
     const element = this.markerView_.element;
