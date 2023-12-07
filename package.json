@@ -1,6 +1,6 @@
 {
   "name": "@googlemaps/adv-markers-utils",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "license": "Apache-2.0",
   "keywords": [],
   "type": "module",
@@ -80,7 +80,7 @@
     "prettier": "^3.0.2",
     "prettier-plugin-jsdoc": "^1.0.1",
     "ts-jest": "^29.0.5",
-    "typedoc": "^0.24.8",
+    "typedoc": "^0.25.4",
     "typescript": "^5.1.3"
   }
 }

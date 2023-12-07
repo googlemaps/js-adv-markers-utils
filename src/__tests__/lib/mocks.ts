@@ -78,7 +78,6 @@ class LatLng implements google.maps.LatLng {
 export class AdvancedMarkerElement extends BaseAdvancedMarkerElement {
   constructor(options: google.maps.marker.AdvancedMarkerElementOptions) {
     super(options);
-
     this.element = document.createElement('div');
   }
 }
@@ -87,6 +86,7 @@ export class AdvancedMarkerElement extends BaseAdvancedMarkerElement {
 customElements.define('test-marker-element', AdvancedMarkerElement);
 
 export class PinElement extends BasePinElement {}
+customElements.define('test-pin-element', PinElement);
 
 export function initialize() {
   initializeBaseMocks();
