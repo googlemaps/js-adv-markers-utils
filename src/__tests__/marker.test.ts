@@ -314,6 +314,56 @@ describe('html attributes', () => {
   });
 });
 
+describe('events', () => {
+  const position = [10, 53] as [number, number];
+
+  let map: google.maps.Map;
+  let marker: Marker;
+  let markerElement: google.maps.marker.AdvancedMarkerElement;
+  let addListenerSpy: jest.SpyInstance;
+  let addDomListenerSpy: jest.SpyInstance;
+
+  beforeEach(async () => {
+    initialize();
+
+    map = new google.maps.Map(document.createElement('div'));
+    marker = new Marker({position, map});
+
+    markerElement = mockInstances.get(AdvancedMarkerElement).at(0)!;
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    addListenerSpy = markerElement.addListener as jest.MockedFunction<
+      typeof markerElement.addListener
+    >;
+    addDomListenerSpy = jest
+      .spyOn(markerElement.element, 'addEventListener')
+      .mockImplementation(() => {});
+  });
+
+  test('events are added to the marker instance', () => {
+    const fn = jest.fn();
+
+    marker.addListener('drag', fn);
+
+    expect(addListenerSpy).toHaveBeenCalledWith('drag', fn);
+  });
+
+  test('click event is rerouted to gmp-click', () => {
+    const fn = jest.fn();
+
+    marker.addListener('click', fn);
+
+    expect(addListenerSpy).toHaveBeenCalledWith('gmp-click', fn);
+  });
+
+  test('dom-events are forwarded to the html-element', () => {
+    const fn = jest.fn();
+    marker.addListener('touchstart', fn);
+    expect(addDomListenerSpy).toHaveBeenCalledWith('touchstart', fn);
+  });
+
+  test.todo('dom-events can be removed');
+});
+
 describe('dynamic attributes', () => {
   test.todo('dynamic attribute parameters');
   test.todo('marker state');
