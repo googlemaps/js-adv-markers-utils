@@ -89,13 +89,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download docs
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: docs
           path: .
 
       - name: Download playground
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: playground
           path: playground
