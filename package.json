@@ -19,19 +19,28 @@
   },
   "exports": {
     ".": {
-      "import": "./dist/index.modern.js",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.modern.js"
+      },
       "require": "./dist/index.cjs",
       "umd": "./dist/index.umd.js",
       "browser": "./dist/index.module.js"
     },
     "./icons": {
-      "import": "./dist/icons.modern.js",
+      "import": {
+        "types": "./dist/icons.d.ts",
+        "default": "./dist/icons.modern.js"
+      },
       "require": "./dist/icons.cjs",
       "umd": "./dist/icons.umd.js",
       "browser": "./dist/icons.module.js"
     },
     "./places": {
-      "import": "./dist/places.modern.js",
+      "import": {
+        "types": "./dist/places.d.ts",
+        "default": "./dist/places.modern.js"
+      },
       "require": "./dist/places.cjs",
       "umd": "./dist/places.umd.js",
       "browser": "./dist/places.module.js"
