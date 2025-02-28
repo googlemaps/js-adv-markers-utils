@@ -105,6 +105,7 @@ export async function runPlaygroundJs(
   };
 
   // run function to get exports defined
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   tmpFn(exports, require);
 
   // run default-export

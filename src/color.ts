@@ -107,7 +107,7 @@ function parseRgbColor(color: string): RGBAColor {
     return rgba.map(s =>
       s.endsWith('%') ? Number(s.slice(0, -1)) * 2.55 : Number(s)
     ) as RGBAColor;
-  } catch (err) {
+  } catch (_) {
     warnOnce(`rgb-color parsing failed (parsing value: '${color}')`);
 
     return [0, 0, 0, 1];
