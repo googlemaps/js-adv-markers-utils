@@ -9,6 +9,6 @@
   },
   "devDependencies": {
     "@types/google.maps": "^3.53.6",
-    "vite": "^4.5.14"
+    "vite": "^7.0.5"
   }
 }
